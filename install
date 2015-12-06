@@ -1,0 +1,20 @@
+#!/bin/bash
+#
+# Eloy Toro
+# 2016/01
+
+# RC files
+cd $(dirname $BASH_SOURCE)
+BASE=$(pwd)
+touch bashrc-extra
+for rc in *rc tmux.conf gitconfig tern-project; do
+  ln -sfv $BASE/$rc ~/.$rc
+done
+
+# git-prompt
+if [ ! -e ~/.git-prompt.sh ]; then
+  curl https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh -o ~/.git-prompt.sh
+fi
+
+./deps
+./install-vim
