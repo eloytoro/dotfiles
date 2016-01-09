@@ -15,6 +15,7 @@ Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-ragtag'
+Plug 'tpope/vim-tbone'
 Plug 'kassio/neoterm'
 Plug 'floobits/floobits-neovim'
 Plug 'gregsexton/gitv', { 'on': 'Gitv' }
@@ -403,7 +404,7 @@ endfunction
 command! FZFMerge call fzf#run({
             \ 'source': 'git branch -r --no-merged',
             \ 'sink': function('s:merge_handler'),
-            \ 'bottom': 8})
+            \ 'down': 8})
 
 nmap <silent> <leader>gm :FZFMerge<CR>
 
@@ -445,7 +446,7 @@ function! s:fzf_show_commits(file, single, handler)
                 \ 'sink': a:handler,
                 \ 'options': '--ansi --multi --no-sort --tiebreak=index --reverse '.
                 \   '--inline-info --prompt "Checkout> " --bind=ctrl-s:toggle-sort',
-                \ 'left': winwidth('.')/2})
+                \ 'left': '50%'})
 endfunction
 
 command! -bang -nargs=? FZFCheckout call s:fzf_show_commits(<q-args>, <bang>0, function('s:checkout_handler'))
