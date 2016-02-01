@@ -16,6 +16,7 @@ Plug 'tpope/vim-surround'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-ragtag'
 Plug 'tpope/vim-tbone'
+Plug 'tpope/vim-sleuth'
 Plug 'kassio/neoterm'
 Plug 'floobits/floobits-neovim'
 Plug 'gregsexton/gitv', { 'on': 'Gitv' }
@@ -38,7 +39,7 @@ Plug 'euclio/vim-markdown-composer', { 'do': 'cargo build --release' }
 " Optional
 "Plug 'scrooloose/nerdcommenter'
 "Plug 'kshenoy/vim-signature'
-Plug 'scrooloose/syntastic'
+Plug 'benekastah/neomake'
 "Plug 'ervandew/supertab'
 "Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
 Plug 'Shougo/deoplete.nvim'
@@ -51,6 +52,7 @@ Plug 'heavenshell/vim-jsdoc', { 'for': 'javascript' }
 Plug 'jelera/vim-javascript-syntax', { 'for': 'javascript' }
 Plug 'othree/html5.vim', { 'for': 'html' }
 Plug 'raichoo/haskell-vim', { 'for': 'haskell' }
+Plug 'mxw/vim-jsx'
 " Colorschemes
 Plug 'eloytoro/jellybeans.vim'
 Plug 'eloytoro/xoria256'
@@ -277,19 +279,20 @@ let g:EasyMotion_smartcase = 1
 " ----------------------------------------------------------------------------
 " Git
 " ----------------------------------------------------------------------------
+nmap <leader>gi :Git 
 nmap <leader>gs :Gstatus<CR>gg<c-n>
-nmap <leader>gd :Gvdiff<CR>
-nmap <leader>gD :Gvdiff HEAD^<CR>
+nmap <leader>gd :Gdiff<CR>
 nmap <leader>gb :Gblame<CR>
 nmap <leader>gl :Glog<CR>
 nmap <leader>gw :Gwrite<CR>
 nmap <leader>ge :Gedit<CR>
 nmap <leader>gE :Gvsplit<CR>
-nmap <leader>gv :Gitv<cr>
-nmap <leader>gV :Gitv!<cr>
+nmap <leader>gv :Gitv<CR>
+nmap <leader>gV :Gitv!<CR>
 nmap <leader>gg :Ggrep 
-nmap <leader>gam :Git merge --abort<CR>
-nmap <leader>gar :Git rebase --abort<CR>
+nmap [m :Git merge --abort<CR>
+nmap [r :Git rebase --abort<CR>
+nmap ]r :Git rebase --continue<CR>
 fu GitvRebaseHere()
     let l = getline(line('.'))
     let sha = matchstr(l, "\\[\\zs[0-9a-f]\\{7}\\ze\\]$")
@@ -478,20 +481,12 @@ let g:jsdoc_allow_input_prompt = 1
 let g:jsdoc_return = 0
 
 " ----------------------------------------------------------------------------
-"  Syntastic
+"  Neomake
 " ----------------------------------------------------------------------------
-set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%*
+let g:neomake_javascript_enabled_makers = ['eslint']
 
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 0
-let g:syntastic_check_on_open = 0
-let g:syntastic_check_on_wq = 1
-let g:syntastic_auto_jump = 2
-
-let g:syntastic_error_symbol = "✗"
-let g:syntastic_warning_symbol = "⚠"
+au! BufWritePost * Neomake
+let g:neomake_open_list = 2
 
 " ----------------------------------------------------------------------------
 "  UltiSnips
@@ -509,28 +504,29 @@ autocmd FileType javascript let b:dispatch = 'mocha %'
 "  Neoterm
 " ----------------------------------------------------------------------------
 nmap ! :T 
-nmap @ :Tclose<CR>
+nmap <silent> @ :Tmux resize-pane -Z<CR>
 
 " ----------------------------------------------------------------------------
 "  Deoplete
 " ----------------------------------------------------------------------------
 let g:deoplete#enable_at_startup = 1
 au CompleteDone * pclose
-set completeopt=menuone,noinsert,preview
+set completeopt=menuone,noinsert,preview,noselect
 
 function ExpandSnippetOrCarriageReturn()
     let snippet = UltiSnips#ExpandSnippetOrJump()
     if g:ulti_expand_or_jump_res > 0
         return snippet
     else
-        if pumvisible()
-            return deoplete#mappings#close_popup()
-        else
-            return delimitMate#ExpandReturn()
-        endif
+        " if pumvisible()
+        "     return deoplete#mappings#close_popup()
+        " endif
+        return delimitMate#ExpandReturn()
     endif
 endfunction
 inoremap <silent> <CR> <C-R>=ExpandSnippetOrCarriageReturn()<CR>
+
+let g:jsx_ext_required = 0
 
 " <TAB>: completion.
 imap <silent><expr> <TAB>
@@ -546,8 +542,8 @@ endfunction
 inoremap <expr><S-TAB>  pumvisible() ? "\<C-p>" : "\<C-h>"
 
 " <C-h>, <BS>: close popup and delete backword char.
-inoremap <expr><C-h> deolete#mappings#smart_close_popup()."\<C-h>"
-inoremap <expr><BS> deoplete#mappings#smart_close_popup()."\<C-h>"
+" inoremap <expr><C-h> deolete#mappings#smart_close_popup()."\<C-h>"
+" inoremap <expr><BS> deoplete#mappings#smart_close_popup()."\<C-h>"
 
 inoremap <expr><C-g> deoplete#mappings#undo_completion()
 " <C-l>: redraw candidates
