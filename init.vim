@@ -17,7 +17,7 @@ Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-ragtag'
 Plug 'tpope/vim-tbone'
 Plug 'tpope/vim-sleuth'
-Plug 'kassio/neoterm'
+Plug 'tpope/vim-dispatch'
 Plug 'floobits/floobits-neovim'
 Plug 'gregsexton/gitv', { 'on': 'Gitv' }
 Plug 'airblade/vim-gitgutter'
@@ -52,6 +52,7 @@ Plug 'heavenshell/vim-jsdoc', { 'for': 'javascript' }
 Plug 'jelera/vim-javascript-syntax', { 'for': 'javascript' }
 Plug 'othree/html5.vim', { 'for': 'html' }
 Plug 'raichoo/haskell-vim', { 'for': 'haskell' }
+Plug 'digitaltoad/vim-jade', { 'for': 'jade' }
 Plug 'mxw/vim-jsx'
 " Colorschemes
 Plug 'eloytoro/jellybeans.vim'
@@ -496,14 +497,9 @@ let g:UltiSnipsSnippetsDir = "~/.config/nvim/UltiSnips"
 let g:ulti_expand_or_jump_res = 0
 
 " ----------------------------------------------------------------------------
-"  Dispatch
+"  Tmux / Dispatch
 " ----------------------------------------------------------------------------
 autocmd FileType javascript let b:dispatch = 'mocha %'
-
-" ----------------------------------------------------------------------------
-"  Neoterm
-" ----------------------------------------------------------------------------
-nmap ! :T 
 nmap <silent> @ :Tmux resize-pane -Z<CR>
 
 " ----------------------------------------------------------------------------
@@ -600,23 +596,3 @@ function! s:root()
     endif
 endfunction
 " au VimEnter * call s:root()
-
-" ----------------------------------------------------------------------------
-"  Allow for extra vim options
-" ----------------------------------------------------------------------------
-let s:local_vimrc = expand('%:p:h').'/.vimrc'
-if filereadable(s:local_vimrc)
-    execute 'source' s:local_vimrc
-endif
-
-func! s:etwd()
-    let cph = expand('%:p:h', 1)
-    if match(cph, '\v^<.+>://') >= 0 | retu | en
-    for mkr in ['.git/', '.hg/', '.vimprojects']
-        let wd = call('find'.(mkr =~ '/$' ? 'dir' : 'file'), [mkr, cph.';'])
-        if wd != '' | let &acd = 0 | brea | en
-    endfo
-    exe 'lc!' fnameescape(wd == '' ? cph : substitute(wd, mkr.'$', '.', ''))
-endfunc
-
-au BufEnter * cal s:etwd()
