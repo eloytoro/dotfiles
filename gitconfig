@@ -3,3 +3,5 @@
 	name = Eloy Toro
 [pull]
 	rebase = true
+[push]
+	default = simple

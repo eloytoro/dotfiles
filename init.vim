@@ -153,6 +153,8 @@ set statusline=%f\ %y\ %{exists('g:loaded_fugitive')?fugitive#statusline():''}%{
 hi StatusLine ctermfg=232 ctermbg=45
 hi StatusLineNC ctermfg=232 ctermbg=237
 
+let g:markdown_composer_autostart = 0
+
 " ----------------------------------------------------------------------------
 " Fix Indent
 " ----------------------------------------------------------------------------
@@ -506,8 +508,7 @@ nmap <silent> @ :Tmux resize-pane -Z<CR>
 "  Deoplete
 " ----------------------------------------------------------------------------
 let g:deoplete#enable_at_startup = 1
-au CompleteDone * pclose
-set completeopt=menuone,noinsert,preview,noselect
+set completeopt=menuone,noinsert,noselect
 
 function ExpandSnippetOrCarriageReturn()
     let snippet = UltiSnips#ExpandSnippetOrJump()
@@ -547,8 +548,11 @@ inoremap <C-l>       a<BS>
 
 let g:deoplete#keyword_patterns = {}
 let g:deoplete#keyword_patterns._ = '[a-zA-Z_]\k*\(?'
-" let g:deoplete#keyword_patterns.tex = '\\?[a-zA-Z_]\w*'
-let g:deoplete#keyword_patterns.tex = '[^\w|\s][a-zA-Z_]\w*'
+
+" inoremap <silent><expr> <C-t> deoplete#mappings#manual_complete('file')
+
+let g:deoplete#enable_refresh_always = 1
+let g:deoplete#enable_camel_case = 1
 
 
 " ----------------------------------------------------------------------------
