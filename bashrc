@@ -10,6 +10,13 @@ shopt -s histappend
 HISTSIZE=1000
 HISTFILESIZE=2000
 
+source ~/.git-completion.bash
+
+### git-prompt
+__git_ps1() { :;}
+if [ -e ~/.git-prompt.sh ]; then
+  source ~/.git-prompt.sh
+fi
 PS1="\[\e[1;38m\]\u\[\e[1;34m\]@\[\e[1;31m\]\h\[\e[1;30m\]:"
 PS1=$PS1'\[\e[0;38m\]\w$(__git_ps1 "\[\033[38;5;214m\] [⎇ %s]")\[\e[1;35m\]> \[\e[0m\]'
 
@@ -35,11 +42,16 @@ if [ -x /usr/bin/dircolors ]; then
     alias egrep='egrep --color=auto'
 fi
 
+if [ -n $TMUX ]; then
+  export NVIM_TUI_ENABLE_TRUE_COLOR=1
+fi
+
 # some more ls aliases
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
 alias gitv='git log --graph --format="%C(auto)%h%d %s %C(black)%C(bold)%an, %cr"'
+alias stream-torrent='peerflix --vlc -n --path ~/Series --list $1'
 
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
@@ -63,7 +75,7 @@ fi
 
 export TERM=xterm-256color
 
-export NVM_DIR="/home/etf/.nvm"
+export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
 
 export PATH=$PATH:$HOME/.local/bin/

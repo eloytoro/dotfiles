@@ -7,7 +7,7 @@
 cd $(dirname $BASH_SOURCE)
 BASE=$(pwd)
 touch bashrc-extra
-for rc in *rc tmux.conf gitconfig tern-project; do
+for rc in *rc tmux.conf gitconfig tern-project bash_profile; do
   ln -sfv $BASE/$rc ~/.$rc
 done
 
@@ -16,5 +16,9 @@ if [ ! -e ~/.git-prompt.sh ]; then
   curl https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh -o ~/.git-prompt.sh
 fi
 
-./deps
+if [ ! -e ~/.git-completion.bash ]; then
+  curl https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash -o ~/.git-completion.bash
+fi
+
+
 ./install-vim
