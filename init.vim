@@ -17,16 +17,16 @@ Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-tbone'
 Plug 'tpope/vim-sleuth'
 Plug 'tpope/vim-dispatch'
-Plug 'idanarye/vim-merginal'
 Plug 'airblade/vim-gitgutter'
 Plug 'mbbill/undotree'
 Plug 'benekastah/neomake'
-Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
+Plug 'kassio/neoterm'
+Plug 'scrooloose/nerdtree'
+" Plug 'jistr/vim-nerdtree-tabs'
 Plug 'svermeulen/vim-easyclip'
-Plug 'bling/vim-airline'
+"Plug 'bling/vim-airline'
 Plug 'justinmk/vim-sneak'
 Plug 'Lokaltog/vim-easymotion'
-Plug 'Yggdroot/indentLine'
 Plug 'Raimondi/delimitMate'
 Plug 'SirVer/ultisnips'
 Plug 'mhinz/vim-startify'
@@ -37,7 +37,7 @@ Plug 'junegunn/vim-easy-align'
 Plug 'junegunn/gv.vim'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
-Plug 'junegunn/vim-emoji'
+" Plug 'junegunn/vim-emoji'
 " Plug 'euclio/vim-markdown-composer', { 'do': 'cargo build --release' }
 " Optional
 "Plug 'scrooloose/nerdcommenter'
@@ -45,22 +45,23 @@ Plug 'junegunn/vim-emoji'
 "Plug 'ervandew/supertab'
 " Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
 Plug 'Shougo/deoplete.nvim'
-Plug 'carlitux/deoplete-ternjs'
+Plug 'carlitux/deoplete-ternjs', { 'do': 'npm install -g tern' }
 "Plug 'Shougo/echodoc.vim'
 " Language specific
 Plug 'cakebaker/scss-syntax.vim', { 'for': 'scss' }
-Plug 'pangloss/vim-javascript', { 'for': 'javascript' }
-Plug 'othree/yajs.vim', { 'for': 'javascript' }
-Plug 'othree/es.next.syntax.vim', { 'for': 'javascript' }
-Plug 'ternjs/tern_for_vim', { 'for': 'javascript', 'do': 'npm install' }
-Plug 'heavenshell/vim-jsdoc', { 'for': 'javascript' }
-Plug 'jelera/vim-javascript-syntax', { 'for': 'javascript' }
+Plug 'pangloss/vim-javascript'
+Plug 'ternjs/tern_for_vim', { 'do': 'npm install' }
+Plug 'othree/yajs.vim'
+Plug 'othree/es.next.syntax.vim'
+Plug 'heavenshell/vim-jsdoc'
+Plug 'jelera/vim-javascript-syntax'
+Plug 'mxw/vim-jsx'
 Plug 'othree/html5.vim', { 'for': 'html' }
 "Plug 'alvan/vim-closetag', { 'for': 'html' }
 Plug 'raichoo/haskell-vim', { 'for': 'haskell' }
 Plug 'digitaltoad/vim-jade', { 'for': 'jade' }
-Plug 'mxw/vim-jsx'
 " Colorschemes
+Plug 'jacoborus/tender'
 Plug 'frankier/neovim-colors-solarized-truecolor-only'
 Plug 'eloytoro/jellybeans.vim'
 Plug 'eloytoro/xoria256'
@@ -74,8 +75,8 @@ call plug#end()
 " ----------------------------------------------------------------------------
 syntax enable
 if $NVIM_TUI_ENABLE_TRUE_COLOR
-    let g:indentLine_color_gui = '#252525'
-    silent! colorscheme molokai
+    "silent! colorscheme molokai
+    silent! colorscheme tender
     hi ColorColumn guibg=#111111
     " set background=dark
     " colorscheme solarized
@@ -83,7 +84,6 @@ else
     let g:seoul256_background = 233
     silent! colorscheme seoul256
     hi MatchParen ctermfg=yellow
-    let g:indentLine_color_term = 234
     "let g:indentLine_color_term = 248
     hi ColorColumn ctermbg=234 guibg=#111111
 endif
@@ -108,8 +108,10 @@ let mapleader = ' '
 let maplocalleader = ' '
 set shiftwidth=4
 set tabstop=4
+set conceallevel=0
 set autoread
 set nosol
+set clipboard=unnamed
 set noshowmode
 set nolist
 set expandtab smarttab
@@ -119,6 +121,7 @@ set directory=~/.config/nvim/backup
 set laststatus=2
 set pastetoggle=<F7>
 set splitbelow
+set inccommand=split
 if has('patch-7.4.338')
     set showbreak=↳\ 
     set breakindent
@@ -138,10 +141,11 @@ function! S_modified()
     return ''
 endfunction
 set statusline=%f\ %y\ %{exists('g:loaded_fugitive')?fugitive#statusline():''}%{S_modified()}%=%-14.(%l/%L,%c%V%)
-hi StatusLine ctermfg=232 ctermbg=45
-hi StatusLineNC ctermfg=232 ctermbg=237
+"hi StatusLine ctermfg=232 ctermbg=45 guibg=#00bff4 guifg=#000000
+"hi StatusLineNC ctermfg=232 ctermbg=237 guibg=#777777 guifg=#000000
 
 let g:markdown_composer_autostart = 0
+let g:jsx_ext_required = 0
 
 " ----------------------------------------------------------------------------
 " Fix Indent
@@ -201,6 +205,8 @@ inoremap <C-s> <C-O>:update<cr>
 nnoremap <C-s> :update<cr>
 inoremap <C-q> <esc>:q<cr>
 nnoremap <C-q> :q<cr>
+inoremap <C-e> <End>
+inoremap <C-a> <Home>
 
 " ----------------------------------------------------------------------------
 "   Moving lines | for quick line swapping purposes
@@ -277,7 +283,8 @@ let g:EasyMotion_smartcase = 1
 " ----------------------------------------------------------------------------
 " Git
 " ----------------------------------------------------------------------------
-nmap <leader>gi :Git 
+nmap <leader>gp :Gpull<CR>
+nmap <leader>gP :Gpush<CR>
 nmap <leader>gs :Gstatus<CR>gg<c-n>
 nmap <leader>gd :Gdiff<CR>
 nmap <leader>gb :Gblame<CR>
@@ -288,6 +295,7 @@ nmap <leader>gE :Gvsplit<CR>
 nmap <leader>gv :GV<CR>
 nmap <leader>gV :GV!<CR>
 nmap <leader>gg :Ggrep 
+nmap git :Git 
 nmap [m :Git merge --abort<CR>
 nmap [r :Git rebase --abort<CR>
 nmap ]r :Git rebase --continue<CR>
@@ -298,9 +306,6 @@ let g:Gitv_OpenPreviewOnLaunch = 1
 "  GitGutter
 " ----------------------------------------------------------------------------
 nmap <leader>gh :GitGutterLineHighlightsToggle<CR>
-nmap <leader>gp <Plug>GitGutterPreviewHunk
-nmap <leader>ga <Plug>GitGutterStageHunk
-nmap <leader>gr <Plug>GitGutterRevertHunk
 silent! if emoji#available()
   let g:gitgutter_sign_added = emoji#for('small_blue_diamond')
   let g:gitgutter_sign_modified = emoji#for('small_orange_diamond')
@@ -316,16 +321,28 @@ vmap <Enter> <Plug>(EasyAlign)
 " ----------------------------------------------------------------------------
 " Explorer
 " ----------------------------------------------------------------------------
-map <Leader>n :NERDTreeToggle<CR>
-augroup nerd_loader
-  autocmd!
-  autocmd VimEnter * silent! autocmd! Explorer
-  autocmd BufEnter,BufNew *
-        \  if isdirectory(expand('<amatch>'))
-        \|   call plug#load('nerdtree')
-        \|   execute 'autocmd! nerd_loader'
-        \| endif
-augroup END
+function! NERDTreeFindOrToggle()
+  let s:empty = @% == "" || filereadable(@%) == 0 || line('$') == 1 && col('$') == 1
+  if s:empty || exists("t:NERDTreeBufName") && bufwinnr(t:NERDTreeBufName) != -1
+    :NERDTreeToggle
+  else
+    :NERDTreeFind
+  endif
+endfunction
+
+map <silent> <Leader>n :call NERDTreeFindOrToggle()<CR>
+" let g:nerdtree_tabs_autofind = 1
+" autocmd VimEnter * NERDTree
+" autocmd VimEnter * wincmd p
+" augroup nerd_loader
+"   autocmd!
+"   autocmd VimEnter * silent! autocmd! Explorer
+"   autocmd BufEnter,BufNew *
+"         \  if isdirectory(expand('<amatch>'))
+"         \|   call plug#load('nerdtree')
+"         \|   execute 'autocmd! nerd_loader'
+"         \| endif
+" augroup END
 
 " ----------------------------------------------------------------------------
 " Airline
@@ -333,7 +350,7 @@ augroup END
 let g:airline#extensions#tabline#tab_min_count = 2
 let g:airline#extensions#tabline#show_buffers = 0
 let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#tabline#tab_nr_type = 1 " tab number
+let g:airline#extensions#tabline#fnamemod = ':t'
 if !exists('g:airline_symbols')
     let g:airline_symbols = {}
 endif
@@ -368,12 +385,6 @@ nmap M mL
 " ----------------------------------------------------------------------------
 let g:SignatureMap = { 'Leader' :  "$" }
 let g:SignatureMarkOrder = "»\m"
-
-" ----------------------------------------------------------------------------
-" IndentLine
-" ----------------------------------------------------------------------------
-let g:indentLine_char = '¦'
-let g:indentLine_faster = 1
 
 " ----------------------------------------------------------------------------
 "  CtrlP
@@ -419,34 +430,27 @@ function! s:dir_handler(dir)
     echo a:dir
 endfunction
 
-command! FZFFindDir call fzf#run({
-      \ 'source': "find * -path '*/\.*' -prune -o -type d -print",
-      \ 'sink': function('s:dir_handler')})
-
 nmap <silent> <leader>gm :FZFMerge<CR>
 
 function! s:get_log_ref(line)
-    let refs = split(matchstr(a:line, '\c(\zs[0-9A-Z\/,\ -]\+\ze)'), '\s*,\s*')
-    if len(refs) >= 1
-        return substitute(filter(refs, 'match(v:val, "\\(HEAD\\)")')[0], 'origin\/', '', '')
-    else
-        return matchstr(a:line, '[0-9a-f]\{7}')
-    endif
+    return matchstr(a:line, '[0-9a-f]\{7}')
 endfunction
 
-function! s:checkout_handler(line)
-    exec "!git checkout ".s:get_log_ref(a:line)
+function! s:branch_handler(line)
+    exec "!git checkout ".a:line
 endfunction
 
 function! s:diff_handler(line)
     exec "Gdiff ".s:get_log_ref(a:line)
 endfunction
 
-function! s:fzf_show_commits(file, single, handler)
+function! s:fzf_show_commits(file, single, all, handler)
     let options  = [
                 \ '--color=always',
-                \ '--all',
                 \ '--format="%C(auto)%h%d %s %C(black)%C(bold)%an, %cr"']
+    if a:all
+      call add(options, '--all')
+    endif
     if a:single
         if (empty(a:file))
             let file = expand("%:P")
@@ -455,31 +459,41 @@ function! s:fzf_show_commits(file, single, handler)
         endif
         call add(options, '--follow -- '.file)
     else
-        call add(options, '--graph')
+        call add(options, '--no-merges')
     endif
 
     call fzf#run({
                 \ 'source': 'git log '.join(options, ' '),
                 \ 'sink': a:handler,
                 \ 'options': '--ansi --multi --no-sort --tiebreak=index --reverse '.
-                \   '--inline-info --prompt "Checkout> " --bind=ctrl-s:toggle-sort',
+                \   '--inline-info -e --prompt "Commit> " --bind=ctrl-s:toggle-sort',
                 \ 'left': '50%'})
 endfunction
 
-command! -bang -nargs=? FZFCheckout call s:fzf_show_commits(<q-args>, <bang>0, function('s:checkout_handler'))
-command! -nargs=? FZFDiff call s:fzf_show_commits(<q-args>, 1, function('s:diff_handler'))
+function! s:fzf_show_branches(handler)
+  call fzf#run({
+        \ 'source': 'git branch',
+        \ 'sink': a:handler,
+        \ 'options': '--ansi --multi --no-sort --tiebreak=index --reverse '.
+        \   '--inline-info -e --prompt "Commit> " --bind=ctrl-s:toggle-sort',
+        \ 'left': '50%'})
+endfunction
+
+command! -nargs=0 FZFCheckout call s:fzf_show_branches(function('s:branch_handler'))
+command! -nargs=? FZFDiff call s:fzf_show_commits(<q-args>, 1, 0, function('s:diff_handler'))
 
 nmap <silent> <leader>gc :FZFCheckout<CR>
-nmap <silent> <leader>gC :FZFCheckout!<CR>
 nmap <silent> <leader>gD :FZFDiff<CR>
+let g:fzf_files_options = '-e --preview "(coderay {} || cat {}) 2> /dev/null | head -'.&lines.'"'
+let g:fzf_buffers_jump = 1
 
 " ----------------------------------------------------------------------------
 "   DelimitMate
 " ----------------------------------------------------------------------------
 let delimitMate_expand_cr = 2
 let delimitMate_expand_space = 1
-au FileType javascript let b:delimitMate_insert_eol_marker = 1
-au FileType javascript let b:delimitMate_eol_marker = ";"
+" au FileType javascript let b:delimitMate_insert_eol_marker = 1
+" au FileType javascript let b:delimitMate_eol_marker = ";"
 
 " ----------------------------------------------------------------------------
 "  vim-commentary
@@ -497,7 +511,7 @@ let g:jsdoc_return = 0
 " ----------------------------------------------------------------------------
 "  UltiSnips
 " ----------------------------------------------------------------------------
-let g:UltiSnipsExpandTrigger = "<nop>"
+let g:UltiSnipsExpandTrigger = "<C-u>"
 let g:UltiSnipsSnippetsDir = "~/.config/nvim/UltiSnips"
 let g:ulti_expand_or_jump_res = 0
 
@@ -506,11 +520,12 @@ let g:ulti_expand_or_jump_res = 0
 " ----------------------------------------------------------------------------
 autocmd FileType javascript let b:dispatch = 'mocha %'
 nmap <silent> @ :Tmux resize-pane -Z<CR>
+" nmap <silent> @ :Ttoggle<CR>
 
 " ----------------------------------------------------------------------------
 "  Deoplete
 " ----------------------------------------------------------------------------
-let g:deoplete#enable_at_startup = 1
+call deoplete#enable()
 set completeopt=menuone,noinsert,noselect
 
 function! ExpandSnippetOrCarriageReturn()
@@ -518,15 +533,10 @@ function! ExpandSnippetOrCarriageReturn()
     if g:ulti_expand_or_jump_res > 0
         return snippet
     else
-        " if pumvisible()
-        "     return deoplete#mappings#close_popup()
-        " endif
         return delimitMate#ExpandReturn()
     endif
 endfunction
 inoremap <silent> <CR> <C-R>=ExpandSnippetOrCarriageReturn()<CR>
-
-let g:jsx_ext_required = 0
 
 " <TAB>: completion.
 imap <silent><expr> <TAB>
@@ -535,7 +545,7 @@ imap <silent><expr> <TAB>
             \ deoplete#mappings#manual_complete()
 function! s:check_back_space() abort
     let col = col('.') - 1
-    return !col || getline('.')[col - 1]  =~ '\s'
+    return !col || strpart(getline('.'), 0, col) =~ '^\s*$'
 endfunction
 
 " <S-TAB>: completion back.
@@ -556,6 +566,31 @@ let g:deoplete#keyword_patterns._ = '[a-zA-Z_]\k*\(?'
 
 let g:deoplete#enable_refresh_always = 1
 let g:deoplete#enable_camel_case = 1
+
+" ----------------------------------------------------------------------------
+" DiffRev
+" ----------------------------------------------------------------------------
+let s:git_status_dictionary = {
+            \ "A": "Added",
+            \ "B": "Broken",
+            \ "C": "Copied",
+            \ "D": "Deleted",
+            \ "M": "Modified",
+            \ "R": "Renamed",
+            \ "T": "Changed",
+            \ "U": "Unmerged",
+            \ "X": "Unknown"
+            \ }
+function! s:get_diff_files(rev)
+  let list = map(split(system(
+              \ 'git diff --name-status '.a:rev), '\n'),
+              \ '{"filename":matchstr(v:val, "\\S\\+$"),"text":s:git_status_dictionary[matchstr(v:val, "^\\w")]}'
+              \ )
+  call setqflist(list)
+  copen
+endfunction
+
+command! -nargs=1 DiffRev call s:get_diff_files(<q-args>)
 
 
 " ----------------------------------------------------------------------------
@@ -606,7 +641,7 @@ endfunction
 command! Root execute 'lcd'.s:root()
 
 " ----------------------------------------------------------------------------
-" #gi / #gpi | go to next/previous indentation level
+" #]i / #[i | go to next/previous indentation level
 " ----------------------------------------------------------------------------
 function! s:go_indent(times, dir)
   for _ in range(a:times)
@@ -626,8 +661,8 @@ function! s:go_indent(times, dir)
     execute 'normal! '. l .'G^'
   endfor
 endfunction
-nnoremap <silent> gi :<c-u>call <SID>go_indent(v:count1, 1)<cr>
-nnoremap <silent> gpi :<c-u>call <SID>go_indent(v:count1, -1)<cr>
+nnoremap <silent> ]i :<c-u>call <SID>go_indent(v:count1, 1)<cr>
+nnoremap <silent> [i :<c-u>call <SID>go_indent(v:count1, -1)<cr>
 
 
 " ----------------------------------------------------------------------------
@@ -903,8 +938,17 @@ nnoremap U :UndotreeToggle<CR>
 " ----------------------------------------------------------------------------
 " Neomake
 " ----------------------------------------------------------------------------
-autocmd! BufWritePost * Neomake
+let ESLINT_PATH = getcwd().'/node_modules/.bin/eslint'
+if !empty(ESLINT_PATH)
+  au FileType javascript autocmd BufReadPost,BufWritePost <buffer> Neomake
+endif
 let g:neomake_verbose = 0
-let g:neomake_javascript_eslint_exe = './node_modules/.bin/eslint'
-let g:neomake_error_sign = {'text': emoji#for('fire')}
-let g:neomake_warning_sign = {'text': emoji#for('bulb')}
+let g:neomake_javascript_eslint_exe = ESLINT_PATH
+silent! if emoji#available()
+  let g:neomake_error_sign = {'text': emoji#for('fire')}
+  let g:neomake_warning_sign = {'text': emoji#for('bulb')}
+endif
+
+
+" let g:tern#command = ["tern"]
+" let g:tern#arguments = ["--persistent"]

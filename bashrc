@@ -18,7 +18,7 @@ if [ -e ~/.git-prompt.sh ]; then
   source ~/.git-prompt.sh
 fi
 PS1="\[\e[1;38m\]\u\[\e[1;34m\]@\[\e[1;31m\]\h\[\e[1;30m\]:"
-PS1=$PS1'\[\e[0;38m\]\w$(__git_ps1 "\[\033[38;5;214m\] [⎇ %s]")\[\e[1;35m\]> \[\e[0m\]'
+PS1=$PS1'\[\e[0;38m\]\w$(__git_ps1 "\[\033[38;5;214m\] [⎇ %s]")\[\e[1;35m\]\n$ \[\e[0m\]'
 
 export EDITOR=nvim
 export LANG=en_US.UTF-8
@@ -26,6 +26,7 @@ export DOT_FILES_DIR=$BASE
 
 export FZF_DEFAULT_COMMAND='ag -g ""'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_COMPLETION_OPTS='--extended --cycle --tiebreak=end,length'
 
 EXTRA=$BASE/bashrc-extra
 [ -f "$EXTRA" ] && source "$EXTRA"
@@ -51,7 +52,7 @@ alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
 alias gitv='git log --graph --format="%C(auto)%h%d %s %C(black)%C(bold)%an, %cr"'
-alias stream-torrent='peerflix --vlc -n --path ~/Series --list $1'
+alias opentorrent='peerflix --vlc -n -d --path ~/Series --list '
 
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert

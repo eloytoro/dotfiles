@@ -4,4 +4,13 @@
 [pull]
 	rebase = true
 [push]
-	default = matching
+	default = current
+[diff]
+	compactionHeuristic = true
+[rebase]
+	autoStash = true
+[clean]
+	requireForce = false
+[alias]
+	ls = log --oneline
+	last = log -1 HEAD
