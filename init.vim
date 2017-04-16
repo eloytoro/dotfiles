@@ -1,9 +1,9 @@
 filetype off
 if empty(glob('~/.config/nvim/autoload/plug.vim'))
-    silent !mkdir -p ~/.config/nvim/autoload
-    silent !curl -fLo ~/.config/nvim/autoload/plug.vim
-                \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-    autocmd VimEnter * PlugInstall
+  silent !mkdir -p ~/.config/nvim/autoload
+  silent !curl -fLo ~/.config/nvim/autoload/plug.vim
+        \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  autocmd VimEnter * PlugInstall
 endif
 
 call plug#begin('~/.config/nvim/plug')
@@ -26,7 +26,7 @@ Plug 'scrooloose/nerdtree'
 Plug 'svermeulen/vim-easyclip'
 "Plug 'bling/vim-airline'
 Plug 'justinmk/vim-sneak'
-Plug 'Lokaltog/vim-easymotion'
+" Plug 'Lokaltog/vim-easymotion'
 Plug 'Raimondi/delimitMate'
 Plug 'SirVer/ultisnips'
 Plug 'mhinz/vim-startify'
@@ -52,9 +52,8 @@ Plug 'cakebaker/scss-syntax.vim', { 'for': 'scss' }
 Plug 'pangloss/vim-javascript'
 Plug 'ternjs/tern_for_vim', { 'do': 'npm install' }
 Plug 'othree/yajs.vim'
-Plug 'othree/es.next.syntax.vim'
+" Plug 'othree/es.next.syntax.vim'
 Plug 'heavenshell/vim-jsdoc'
-Plug 'jelera/vim-javascript-syntax'
 Plug 'mxw/vim-jsx'
 Plug 'othree/html5.vim', { 'for': 'html' }
 "Plug 'alvan/vim-closetag', { 'for': 'html' }
@@ -266,19 +265,19 @@ hi SneakPluginTarget ctermbg=yellow ctermfg=black
 " ----------------------------------------------------------------------------
 "  Easymotion
 " ----------------------------------------------------------------------------
-nmap / <Plug>(easymotion-sn)
-nmap n <Plug>(easymotion-next)
-nmap N <Plug>(easymotion-prev)
-nmap <CR> <Plug>(easymotion-bd-jk)
-omap <CR> <Plug>(easymotion-bd-jk)
-nmap gw <Plug>(easymotion-bd-w)
-omap gw <Plug>(easymotion-bd-w)
-nmap gW <Plug>(easymotion-bd-W)
-omap gW <Plug>(easymotion-bd-W)
-hi EasyMotionMoveHL ctermbg=yellow ctermfg=black
-let g:EasyMotion_enter_jump_first = 1
-let g:EasyMotion_off_screen_search = 1
-let g:EasyMotion_smartcase = 1
+" nmap / <Plug>(easymotion-sn)
+" nmap n <Plug>(easymotion-next)
+" nmap N <Plug>(easymotion-prev)
+" nmap <CR> <Plug>(easymotion-bd-jk)
+" omap <CR> <Plug>(easymotion-bd-jk)
+" nmap gw <Plug>(easymotion-bd-w)
+" omap gw <Plug>(easymotion-bd-w)
+" nmap gW <Plug>(easymotion-bd-W)
+" omap gW <Plug>(easymotion-bd-W)
+" hi EasyMotionMoveHL ctermbg=yellow ctermfg=black
+" let g:EasyMotion_enter_jump_first = 1
+" let g:EasyMotion_off_screen_search = 1
+" let g:EasyMotion_smartcase = 1
 
 " ----------------------------------------------------------------------------
 " Git
@@ -494,6 +493,52 @@ let delimitMate_expand_cr = 2
 let delimitMate_expand_space = 1
 " au FileType javascript let b:delimitMate_insert_eol_marker = 1
 " au FileType javascript let b:delimitMate_eol_marker = ";"
+let s:closed_tag_regexp = '<\/\(\w\|\.\)\+>'
+let s:tag_name_regexp = '<\(\w\|\.\|:\)\+'
+let s:tag_regexp = s:tag_name_regexp.'\(\s\+[^>]\+\s*\)*'
+function! ExpandSnippetOrCarriageReturn()
+    let snippet = UltiSnips#ExpandSnippetOrJump()
+    if g:ulti_expand_or_jump_res > 0
+        return snippet
+    else
+        let col = col('.') - 1
+        if col && strpart(getline('.'), col) =~ '^'.s:closed_tag_regexp
+            return "\<CR>\<Esc>".'zvO'
+        endif
+        return delimitMate#ExpandReturn()
+    endif
+endfunction
+inoremap <silent> <CR> <C-R>=ExpandSnippetOrCarriageReturn()<CR>
+function! CloseTag()
+    let line = getline('.')
+    let col = col('.') - 1
+    if col && strpart(line, 0, col) =~ s:tag_regexp.'$'
+        return '></'.strpart(matchstr(line, s:tag_name_regexp), 1).'>'."\<Esc>F>a"
+    endif
+    return '>'
+endfunction
+function! EraseTag()
+    let n = line('.')
+    let line = getline(n)
+    let col = col('.') - 1
+    if col
+    \ && strpart(line, 0, col) =~ s:tag_regexp.'>$'
+    \ && strpart(line, col) =~ '^'.s:closed_tag_regexp
+        return "\<Esc>cf>"
+    endif
+    if n > 0
+        let before = getline(n - 1)
+        let after = getline(n + 1)
+        if line =~ '^\s*$'
+        \ && after =~  '^\s*'.s:closed_tag_regexp
+        \ && before =~ s:tag_regexp.'>$'
+            return "\<Esc>kJJhct<"
+        endif
+    endif
+    return delimitMate#BS()
+endfunction
+autocmd FileType javascript.jsx,html,xml inoremap <buffer> <silent> > <C-R>=CloseTag()<CR>
+autocmd FileType javascript.jsx,html,xml inoremap <buffer> <silent> <BS> <C-R>=EraseTag()<CR>
 
 " ----------------------------------------------------------------------------
 "  vim-commentary
@@ -528,15 +573,6 @@ nmap <silent> @ :Tmux resize-pane -Z<CR>
 call deoplete#enable()
 set completeopt=menuone,noinsert,noselect
 
-function! ExpandSnippetOrCarriageReturn()
-    let snippet = UltiSnips#ExpandSnippetOrJump()
-    if g:ulti_expand_or_jump_res > 0
-        return snippet
-    else
-        return delimitMate#ExpandReturn()
-    endif
-endfunction
-inoremap <silent> <CR> <C-R>=ExpandSnippetOrCarriageReturn()<CR>
 
 " <TAB>: completion.
 imap <silent><expr> <TAB>
