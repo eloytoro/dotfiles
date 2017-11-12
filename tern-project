@@ -1,7 +1,6 @@
 {
-    "plugins": {
-        "node": {},
-        "node-mongoose": {},
-        "angular": {}
-    }
+  "plugins": {
+    "node": {},
+    "node-mongoose": {}
+  }
 }

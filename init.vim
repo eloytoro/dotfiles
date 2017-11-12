@@ -19,53 +19,44 @@ Plug 'tpope/vim-sleuth'
 Plug 'tpope/vim-dispatch'
 Plug 'airblade/vim-gitgutter'
 Plug 'mbbill/undotree'
-Plug 'benekastah/neomake'
+Plug 'neomake/neomake'
+Plug 'flowtype/vim-flow'
 Plug 'kassio/neoterm'
 Plug 'scrooloose/nerdtree'
-" Plug 'jistr/vim-nerdtree-tabs'
 Plug 'svermeulen/vim-easyclip'
-"Plug 'bling/vim-airline'
 Plug 'justinmk/vim-sneak'
-" Plug 'Lokaltog/vim-easymotion'
 Plug 'Raimondi/delimitMate'
 Plug 'SirVer/ultisnips'
-Plug 'mhinz/vim-startify'
 Plug 'eloytoro/vim-istanbul', { 'on': 'IstanbulShow' }
-" Plug 'PeterRincker/vim-argumentative'
-" Plug 'kien/ctrlp.vim'
 Plug 'junegunn/vim-easy-align'
 Plug 'junegunn/gv.vim'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
-" Plug 'junegunn/vim-emoji'
-" Plug 'euclio/vim-markdown-composer', { 'do': 'cargo build --release' }
-" Optional
-"Plug 'scrooloose/nerdcommenter'
-"Plug 'kshenoy/vim-signature'
-"Plug 'ervandew/supertab'
-" Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
+Plug 'junegunn/goyo.vim'
+Plug 'junegunn/limelight.vim'
+Plug 'itchyny/calendar.vim'
 Plug 'Shougo/deoplete.nvim'
 Plug 'carlitux/deoplete-ternjs', { 'do': 'npm install -g tern' }
-"Plug 'Shougo/echodoc.vim'
 " Language specific
 Plug 'cakebaker/scss-syntax.vim', { 'for': 'scss' }
 Plug 'pangloss/vim-javascript'
 Plug 'ternjs/tern_for_vim', { 'do': 'npm install' }
 Plug 'othree/yajs.vim'
-" Plug 'othree/es.next.syntax.vim'
 Plug 'heavenshell/vim-jsdoc'
 Plug 'mxw/vim-jsx'
+Plug 'rust-lang/rust.vim'
+Plug 'sebastianmarkow/deoplete-rust'
 Plug 'othree/html5.vim', { 'for': 'html' }
-"Plug 'alvan/vim-closetag', { 'for': 'html' }
 Plug 'raichoo/haskell-vim', { 'for': 'haskell' }
 Plug 'digitaltoad/vim-jade', { 'for': 'jade' }
 " Colorschemes
 Plug 'jacoborus/tender'
-Plug 'frankier/neovim-colors-solarized-truecolor-only'
-Plug 'eloytoro/jellybeans.vim'
-Plug 'eloytoro/xoria256'
+"Plug 'frankier/neovim-colors-solarized-truecolor-only'
+"Plug 'eloytoro/jellybeans.vim'
+"Plug 'eloytoro/xoria256'
 Plug 'junegunn/seoul256.vim'
 Plug 'tomasr/molokai'
+Plug 'morhetz/gruvbox'
 
 call plug#end()
 
@@ -73,11 +64,14 @@ call plug#end()
 " Colorschemes
 " ----------------------------------------------------------------------------
 syntax enable
-if $NVIM_TUI_ENABLE_TRUE_COLOR
+if (has("termguicolors"))
+    set termguicolors
     "silent! colorscheme molokai
-    silent! colorscheme tender
-    hi ColorColumn guibg=#111111
-    " set background=dark
+    "silent! colorscheme tender
+    silent! colorscheme gruvbox
+    let g:gruvbox_contrast_dark = 'hard'
+    "hi ColorColumn guibg=#111111
+    set background=dark
     " colorscheme solarized
 else
     let g:seoul256_background = 233
@@ -94,6 +88,7 @@ set backspace=2
 set nu
 set rnu
 set showcmd
+set nojoinspaces
 set ruler
 set showmatch
 set scrolloff=2
@@ -105,12 +100,15 @@ set wildmenu
 let g:html_indent_inctags = "html,body,head,tbody"
 let mapleader = ' '
 let maplocalleader = ' '
-set shiftwidth=4
-set tabstop=4
+set shiftwidth=2
+set tabstop=2
 set conceallevel=0
 set autoread
 set nosol
-set clipboard=unnamed
+"set clipboard=unnamed
+set ignorecase smartcase
+set nobackup
+set nowritebackup
 set noshowmode
 set nolist
 set expandtab smarttab
@@ -151,14 +149,9 @@ let g:jsx_ext_required = 0
 " ----------------------------------------------------------------------------
 augroup vimrc
   autocmd!
-  au BufNewFile,BufRead *.ts set filetype=javascript
   au BufNewFile,BufReadPost *.css set filetype=sass
+  au BufNewFile,BufReadPost *.tsx set filetype=javascript.jsx
   au BufWritePost vimrc,.vimrc,init.vim nested if expand('%') !~ 'fugitive' | source % | endif
-  " Automatic rename of tmux window
-  if exists('$TMUX') && !exists('$NORENAME')
-    au BufEnter * if empty(&buftype) | call system('tmux rename-window '.expand('%:t:S')) | endif
-    au VimLeave * call system('tmux set-window automatic-rename on')
-  endif
 augroup END
 au filetype racket set lisp
 au filetype racket set autoindent
@@ -195,6 +188,8 @@ nnoremap H ^
 nnoremap L $
 vnoremap H ^
 vnoremap L $
+inoremap <c-l> <space>=><space>
+cnoremap <expr> %% expand('%:h').'/'
 nnoremap <silent> ]b :bn<CR>
 nnoremap <silent> [b :bp<CR>
 nnoremap <silent> ]q :cn<CR>
@@ -206,6 +201,34 @@ inoremap <C-q> <esc>:q<cr>
 nnoremap <C-q> :q<cr>
 inoremap <C-e> <End>
 inoremap <C-a> <Home>
+
+" ----------------------------------------------------------------------------
+" RENAME CURRENT FILE
+" ----------------------------------------------------------------------------
+function! RenameFile()
+    let old_name = expand('%')
+    let new_name = input('New file name: ', expand('%'), 'file')
+    if new_name != '' && new_name != old_name
+        exec ':saveas ' . new_name
+        exec ':silent !rm ' . old_name
+        redraw!
+    endif
+endfunction
+map <leader>r :call RenameFile()<cr>
+
+" ----------------------------------------------------------------------------
+" OpenChangedFiles COMMAND
+" ----------------------------------------------------------------------------
+function! OpenChangedFiles()
+  only " Close all windows, unless they're modified
+  let status = system('git status -s | grep "^ \?\(M\|A\|UU\)" | sed "s/^.\{3\}//"')
+  let filenames = split(status, "\n")
+  exec "edit " . filenames[0]
+  for filename in filenames[1:]
+    exec "tab split " . filename
+  endfor
+endfunction
+command! OpenChangedFiles :call OpenChangedFiles()
 
 " ----------------------------------------------------------------------------
 "   Moving lines | for quick line swapping purposes
@@ -240,7 +263,6 @@ nmap <C-w>\ :vsp<CR>
 " ----------------------------------------------------------------------------
 if has('nvim')
     tnoremap <Esc> <C-\><C-n>
-    nmap <leader>t :tabnew\|te<CR>
     set ttimeout
     set ttimeoutlen=0
 else
@@ -260,24 +282,18 @@ nmap gf  <Plug>Sneak_s
 omap gf  <Plug>Sneak_s
 nmap gb <Plug>Sneak_S
 omap gb <Plug>Sneak_S
-hi SneakPluginTarget ctermbg=yellow ctermfg=black
 
 " ----------------------------------------------------------------------------
-"  Easymotion
+" Readline-style key bindings in command-line (excerpt from rsi.vim)
 " ----------------------------------------------------------------------------
-" nmap / <Plug>(easymotion-sn)
-" nmap n <Plug>(easymotion-next)
-" nmap N <Plug>(easymotion-prev)
-" nmap <CR> <Plug>(easymotion-bd-jk)
-" omap <CR> <Plug>(easymotion-bd-jk)
-" nmap gw <Plug>(easymotion-bd-w)
-" omap gw <Plug>(easymotion-bd-w)
-" nmap gW <Plug>(easymotion-bd-W)
-" omap gW <Plug>(easymotion-bd-W)
-" hi EasyMotionMoveHL ctermbg=yellow ctermfg=black
-" let g:EasyMotion_enter_jump_first = 1
-" let g:EasyMotion_off_screen_search = 1
-" let g:EasyMotion_smartcase = 1
+cnoremap        <C-A> <Home>
+cnoremap        <C-B> <Left>
+cnoremap <expr> <C-D> getcmdpos()>strlen(getcmdline())?"\<Lt>C-D>":"\<Lt>Del>"
+cnoremap <expr> <C-F> getcmdpos()>strlen(getcmdline())?&cedit:"\<Lt>Right>"
+cnoremap        <M-b> <S-Left>
+cnoremap        <M-f> <S-Right>
+silent! exe "set <S-Left>=\<Esc>b"
+silent! exe "set <S-Right>=\<Esc>f"
 
 " ----------------------------------------------------------------------------
 " Git
@@ -318,7 +334,7 @@ endif
 vmap <Enter> <Plug>(EasyAlign)
 
 " ----------------------------------------------------------------------------
-" Explorer
+" NERDTree
 " ----------------------------------------------------------------------------
 function! NERDTreeFindOrToggle()
   let s:empty = @% == "" || filereadable(@%) == 0 || line('$') == 1 && col('$') == 1
@@ -329,61 +345,41 @@ function! NERDTreeFindOrToggle()
   endif
 endfunction
 
-map <silent> <Leader>n :call NERDTreeFindOrToggle()<CR>
-" let g:nerdtree_tabs_autofind = 1
-" autocmd VimEnter * NERDTree
-" autocmd VimEnter * wincmd p
-" augroup nerd_loader
-"   autocmd!
-"   autocmd VimEnter * silent! autocmd! Explorer
-"   autocmd BufEnter,BufNew *
-"         \  if isdirectory(expand('<amatch>'))
-"         \|   call plug#load('nerdtree')
-"         \|   execute 'autocmd! nerd_loader'
-"         \| endif
-" augroup END
+function! NERDTreeFindUpdate()
+  if exists("t:NERDTreeBufName") && bufwinnr(t:NERDTreeBufName) != -1
+    :NERDTreeFind
+    exec "normal! \<c-w>p"
+  endif
+endfunction
 
-" ----------------------------------------------------------------------------
-" Airline
-" ----------------------------------------------------------------------------
-let g:airline#extensions#tabline#tab_min_count = 2
-let g:airline#extensions#tabline#show_buffers = 0
-let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#tabline#fnamemod = ':t'
-if !exists('g:airline_symbols')
-    let g:airline_symbols = {}
-endif
-let g:airline_left_sep = '»'
-let g:airline_right_sep = '«'
-let g:airline_symbols.linenr = '␊'
-let g:airline_symbols.linenr = '␤'
-let g:airline_symbols.linenr = '¶'
-let g:airline_symbols.branch = '⎇'
-let g:airline_symbols.paste = 'ρ'
-let g:airline_symbols.paste = 'Þ'
-let g:airline_symbols.paste = '∥'
-let g:airline_symbols.whitespace = 'Ξ'
-let g:airline_detect_whitespace = 0
+map <silent> <Leader>n :call NERDTreeFindOrToggle()<CR>
+augroup nerd
+  autocmd!
+  autocmd BufReadPost * call NERDTreeFindUpdate()
+augroup END
+
+" function! StartScreen()
+"   if !argc() && (line2byte('$') == -1)
+
+"   endif
+" endfunction
+" augroup init
+"     autocmd!
+"     autocmd VimEnter * call StartScreen()
+" augroup END
 
 " ----------------------------------------------------------------------------
 " Easyclip
 " ----------------------------------------------------------------------------
 let g:EasyClipUseSubstituteDefaults = 1
 let g:EasyClipPreserveCursorPositionAfterYank = 1
-let g:EasyClipAutoFormat = 1
+" let g:EasyClipAutoFormat = 1
 let g:EasyClipShareYanks = 1
-let g:EasyClipUserPasteToggleDefaults = 0
 let g:EasyClipUsePasteToggleDefaults = 0
 nmap [y <Plug>EasyClipSwapPasteBackwards
 nmap ]y <Plug>EasyClipSwapPasteForward
 imap <c-v> <Plug>EasyClipInsertModePaste
 nmap M mL
-
-" ----------------------------------------------------------------------------
-" Signature
-" ----------------------------------------------------------------------------
-let g:SignatureMap = { 'Leader' :  "$" }
-let g:SignatureMarkOrder = "»\m"
 
 " ----------------------------------------------------------------------------
 "  CtrlP
@@ -402,8 +398,19 @@ if has('nvim')
     let $FZF_DEFAULT_OPTS .= ' --inline-info'
 endif
 
-nnoremap <silent> <C-p> :Files<CR>
-nnoremap ?     :Ag 
+function! CTRLP()
+  if expand('%') =~ 'NERD_tree'
+    exec "normal! \<c-w>w"
+  endif
+  if exists('b:git_dir')
+    GFiles
+  else
+    Files
+  endif
+endfunction
+command! CTRLP call CTRLP()
+nnoremap <silent> <C-p> :CTRLP<CR>
+nnoremap ?     :Ag
 
 imap <c-x><c-k> <plug>(fzf-complete-word)
 imap <c-x><c-f> <plug>(fzf-complete-path)
@@ -495,7 +502,7 @@ let delimitMate_expand_space = 1
 " au FileType javascript let b:delimitMate_eol_marker = ";"
 let s:closed_tag_regexp = '<\/\(\w\|\.\)\+>'
 let s:tag_name_regexp = '<\(\w\|\.\|:\)\+'
-let s:tag_regexp = s:tag_name_regexp.'\(\s\+[^>]\+\s*\)*'
+let s:tag_regexp = '^\s*'.s:tag_name_regexp.'\(\s\+[^>]\+\s*\)*[^\/]'
 function! ExpandSnippetOrCarriageReturn()
     let snippet = UltiSnips#ExpandSnippetOrJump()
     if g:ulti_expand_or_jump_res > 0
@@ -509,6 +516,8 @@ function! ExpandSnippetOrCarriageReturn()
     endif
 endfunction
 inoremap <silent> <CR> <C-R>=ExpandSnippetOrCarriageReturn()<CR>
+
+" HTML/JSX autoclose tag
 function! CloseTag()
     let line = getline('.')
     let col = col('.') - 1
@@ -570,15 +579,18 @@ nmap <silent> @ :Tmux resize-pane -Z<CR>
 " ----------------------------------------------------------------------------
 "  Deoplete
 " ----------------------------------------------------------------------------
-call deoplete#enable()
+let g:deoplete#enable_at_startup = 1
+let g:deoplete#enable_smart_case = 1
+let g:tern#arguments = ["--persistent"]
 set completeopt=menuone,noinsert,noselect
+let g:deoplete#sources#rust#racer_binary = "/Users/etf/.cargo/bin/racer"
+let g:deoplete#sources#rust#rust_source_path = "/Users/etf/dev/rust/src"
 
 
 " <TAB>: completion.
 imap <silent><expr> <TAB>
-            \ pumvisible() ? "\<C-n>" :
             \ <SID>check_back_space() ? "\<TAB>" :
-            \ deoplete#mappings#manual_complete()
+            \ "<C-n>"
 function! s:check_back_space() abort
     let col = col('.') - 1
     return !col || strpart(getline('.'), 0, col) =~ '^\s*$'
@@ -592,8 +604,6 @@ inoremap <expr><S-TAB>  pumvisible() ? "\<C-p>" : "\<C-h>"
 " inoremap <expr><BS> deoplete#mappings#smart_close_popup()."\<C-h>"
 
 inoremap <expr><C-g> deoplete#mappings#undo_completion()
-" <C-l>: redraw candidates
-inoremap <C-l>       a<BS>
 
 let g:deoplete#keyword_patterns = {}
 let g:deoplete#keyword_patterns._ = '[a-zA-Z_]\k*\(?'
@@ -707,6 +717,22 @@ nnoremap <silent> [i :<c-u>call <SID>go_indent(v:count1, -1)<cr>
 command! -nargs=1 TX
   \ call system('tmux split-window -d -l 16 '.<q-args>)
 nnoremap !! :TX<space>
+
+" ----------------------------------------------------------------------------
+" Common
+" ----------------------------------------------------------------------------
+function! s:textobj_cancel()
+  if v:operator == 'c'
+    augroup textobj_undo_empty_change
+      autocmd InsertLeave <buffer> execute 'normal! u'
+            \| execute 'autocmd! textobj_undo_empty_change'
+            \| execute 'augroup! textobj_undo_empty_change'
+    augroup END
+  endif
+endfunction
+
+noremap         <Plug>(TOC) <nop>
+inoremap <expr> <Plug>(TOC) exists('#textobj_undo_empty_change')?"\<esc>":''
 
 " ----------------------------------------------------------------------------
 " ?ii / ?ai | indent-object
@@ -965,6 +991,41 @@ endfunction
 command! -range=% GL call s:gl(bufnr(''), <line1>, <line2>)
 
 " ----------------------------------------------------------------------------
+" goyo.vim + limelight.vim
+" ----------------------------------------------------------------------------
+let g:limelight_paragraph_span = 1
+let g:limelight_priority = -1
+
+function! s:goyo_enter()
+  if has('gui_running')
+    set fullscreen
+    set background=light
+    set linespace=7
+  elseif exists('$TMUX')
+    silent !tmux set status off
+  endif
+  Limelight
+  let &l:statusline = '%M'
+  hi StatusLine ctermfg=red guifg=red cterm=NONE gui=NONE
+endfunction
+
+function! s:goyo_leave()
+  if has('gui_running')
+    set nofullscreen
+    set background=dark
+    set linespace=0
+  elseif exists('$TMUX')
+    silent !tmux set status on
+  endif
+  Limelight!
+endfunction
+
+autocmd! User GoyoEnter nested call <SID>goyo_enter()
+autocmd! User GoyoLeave nested call <SID>goyo_leave()
+
+nnoremap <Leader>G :Goyo 100<CR>
+
+" ----------------------------------------------------------------------------
 " undotree
 " ----------------------------------------------------------------------------
 let g:undotree_WindowLayout = 2
@@ -974,17 +1035,48 @@ nnoremap U :UndotreeToggle<CR>
 " ----------------------------------------------------------------------------
 " Neomake
 " ----------------------------------------------------------------------------
-let ESLINT_PATH = getcwd().'/node_modules/.bin/eslint'
-if !empty(ESLINT_PATH)
-  au FileType javascript autocmd BufReadPost,BufWritePost <buffer> Neomake
-endif
+call neomake#configure#automake('w')
 let g:neomake_verbose = 0
-let g:neomake_javascript_eslint_exe = ESLINT_PATH
+let g:neomake_javascript_eslint_exe = 'eslint'
+let g:neomake_javascript_enabled_makers = ['eslint']
+
+if filereadable(expand("./.flowconfig"))
+  let g:neomake_javascript_flow_exe = 'flow'
+  let g:neomake_javascript_enabled_makers += ['flow']
+  let g:javascript_plugin_flow = 1
+endif
+let g:flow#enable = 0
+let g:flow#omnifunc = 0
 silent! if emoji#available()
   let g:neomake_error_sign = {'text': emoji#for('fire')}
   let g:neomake_warning_sign = {'text': emoji#for('bulb')}
 endif
 
 
-" let g:tern#command = ["tern"]
-" let g:tern#arguments = ["--persistent"]
+" ----------------------------------------------------------------------------
+" Calendar
+" ----------------------------------------------------------------------------
+let g:calendar_google_calendar = 1
+let g:calendar_google_task = 1
+nnoremap <leader>c :Calendar<CR>
+autocmd FileType calendar map <buffer> <C-p> :CTRLP<CR>
+
+" ----------------------------------------------------------------------------
+" Zoom
+" ----------------------------------------------------------------------------
+function! s:zoom()
+  if winnr('$') > 1
+    tab split
+  elseif len(filter(map(range(tabpagenr('$')), 'tabpagebuflist(v:val + 1)'),
+        \ 'index(v:val, '.bufnr('').') >= 0')) > 1
+    tabclose
+  endif
+endfunction
+nnoremap <silent> <leader>z :call <sid>zoom()<cr>
+
+" ----------------------------------------------------------------------------
+"  Local vimrc
+" ----------------------------------------------------------------------------
+if filereadable(expand("~/.vimrc"))
+  source ~/.vimrc
+endif
