@@ -150,7 +150,7 @@ let g:jsx_ext_required = 0
 augroup vimrc
   autocmd!
   au BufNewFile,BufReadPost *.css set filetype=sass
-  au BufNewFile,BufReadPost *.tsx set filetype=javascript.jsx
+  au BufNewFile,BufReadPost *.tsx,*.ts set filetype=javascript.jsx
   au BufWritePost vimrc,.vimrc,init.vim nested if expand('%') !~ 'fugitive' | source % | endif
 augroup END
 au filetype racket set lisp
@@ -402,15 +402,11 @@ function! CTRLP()
   if expand('%') =~ 'NERD_tree'
     exec "normal! \<c-w>w"
   endif
-  if exists('b:git_dir')
-    GFiles
-  else
-    Files
-  endif
+  Files
 endfunction
 command! CTRLP call CTRLP()
 nnoremap <silent> <C-p> :CTRLP<CR>
-nnoremap ?     :Ag
+nnoremap ?     :Ag 
 
 imap <c-x><c-k> <plug>(fzf-complete-word)
 imap <c-x><c-f> <plug>(fzf-complete-path)
@@ -1037,9 +1033,11 @@ nnoremap U :UndotreeToggle<CR>
 " ----------------------------------------------------------------------------
 call neomake#configure#automake('w')
 let g:neomake_verbose = 0
-let g:neomake_javascript_eslint_exe = 'eslint'
-let g:neomake_javascript_enabled_makers = ['eslint']
-
+let g:neomake_javascript_enabled_makers = []
+if filereadable(expand("./.eslintrc"))
+  let g:neomake_javascript_eslint_exe = 'eslint'
+  let g:neomake_javascript_enabled_makers += ['eslint']
+endif
 if filereadable(expand("./.flowconfig"))
   let g:neomake_javascript_flow_exe = 'flow'
   let g:neomake_javascript_enabled_makers += ['flow']
@@ -1065,6 +1063,7 @@ autocmd FileType calendar map <buffer> <C-p> :CTRLP<CR>
 " Zoom
 " ----------------------------------------------------------------------------
 function! s:zoom()
+  Tmux resize-pane -Z
   if winnr('$') > 1
     tab split
   elseif len(filter(map(range(tabpagenr('$')), 'tabpagebuflist(v:val + 1)'),
@@ -1072,7 +1071,7 @@ function! s:zoom()
     tabclose
   endif
 endfunction
-nnoremap <silent> <leader>z :call <sid>zoom()<cr>
+nnoremap <silent> <CR> :call <sid>zoom()<cr>
 
 " ----------------------------------------------------------------------------
 "  Local vimrc
