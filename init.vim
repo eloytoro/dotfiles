@@ -56,7 +56,7 @@ Plug 'jacoborus/tender'
 "Plug 'eloytoro/xoria256'
 Plug 'junegunn/seoul256.vim'
 Plug 'tomasr/molokai'
-Plug 'morhetz/gruvbox'
+Plug 'yuttie/hydrangea-vim'
 
 call plug#end()
 
@@ -66,12 +66,8 @@ call plug#end()
 syntax enable
 if (has("termguicolors"))
     set termguicolors
-    "silent! colorscheme molokai
-    "silent! colorscheme tender
-    silent! colorscheme gruvbox
-    let g:gruvbox_contrast_dark = 'hard'
+    silent! colorscheme hydrangea
     "hi ColorColumn guibg=#111111
-    set background=dark
     " colorscheme solarized
 else
     let g:seoul256_background = 233
@@ -346,7 +342,7 @@ function! NERDTreeFindOrToggle()
 endfunction
 
 function! NERDTreeFindUpdate()
-  if exists("t:NERDTreeBufName") && bufwinnr(t:NERDTreeBufName) != -1
+  if exists("t:NERDTreeBufName") && bufwinnr(t:NERDTreeBufName) != -1 && expand("%:p") =~ getcwd()
     :NERDTreeFind
     exec "normal! \<c-w>p"
   endif
@@ -494,11 +490,24 @@ let g:fzf_buffers_jump = 1
 " ----------------------------------------------------------------------------
 let delimitMate_expand_cr = 2
 let delimitMate_expand_space = 1
-" au FileType javascript let b:delimitMate_insert_eol_marker = 1
-" au FileType javascript let b:delimitMate_eol_marker = ";"
+
+" ----------------------------------------------------------------------------
+" HL | Find out syntax group
+" ----------------------------------------------------------------------------
+function! s:hl()
+  return join(map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")'), '/')
+endfunction
+command! HL echo <SID>hl()
+
+" ----------------------------------------------------------------------------
+"   HTML/JSX autoclose tag
+" ----------------------------------------------------------------------------
 let s:closed_tag_regexp = '<\/\(\w\|\.\)\+>'
 let s:tag_name_regexp = '<\(\w\|\.\|:\)\+'
-let s:tag_regexp = '^\s*'.s:tag_name_regexp.'\(\s\+[^>]\+\s*\)*[^\/]'
+let s:tag_properties = '\(\s\+[^>]\+\s*\)*'
+let s:tag_regexp = s:tag_name_regexp.s:tag_properties.'[^\/]'
+let s:tag_blacklist = ['TMPL_*', 'input']
+let s:hl_blacklist = ['jsString', 'jsComment']
 function! ExpandSnippetOrCarriageReturn()
     let snippet = UltiSnips#ExpandSnippetOrJump()
     if g:ulti_expand_or_jump_res > 0
@@ -513,12 +522,20 @@ function! ExpandSnippetOrCarriageReturn()
 endfunction
 inoremap <silent> <CR> <C-R>=ExpandSnippetOrCarriageReturn()<CR>
 
-" HTML/JSX autoclose tag
 function! CloseTag()
-    let line = getline('.')
-    let col = col('.') - 1
-    if col && strpart(line, 0, col) =~ s:tag_regexp.'$'
-        return '></'.strpart(matchstr(line, s:tag_name_regexp), 1).'>'."\<Esc>F>a"
+    let n = getline('.')
+    let column = col('.') - 1
+    if column && index(s:hl_blacklist, s:hl()) == -1
+      let line_before_cursor = strpart(n, 0, column)
+      if line_before_cursor =~ s:tag_regexp.'$'
+        let tag = matchstr(line_before_cursor, s:tag_name_regexp.'\('.s:tag_properties.'$\)\@=')
+        for item in s:tag_blacklist
+          if tag =~ item
+            return '>'
+          endif
+        endfor
+        return '></'.strpart(tag, 1).'>'."\<Esc>F>a"
+      endif
     endif
     return '>'
 endfunction
@@ -1072,6 +1089,21 @@ function! s:zoom()
   endif
 endfunction
 nnoremap <silent> <CR> :call <sid>zoom()<cr>
+
+" ----------------------------------------------------------------------------
+" Yank Position
+" ----------------------------------------------------------------------------
+function! s:YankPosition()
+  let @+=@%.'#L'.line('.')
+  let @r=@%
+  echo 'copied "'.@+.'"'
+endfunction
+nnoremap <silent> yp :call <sid>YankPosition()<CR>
+
+function! s:PasteRelative()
+  return "'".system("node -e \"console.log(require('path').relative('./".@%."', './".@r."'))\"")."'"
+endfunction
+nnoremap <silent> yP "=<sid>PasteRelative()<C-M>p
 
 " ----------------------------------------------------------------------------
 "  Local vimrc
