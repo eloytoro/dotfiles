@@ -1,12 +1,16 @@
 filetype off
-if empty(glob('~/.config/nvim/autoload/plug.vim'))
-  silent !mkdir -p ~/.config/nvim/autoload
-  silent !curl -fLo ~/.config/nvim/autoload/plug.vim
-        \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+if has('nvim')
+  let vim_folder = '~/.config/nvim'
+else
+  let vim_folder = '~/.vim'
+endif
+if empty(glob(vim_folder.'/autoload/plug.vim'))
+  exec 'silent !mkdir -p '.vim_folder.'/autoload'
+  exec 'silent !curl -fLo '.vim_folder.'/autoload/plug.vim https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
   autocmd VimEnter * PlugInstall
 endif
 
-call plug#begin('~/.config/nvim/plug')
+call plug#begin(vim_folder.'/plug')
 
 " Essential
 Plug 'tpope/vim-git'
@@ -66,7 +70,7 @@ call plug#end()
 syntax enable
 if (has("termguicolors"))
     set termguicolors
-    silent! colorscheme hydrangea
+    silent! colorscheme tender
     "hi ColorColumn guibg=#111111
     " colorscheme solarized
 else
@@ -184,6 +188,7 @@ nnoremap H ^
 nnoremap L $
 vnoremap H ^
 vnoremap L $
+inoremap <silent> <c-t> <C-R>=strftime("%c")<CR>
 inoremap <c-l> <space>=><space>
 cnoremap <expr> %% expand('%:h').'/'
 nnoremap <silent> ]b :bn<CR>
@@ -428,8 +433,6 @@ function! s:dir_handler(dir)
     echo a:dir
 endfunction
 
-nmap <silent> <leader>gm :FZFMerge<CR>
-
 function! s:get_log_ref(line)
     return matchstr(a:line, '[0-9a-f]\{7}')
 endfunction
@@ -438,26 +441,17 @@ function! s:branch_handler(line)
     exec "!git checkout ".a:line
 endfunction
 
-function! s:diff_handler(line)
-    exec "Gdiff ".s:get_log_ref(a:line)
+function! s:ref_handler(line)
+    exec "Gedit ".s:get_log_ref(a:line)
 endfunction
 
-function! s:fzf_show_commits(file, single, all, handler)
+function! s:fzf_show_commits(here, handler)
     let options  = [
                 \ '--color=always',
                 \ '--format="%C(auto)%h%d %s %C(black)%C(bold)%an, %cr"']
-    if a:all
-      call add(options, '--all')
-    endif
-    if a:single
-        if (empty(a:file))
-            let file = expand("%:P")
-        else
-            let file = a:file
-        endif
-        call add(options, '--follow -- '.file)
-    else
-        call add(options, '--no-merges')
+
+    if a:here
+      call add(options, '--follow -- '.expand("%:P"))
     endif
 
     call fzf#run({
@@ -478,10 +472,12 @@ function! s:fzf_show_branches(handler)
 endfunction
 
 command! -nargs=0 FZFCheckout call s:fzf_show_branches(function('s:branch_handler'))
-command! -nargs=? FZFDiff call s:fzf_show_commits(<q-args>, 1, 0, function('s:diff_handler'))
+command! -nargs=0 FZFGitLog call s:fzf_show_commits(1, function('s:ref_handler'))
 
 nmap <silent> <leader>gc :FZFCheckout<CR>
-nmap <silent> <leader>gD :FZFDiff<CR>
+nmap <silent> <leader>gl :FZFGitLog<CR>
+nmap <silent> <leader>gm :FZFMerge<CR>
+
 let g:fzf_files_options = '-e --preview "(coderay {} || cat {}) 2> /dev/null | head -'.&lines.'"'
 let g:fzf_buffers_jump = 1
 
@@ -579,7 +575,7 @@ let g:jsdoc_return = 0
 "  UltiSnips
 " ----------------------------------------------------------------------------
 let g:UltiSnipsExpandTrigger = "<C-u>"
-let g:UltiSnipsSnippetsDir = "~/.config/nvim/UltiSnips"
+let g:UltiSnipsSnippetsDir = vim_folder."/UltiSnips"
 let g:ulti_expand_or_jump_res = 0
 
 " ----------------------------------------------------------------------------
@@ -1051,11 +1047,11 @@ nnoremap U :UndotreeToggle<CR>
 call neomake#configure#automake('w')
 let g:neomake_verbose = 0
 let g:neomake_javascript_enabled_makers = []
-if filereadable(expand("./.eslintrc"))
-  let g:neomake_javascript_eslint_exe = 'eslint'
+if filereadable("./node_modules/.bin/eslint")
+  let g:neomake_javascript_eslint_exe = './node_modules/.bin/eslint'
   let g:neomake_javascript_enabled_makers += ['eslint']
 endif
-if filereadable(expand("./.flowconfig"))
+if filereadable("./.flowconfig")
   let g:neomake_javascript_flow_exe = 'flow'
   let g:neomake_javascript_enabled_makers += ['flow']
   let g:javascript_plugin_flow = 1
@@ -1108,6 +1104,6 @@ nnoremap <silent> yP "=<sid>PasteRelative()<C-M>p
 " ----------------------------------------------------------------------------
 "  Local vimrc
 " ----------------------------------------------------------------------------
-if filereadable(expand("~/.vimrc"))
-  source ~/.vimrc
+if expand("~") != getcwd() && filereadable(expand(".vimrc"))
+  source .vimrc
 endif
