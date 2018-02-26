@@ -24,14 +24,13 @@ Plug 'tpope/vim-dispatch'
 Plug 'airblade/vim-gitgutter'
 Plug 'mbbill/undotree'
 Plug 'neomake/neomake'
-Plug 'flowtype/vim-flow'
 Plug 'kassio/neoterm'
 Plug 'scrooloose/nerdtree'
 Plug 'svermeulen/vim-easyclip'
 Plug 'justinmk/vim-sneak'
 Plug 'Raimondi/delimitMate'
 Plug 'SirVer/ultisnips'
-Plug 'eloytoro/vim-istanbul', { 'on': 'IstanbulShow' }
+" Plug 'eloytoro/vim-istanbul', { 'on': 'IstanbulShow' }
 Plug 'junegunn/vim-easy-align'
 Plug 'junegunn/gv.vim'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
@@ -39,12 +38,16 @@ Plug 'junegunn/fzf.vim'
 Plug 'junegunn/goyo.vim'
 Plug 'junegunn/limelight.vim'
 Plug 'itchyny/calendar.vim'
-Plug 'Shougo/deoplete.nvim'
-Plug 'carlitux/deoplete-ternjs', { 'do': 'npm install -g tern' }
+if has('python3')
+  Plug 'Shougo/deoplete.nvim'
+  if executable('node')
+    Plug 'carlitux/deoplete-ternjs', { 'do': 'npm install -g tern' }
+    Plug 'ternjs/tern_for_vim', { 'do': 'npm install' }
+  endif
+endif
 " Language specific
 Plug 'cakebaker/scss-syntax.vim', { 'for': 'scss' }
 Plug 'pangloss/vim-javascript'
-Plug 'ternjs/tern_for_vim', { 'do': 'npm install' }
 Plug 'othree/yajs.vim'
 Plug 'heavenshell/vim-jsdoc'
 Plug 'mxw/vim-jsx'
@@ -152,11 +155,11 @@ augroup vimrc
   au BufNewFile,BufReadPost *.css set filetype=sass
   au BufNewFile,BufReadPost *.tsx,*.ts set filetype=javascript.jsx
   au BufWritePost vimrc,.vimrc,init.vim nested if expand('%') !~ 'fugitive' | source % | endif
+  au filetype racket set lisp
+  au filetype racket set autoindent
+  autocmd BufReadPost quickfix nmap <buffer> <CR> :.cc<CR>
 augroup END
-au filetype racket set lisp
-au filetype racket set autoindent
 filetype plugin indent on
-autocmd BufReadPost quickfix nmap <buffer> <CR> :.cc<CR>
 
 " ----------------------------------------------------------------------------
 "  Tabs
@@ -491,19 +494,19 @@ let delimitMate_expand_space = 1
 " HL | Find out syntax group
 " ----------------------------------------------------------------------------
 function! s:hl()
-  return join(map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")'), '/')
+  return map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
 endfunction
-command! HL echo <SID>hl()
+command! HL echo join(<SID>hl(), '/')
 
 " ----------------------------------------------------------------------------
 "   HTML/JSX autoclose tag
 " ----------------------------------------------------------------------------
 let s:closed_tag_regexp = '<\/\(\w\|\.\)\+>'
 let s:tag_name_regexp = '<\(\w\|\.\|:\)\+'
-let s:tag_properties = '\(\s\+[^>]\+\s*\)*'
+let s:tag_properties = '\s*\(\s\+[^>]\+\s*\)*'
 let s:tag_regexp = s:tag_name_regexp.s:tag_properties.'[^\/]'
-let s:tag_blacklist = ['TMPL_*', 'input']
-let s:hl_blacklist = ['jsString', 'jsComment']
+let s:tag_blacklist = ['TMPL_*', 'input', 'br']
+let s:hl_blacklist = ['jsString', 'jsComment', 'jsTemplateString']
 function! ExpandSnippetOrCarriageReturn()
     let snippet = UltiSnips#ExpandSnippetOrJump()
     if g:ulti_expand_or_jump_res > 0
@@ -521,19 +524,27 @@ inoremap <silent> <CR> <C-R>=ExpandSnippetOrCarriageReturn()<CR>
 function! CloseTag()
     let n = getline('.')
     let column = col('.') - 1
-    if column && index(s:hl_blacklist, s:hl()) == -1
-      let line_before_cursor = strpart(n, 0, column)
-      if line_before_cursor =~ s:tag_regexp.'$'
-        let tag = matchstr(line_before_cursor, s:tag_name_regexp.'\('.s:tag_properties.'$\)\@=')
-        for item in s:tag_blacklist
-          if tag =~ item
-            return '>'
-          endif
-        endfor
-        return '></'.strpart(tag, 1).'>'."\<Esc>F>a"
-      endif
+    let hl = s:hl()
+    let close = '>'
+    if !column
+      return close
     endif
-    return '>'
+    for item in s:hl_blacklist
+      if index(hl, item) != -1
+        return close
+      endif
+    endfor
+    let line_before_cursor = strpart(n, 0, column)
+    if line_before_cursor !~ s:tag_regexp.'$'
+      return close
+    endif
+    let tag = matchstr(line_before_cursor, s:tag_name_regexp.'\('.s:tag_properties.'$\)\@=')
+    for item in s:tag_blacklist
+      if tag =~ item
+        return close
+      endif
+    endfor
+    return '></'.strpart(tag, 1).'>'."\<Esc>F>a"
 endfunction
 function! EraseTag()
     let n = line('.')
@@ -1097,8 +1108,10 @@ endfunction
 nnoremap <silent> yp :call <sid>YankPosition()<CR>
 
 function! s:PasteRelative()
-  return "'".system("node -e \"console.log(require('path').relative('./".@%."', './".@r."'))\"")."'"
+  " yes im using node, shoot me
+  return "'".system("node -e \"(p => process.stdout.write(p.relative(p.dirname('".@%."'), '".@r."')))(require('path'))\"")."'"
 endfunction
+
 nnoremap <silent> yP "=<sid>PasteRelative()<C-M>p
 
 " ----------------------------------------------------------------------------
@@ -1107,3 +1120,8 @@ nnoremap <silent> yP "=<sid>PasteRelative()<C-M>p
 if expand("~") != getcwd() && filereadable(expand(".vimrc"))
   source .vimrc
 endif
+
+" ----------------------------------------------------------------------------
+"  ¯\_(ツ)_/¯
+" ----------------------------------------------------------------------------
+inoremap <c-y> ¯\_(ツ)_/¯
