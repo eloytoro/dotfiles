@@ -12,6 +12,13 @@ endif
 
 call plug#begin(vim_folder.'/plug')
 
+" ----------------------------------------------------------------------------
+"  Local vimrc
+" ----------------------------------------------------------------------------
+if expand("~") != getcwd() && filereadable(expand(".vimrc"))
+  source .vimrc
+endif
+
 " Essential
 Plug 'tpope/vim-git'
 Plug 'tpope/vim-fugitive'
@@ -342,7 +349,7 @@ vmap <Enter> <Plug>(EasyAlign)
 " ----------------------------------------------------------------------------
 function! NERDTreeFindOrToggle()
   let s:empty = @% == "" || filereadable(@%) == 0 || line('$') == 1 && col('$') == 1
-  if s:empty || exists("t:NERDTreeBufName") && bufwinnr(t:NERDTreeBufName) != -1
+  if s:empty || exists("b:fugitive_type") || exists("t:NERDTreeBufName") && bufwinnr(t:NERDTreeBufName) != -1
     :NERDTreeToggle
   else
     :NERDTreeFind
@@ -1113,13 +1120,6 @@ function! s:PasteRelative()
 endfunction
 
 nnoremap <silent> yP "=<sid>PasteRelative()<C-M>p
-
-" ----------------------------------------------------------------------------
-"  Local vimrc
-" ----------------------------------------------------------------------------
-if expand("~") != getcwd() && filereadable(expand(".vimrc"))
-  source .vimrc
-endif
 
 " ----------------------------------------------------------------------------
 "  ¯\_(ツ)_/¯
