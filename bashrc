@@ -1,4 +1,3 @@
-BASE=$(dirname $(readlink $BASH_SOURCE))
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
 HISTCONTROL=ignoreboth
@@ -22,14 +21,10 @@ PS1=$PS1'\[\e[0;38m\]\w$(__git_ps1 "\[\033[38;5;214m\] [⎇ %s]")\[\e[1;35m\]\n$
 
 export EDITOR=nvim
 export LANG=en_US.UTF-8
-export DOT_FILES_DIR=$BASE
 
 # export FZF_DEFAULT_COMMAND='ag -g ""'
 export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
 # export FZF_COMPLETION_OPTS='--extended --cycle --tiebreak=end,length'
-
-EXTRA=$BASE/bashrc-extra
-[ -f "$EXTRA" ] && source "$EXTRA"
 
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
@@ -57,6 +52,7 @@ alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
 alias gitv='git log --graph --format="%C(auto)%h%d %s %C(black)%C(bold)%an, %cr"'
+alias gitme='git log --author="$(git config user.name)"'
 alias opentorrent='peerflix --vlc -n -d --list '
 alias wow='sudo /Applications/World\ of\ Warcraft\ 1.12.1\ Mac/WoW\ Classic.app/Contents/MacOS/World\ of\ Warcraft'
 
@@ -90,8 +86,12 @@ export NVM_DIR="$HOME/.nvm"
 export PATH="$HOME/.rbenv/bin:$PATH"
 eval "$(rbenv init -)"
 
-export PATH="$HOME/.yarn/bin:$PATH"
-export PATH=$PATH:$HOME/.cargo/bin
+if [ -d "$HOME/.yarn" ]; then
+  export PATH="$HOME/.yarn/bin:$PATH"
+fi
+if [ -d "$HOME/.cargo" ]; then
+  export PATH=$PATH:$HOME/.cargo/bin
+fi
 
 export CFLAGS="-I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib"
 

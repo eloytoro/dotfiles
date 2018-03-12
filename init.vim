@@ -36,7 +36,6 @@ Plug 'scrooloose/nerdtree'
 Plug 'svermeulen/vim-easyclip'
 Plug 'justinmk/vim-sneak'
 Plug 'Raimondi/delimitMate'
-Plug 'SirVer/ultisnips'
 " Plug 'eloytoro/vim-istanbul', { 'on': 'IstanbulShow' }
 Plug 'junegunn/vim-easy-align'
 Plug 'junegunn/gv.vim'
@@ -47,6 +46,7 @@ Plug 'junegunn/limelight.vim'
 Plug 'itchyny/calendar.vim'
 if has('python3')
   Plug 'Shougo/deoplete.nvim'
+  Plug 'SirVer/ultisnips'
   if executable('node')
     Plug 'carlitux/deoplete-ternjs', { 'do': 'npm install -g tern' }
     Plug 'ternjs/tern_for_vim', { 'do': 'npm install' }
@@ -515,18 +515,20 @@ let s:tag_regexp = s:tag_name_regexp.s:tag_properties.'[^\/]'
 let s:tag_blacklist = ['TMPL_*', 'input', 'br']
 let s:hl_blacklist = ['jsString', 'jsComment', 'jsTemplateString']
 function! ExpandSnippetOrCarriageReturn()
-    let snippet = UltiSnips#ExpandSnippetOrJump()
-    if g:ulti_expand_or_jump_res > 0
-        return snippet
-    else
-        let col = col('.') - 1
-        if col && strpart(getline('.'), col) =~ '^'.s:closed_tag_regexp
-            return "\<CR>\<Esc>".'zvO'
-        endif
-        return delimitMate#ExpandReturn()
+  let snippet = UltiSnips#ExpandSnippetOrJump()
+  if g:ulti_expand_or_jump_res > 0
+    return snippet
+  else
+    let col = col('.') - 1
+    if col && strpart(getline('.'), col) =~ '^'.s:closed_tag_regexp
+      return "\<CR>\<Esc>".'zvO'
     endif
+    return delimitMate#ExpandReturn()
+  endif
 endfunction
-inoremap <silent> <CR> <C-R>=ExpandSnippetOrCarriageReturn()<CR>
+if has('python3')
+  inoremap <silent> <CR> <C-R>=ExpandSnippetOrCarriageReturn()<CR>
+endif
 
 function! CloseTag()
     let n = getline('.')
@@ -1102,7 +1104,7 @@ function! s:zoom()
     tabclose
   endif
 endfunction
-nnoremap <silent> <CR> :call <sid>zoom()<cr>
+" nnoremap <silent> <CR> :call <sid>zoom()<cr>
 
 " ----------------------------------------------------------------------------
 " Yank Position
@@ -1115,8 +1117,14 @@ endfunction
 nnoremap <silent> yp :call <sid>YankPosition()<CR>
 
 function! s:PasteRelative()
-  " yes im using node, shoot me
-  return "'".system("node -e \"(p => process.stdout.write(p.relative(p.dirname('".@%."'), '".@r."')))(require('path'))\"")."'"
+  if executable("perl")
+    " yes im using perl, shoot me
+    return "'".system("perl -MFile::Spec -MFile::Basename -e 'print File::Spec->abs2rel(shift, dirname(shift))' ".@r." ".@%)."'"
+  elseif
+    " yes im using node, shoot me
+    return "'".system("node -e \"(p => process.stdout.write(p.relative(p.dirname('".@%."'), '".@r."')))(require('path'))\"")."'"
+  endif
+  return "¯\\_(ツ)_/¯"
 endfunction
 
 nnoremap <silent> yP "=<sid>PasteRelative()<C-M>p
@@ -1124,4 +1132,11 @@ nnoremap <silent> yP "=<sid>PasteRelative()<C-M>p
 " ----------------------------------------------------------------------------
 "  ¯\_(ツ)_/¯
 " ----------------------------------------------------------------------------
-inoremap <c-y> ¯\_(ツ)_/¯
+function! Shrug()
+  let hl = s:hl()
+  if &filetype == 'markdown' && index(hl, 'markdownCode') == -1
+    return "¯\\\\\\_(ツ)\\_/¯"
+  endif
+  return "¯\\_(ツ)_/¯"
+endfunction
+inoremap <silent> <c-\> <C-R>=Shrug()<CR>

@@ -7,7 +7,7 @@
 cd $(dirname $BASH_SOURCE)
 BASE=$(pwd)
 touch bashrc-extra
-for rc in *rc tmux.conf gitconfig tern-project bash_profile; do
+for rc in *rc tmux.conf gitconfig; do
   ln -sfv $BASE/$rc ~/.$rc
 done
 
