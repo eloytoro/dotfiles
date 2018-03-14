@@ -59,7 +59,13 @@ Plug 'othree/yajs.vim'
 Plug 'heavenshell/vim-jsdoc'
 Plug 'mxw/vim-jsx'
 Plug 'rust-lang/rust.vim'
-Plug 'sebastianmarkow/deoplete-rust'
+if executable("cargo")
+  function! InstallRacer(info)
+    !cargo install racer
+    !rustup component add rust-src
+  endfunction
+  Plug 'sebastianmarkow/deoplete-rust', { 'do': function('InstallRacer') }
+endif
 Plug 'othree/html5.vim', { 'for': 'html' }
 Plug 'raichoo/haskell-vim', { 'for': 'haskell' }
 Plug 'digitaltoad/vim-jade', { 'for': 'jade' }
@@ -612,8 +618,10 @@ let g:deoplete#enable_at_startup = 1
 let g:deoplete#enable_smart_case = 1
 let g:tern#arguments = ["--persistent"]
 set completeopt=menuone,noinsert,noselect
-let g:deoplete#sources#rust#racer_binary = "/Users/etf/.cargo/bin/racer"
-let g:deoplete#sources#rust#rust_source_path = "/Users/etf/dev/rust/src"
+if executable("racer")
+  let g:deoplete#sources#rust#racer_binary = "/Users/etf/.cargo/bin/racer"
+  let g:deoplete#sources#rust#rust_source_path = systemlist("rustc --print sysroot")[0]."/lib/rustlib/src/rust/src"
+endif
 
 
 " <TAB>: completion.
@@ -1067,8 +1075,9 @@ nnoremap U :UndotreeToggle<CR>
 call neomake#configure#automake('w')
 let g:neomake_verbose = 0
 let g:neomake_javascript_enabled_makers = []
-if filereadable("./node_modules/.bin/eslint")
-  let g:neomake_javascript_eslint_exe = './node_modules/.bin/eslint'
+let s:eslint_path = getcwd().'/node_modules/.bin/eslint'
+if filereadable(s:eslint_path)
+  let g:neomake_javascript_eslint_exe = s:eslint_path
   let g:neomake_javascript_enabled_makers += ['eslint']
 endif
 if filereadable("./.flowconfig")
