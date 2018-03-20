@@ -80,8 +80,11 @@ fi
 
 export TERM=xterm-256color
 
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
+if [ -d "$HOME/.nvm" ]; then
+  # local node_modules
+  export PATH=$PATH:./node_modules/.bin
+fi
+
 
 export PATH="$HOME/.rbenv/bin:$PATH"
 eval "$(rbenv init -)"
