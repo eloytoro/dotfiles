@@ -34,7 +34,9 @@ Plug 'neomake/neomake'
 Plug 'kassio/neoterm'
 Plug 'scrooloose/nerdtree'
 Plug 'svermeulen/vim-easyclip'
-Plug 'justinmk/vim-sneak'
+" Plug 'justinmk/vim-sneak'
+Plug 'easymotion/vim-easymotion'
+Plug 'haya14busa/incsearch.vim'
 Plug 'Raimondi/delimitMate'
 " Plug 'eloytoro/vim-istanbul', { 'on': 'IstanbulShow' }
 Plug 'junegunn/vim-easy-align'
@@ -145,7 +147,7 @@ set visualbell
 set colorcolumn=100
 set formatoptions+=rojn
 set diffopt=filler,vertical
-set nohlsearch
+" set nohlsearch
 set mouse=""
 function! S_modified()
     if &modified
@@ -520,21 +522,20 @@ let s:tag_properties = '\s*\(\s\+[^>]\+\s*\)*'
 let s:tag_regexp = s:tag_name_regexp.s:tag_properties.'[^\/]'
 let s:tag_blacklist = ['TMPL_*', 'input', 'br']
 let s:hl_blacklist = ['jsString', 'jsComment', 'jsTemplateString']
-function! ExpandSnippetOrCarriageReturn()
-  let snippet = UltiSnips#ExpandSnippetOrJump()
-  if g:ulti_expand_or_jump_res > 0
-    return snippet
-  else
-    let col = col('.') - 1
-    if col && strpart(getline('.'), col) =~ '^'.s:closed_tag_regexp
-      return "\<CR>\<Esc>".'zvO'
+function! CarriageReturn()
+  if has('python3')
+    let snippet = UltiSnips#ExpandSnippetOrJump()
+    if g:ulti_expand_or_jump_res > 0
+      return snippet
     endif
-    return delimitMate#ExpandReturn()
   endif
+  let col = col('.') - 1
+  if col && strpart(getline('.'), col) =~ '^'.s:closed_tag_regexp
+    return "\<CR>\<Esc>".'zvO'
+  endif
+  return delimitMate#ExpandReturn()
 endfunction
-if has('python3')
-  inoremap <silent> <CR> <C-R>=ExpandSnippetOrCarriageReturn()<CR>
-endif
+inoremap <silent> <CR> <C-R>=CarriageReturn()<CR>
 
 function! CloseTag()
     let n = getline('.')
@@ -1092,6 +1093,22 @@ silent! if emoji#available()
   let g:neomake_warning_sign = {'text': emoji#for('bulb')}
 endif
 
+" ----------------------------------------------------------------------------
+" Easymotion
+" ----------------------------------------------------------------------------
+nmap <CR> <Plug>(easymotion-overwin-line)
+nmap zw <Plug>(easymotion-bd-W)
+nmap zf <Plug>(easymotion-f)
+nmap zF <Plug>(easymotion-F)
+map / <Plug>(incsearch-forward)
+set hlsearch
+let g:incsearch#auto_nohlsearch = 1
+map n  <Plug>(incsearch-nohl-n)
+map N  <Plug>(incsearch-nohl-N)
+map *  <Plug>(incsearch-nohl-*)
+map #  <Plug>(incsearch-nohl-#)
+map g* <Plug>(incsearch-nohl-g*)
+map g# <Plug>(incsearch-nohl-g#)
 
 " ----------------------------------------------------------------------------
 " Calendar
