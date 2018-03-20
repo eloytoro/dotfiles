@@ -1096,10 +1096,15 @@ endif
 " ----------------------------------------------------------------------------
 " Easymotion
 " ----------------------------------------------------------------------------
-nmap <CR> <Plug>(easymotion-overwin-line)
-nmap zw <Plug>(easymotion-bd-W)
-nmap zf <Plug>(easymotion-f)
-nmap zF <Plug>(easymotion-F)
+nmap zl <Plug>(easymotion-overwin-line)
+nmap zw <Plug>(easymotion-w)
+nmap zW <Plug>(easymotion-W)
+nmap zb <Plug>(easymotion-b)
+nmap zB <Plug>(easymotion-B)
+omap f <Plug>(easymotion-fl)
+omap F <Plug>(easymotion-Fl)
+omap t <Plug>(easymotion-tl)
+omap T <Plug>(easymotion-Tl)
 map / <Plug>(incsearch-forward)
 set hlsearch
 let g:incsearch#auto_nohlsearch = 1
