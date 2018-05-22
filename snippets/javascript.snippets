@@ -23,11 +23,11 @@ function* ${1}(${2}) {
 endsnippet
 
 snippet require
-var ${2:$1} = require('${1}')
+const ${2:$1} = require('${1}');
 endsnippet
 
 snippet import
-import ${2:$1} from '${1}'$0
+import ${2:$1} from '${1}';
 endsnippet
 
 snippet log
@@ -45,23 +45,11 @@ class ${1} extends Component {
 endsnippet
 
 snippet component
-class ${1} extends Component {
+class ${1} extends React.Component {
 	render() {
 		return (
 			${VISUAL}$0
 		)
 	}
 }
-endsnippet
-
-snippet header;
-import React from 'react';
-import PropTypes from 'prop-types';
-import style from './style.css';
-endsnippet
-
-snippet header
-import React from 'react'
-import PropTypes from 'prop-types'
-import style from './style.css'
 endsnippet

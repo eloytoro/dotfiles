@@ -50,8 +50,8 @@ if has('python3')
   Plug 'Shougo/deoplete.nvim'
   Plug 'SirVer/ultisnips'
   if executable('node')
-    Plug 'carlitux/deoplete-ternjs', { 'do': 'npm install -g tern' }
-    Plug 'ternjs/tern_for_vim', { 'do': 'npm install' }
+    Plug 'carlitux/deoplete-ternjs', { 'do': 'yarn global add tern' }
+    Plug 'ternjs/tern_for_vim', { 'do': 'yarn' }
   endif
 endif
 " Language specific
@@ -174,6 +174,7 @@ augroup vimrc
   au filetype racket set autoindent
   autocmd BufReadPost quickfix nmap <buffer> <CR> :.cc<CR>
 augroup END
+command! Reload :so $MYVIMRC
 filetype plugin indent on
 
 " ----------------------------------------------------------------------------
@@ -379,7 +380,7 @@ augroup END
 
 " function! StartScreen()
 "   if !argc() && (line2byte('$') == -1)
-
+"     :Calendar
 "   endif
 " endfunction
 " augroup init
@@ -460,7 +461,7 @@ function! s:branch_handler(line)
 endfunction
 
 function! s:ref_handler(line)
-    exec "Gedit ".s:get_log_ref(a:line)
+    exec "Gvdiff ".s:get_log_ref(a:line)."^"
 endfunction
 
 function! s:fzf_show_commits(here, handler)
@@ -491,10 +492,39 @@ endfunction
 
 command! -nargs=0 FZFCheckout call s:fzf_show_branches(function('s:branch_handler'))
 command! -nargs=0 FZFGitLog call s:fzf_show_commits(1, function('s:ref_handler'))
-
 nmap <silent> <leader>gc :FZFCheckout<CR>
 nmap <silent> <leader>gl :FZFGitLog<CR>
 nmap <silent> <leader>gm :FZFMerge<CR>
+
+function! s:get_changes_list()
+  redir => result
+  :silent changes
+  redir END
+  return reverse(split(result, "\n")[1:])[1:]
+endfunction
+
+function! s:fzf_handle_change(line)
+  let elements = matchlist(a:line, '\v^(.)\s*(\d+)\s+(\d+)\s+(\d+)\s*(.*)$')
+  if empty(elements)
+    return {}
+  endif
+  let parsed = {
+        \   'prefix': elements[1],
+        \   'count' : elements[2],
+        \   'lnum'  : elements[3],
+        \   'column': elements[4],
+        \   'text'  : elements[5],
+        \ }
+  call cursor(parsed.lnum, parsed.column)
+endfunction
+
+command! -nargs=0 FZFChanges call fzf#run({
+      \ 'source': s:get_changes_list(),
+      \ 'sink': function('s:fzf_handle_change'),
+      \ 'down': 8,
+      \ })
+
+nmap <silent> <leader>g; :FZFChanges<CR>
 
 let g:fzf_files_options = '-e --preview "(coderay {} || cat {}) 2> /dev/null | head -'.&lines.'"'
 let g:fzf_buffers_jump = 1
@@ -1061,7 +1091,7 @@ endfunction
 autocmd! User GoyoEnter nested call <SID>goyo_enter()
 autocmd! User GoyoLeave nested call <SID>goyo_leave()
 
-nnoremap <Leader>G :Goyo 100<CR>
+nnoremap <Leader>G :Goyo 120<CR>
 
 " ----------------------------------------------------------------------------
 " undotree
@@ -1096,15 +1126,14 @@ endif
 " ----------------------------------------------------------------------------
 " Easymotion
 " ----------------------------------------------------------------------------
-nmap zl <Plug>(easymotion-overwin-line)
-nmap zw <Plug>(easymotion-w)
-nmap zW <Plug>(easymotion-W)
-nmap zb <Plug>(easymotion-b)
-nmap zB <Plug>(easymotion-B)
-omap f <Plug>(easymotion-fl)
-omap F <Plug>(easymotion-Fl)
-omap t <Plug>(easymotion-tl)
-omap T <Plug>(easymotion-Tl)
+nmap g<CR> <Plug>(easymotion-overwin-line)
+nmap go <Plug>(easymotion-overwin-w)
+nmap gf <Plug>(easymotion-f)
+nmap gF <Plug>(easymotion-F)
+omap gf <Plug>(easymotion-fl)
+omap gF <Plug>(easymotion-Fl)
+omap gt <Plug>(easymotion-tl)
+omap gT <Plug>(easymotion-Tl)
 map / <Plug>(incsearch-forward)
 set hlsearch
 let g:incsearch#auto_nohlsearch = 1
