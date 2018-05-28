@@ -15,6 +15,10 @@ call plug#begin(vim_folder.'/plug')
 " ----------------------------------------------------------------------------
 "  Local vimrc
 " ----------------------------------------------------------------------------
+if filereadable(expand("~/.vimrc.local"))
+  source ~/.vimrc.local
+endif
+
 if expand("~") != getcwd() && filereadable(expand(".vimrc"))
   source .vimrc
 endif
@@ -330,7 +334,7 @@ nmap <leader>gE :Gvsplit<CR>
 nmap <leader>gv :GV<CR>
 nmap <leader>gV :GV!<CR>
 nmap <leader>gg :Ggrep 
-nmap git :Git 
+nmap git :Git
 nmap [m :Git merge --abort<CR>
 nmap [r :Git rebase --abort<CR>
 nmap ]r :Git rebase --continue<CR>
@@ -551,7 +555,7 @@ let s:tag_name_regexp = '<\(\w\|\.\|:\)\+'
 let s:tag_properties = '\s*\(\s\+[^>]\+\s*\)*'
 let s:tag_regexp = s:tag_name_regexp.s:tag_properties.'[^\/]'
 let s:tag_blacklist = ['TMPL_*', 'input', 'br']
-let s:hl_blacklist = ['jsString', 'jsComment', 'jsTemplateString']
+let s:hl_whitelist = ['xmlTag']
 function! CarriageReturn()
   if has('python3')
     let snippet = UltiSnips#ExpandSnippetOrJump()
@@ -575,8 +579,8 @@ function! CloseTag()
     if !column
       return close
     endif
-    for item in s:hl_blacklist
-      if index(hl, item) != -1
+    for item in s:hl_whitelist
+      if index(hl, item) == -1
         return close
       endif
     endfor
@@ -612,8 +616,12 @@ function! EraseTag()
     endif
     return delimitMate#BS()
 endfunction
-autocmd FileType javascript.jsx,html,xml inoremap <buffer> <silent> > <C-R>=CloseTag()<CR>
-autocmd FileType javascript.jsx,html,xml inoremap <buffer> <silent> <BS> <C-R>=EraseTag()<CR>
+augroup autoclose_tags
+  autocmd!
+  autocmd FileType javascript.jsx inoremap <buffer> <silent> > <C-R>=CloseTag()<CR>
+  autocmd FileType javascript.jsx inoremap <buffer> <silent> <BS> <C-R>=EraseTag()<CR>
+  autocmd FileType html,xml inoremap <buffer> <silent> <BS> <C-R>=EraseTag()<CR>
+augroup END
 
 " ----------------------------------------------------------------------------
 "  vim-commentary
