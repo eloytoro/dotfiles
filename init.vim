@@ -564,7 +564,8 @@ function! CarriageReturn()
     endif
   endif
   let col = col('.') - 1
-  if col && strpart(getline('.'), col) =~ '^'.s:closed_tag_regexp
+  let line = getline('.')
+  if col && strpart(line, col) =~ '^'.s:closed_tag_regexp && strpart(line, 0, col) =~ s:tag_name_regexp
     return "\<CR>\<Esc>".'zvO'
   endif
   return delimitMate#ExpandReturn()
