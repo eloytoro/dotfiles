@@ -146,7 +146,7 @@ set directory=~/.config/nvim/backup
 set laststatus=2
 set pastetoggle=<F7>
 set splitbelow
-if v:version >= 800 || has('nvim')
+if has('nvim')
   set inccommand=split
 endif
 if has('patch-7.4.338')
