@@ -9,7 +9,9 @@ shopt -s histappend
 HISTSIZE=1000
 HISTFILESIZE=2000
 
-source ~/.git-completion.bash
+if [ -e ~/.git-completion.sh ]; then
+  source ~/.git-completion.bash
+fi
 
 ### git-prompt
 __git_ps1() { :;}
@@ -54,13 +56,6 @@ alias l='ls -CF'
 alias gitv='git log --graph --format="%C(auto)%h%d %s %C(black)%C(bold)%an, %cr"'
 alias gitme='git log --author="$(git config user.name)"'
 alias opentorrent='peerflix --vlc -n -d --list '
-alias wow='sudo /Applications/World\ of\ Warcraft\ 1.12.1\ Mac/WoW\ Classic.app/Contents/MacOS/World\ of\ Warcraft'
-
-alias diablo2='wine ~/.wine/drive_c/Program\ Files/Diablo\ II/Game.exe'
-
-# Add an "alert" alias for long running commands.  Use like so:
-#   sleep 10; alert
-alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
 # enable programmable completion features (you don't need to enable
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
@@ -89,9 +84,6 @@ fi
 export PATH="$HOME/.rbenv/bin:$PATH"
 eval "$(rbenv init -)"
 
-if [ -d "$HOME/.yarn" ]; then
-  export PATH="$HOME/.yarn/bin:$PATH"
-fi
 if [ -d "$HOME/.cargo" ]; then
   export PATH=$PATH:$HOME/.cargo/bin
 fi
@@ -153,4 +145,20 @@ if [[ $- =~ i ]]; then
   bind '"\C-g\C-t": "$(gt)\e\C-e\er"'
   bind '"\C-g\C-h": "$(gh)\e\C-e\er"'
   bind '"\C-g\C-r": "$(gr)\e\C-e\er"'
+fi
+
+# Defer initialization of nvm until nvm, node or a node-dependent command is
+# run. Ensure this block is only run once if .bashrc gets sourced multiple times
+# by checking whether __init_nvm is a function.
+if [ -s "$HOME/.nvm/nvm.sh" ] && [ ! "$(type -t __init_nvm)" = function ]; then
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
+  declare -a __node_commands=('nvm' 'node' 'npm' 'yarn')
+  function __init_nvm() {
+    for i in "${__node_commands[@]}"; do unalias $i; done
+    . "$NVM_DIR"/nvm.sh
+    unset __node_commands
+    unset -f __init_nvm
+  }
+  for i in "${__node_commands[@]}"; do alias $i='__init_nvm && '$i; done
 fi

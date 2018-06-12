@@ -32,6 +32,7 @@ Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-tbone'
 Plug 'tpope/vim-sleuth'
 Plug 'tpope/vim-dispatch'
+Plug 'shumphrey/fugitive-gitlab.vim'
 Plug 'airblade/vim-gitgutter'
 Plug 'mbbill/undotree'
 Plug 'neomake/neomake'
@@ -50,12 +51,19 @@ Plug 'junegunn/fzf.vim'
 Plug 'junegunn/goyo.vim'
 Plug 'junegunn/limelight.vim'
 Plug 'itchyny/calendar.vim'
-if has('python3')
+if has('python3') && has('nvim')
   Plug 'Shougo/deoplete.nvim'
   Plug 'SirVer/ultisnips'
-  if executable('node')
+  if executable("node")
     Plug 'carlitux/deoplete-ternjs', { 'do': 'yarn global add tern' }
     Plug 'ternjs/tern_for_vim', { 'do': 'yarn' }
+  endif
+  if executable("cargo")
+    function! InstallRacer(info)
+      !cargo install racer
+      !rustup component add rust-src
+    endfunction
+    Plug 'sebastianmarkow/deoplete-rust', { 'do': function('InstallRacer') }
   endif
 endif
 " Language specific
@@ -65,12 +73,10 @@ Plug 'othree/yajs.vim'
 Plug 'heavenshell/vim-jsdoc'
 Plug 'mxw/vim-jsx'
 Plug 'rust-lang/rust.vim'
-if executable("cargo")
-  function! InstallRacer(info)
-    !cargo install racer
-    !rustup component add rust-src
-  endfunction
-  Plug 'sebastianmarkow/deoplete-rust', { 'do': function('InstallRacer') }
+if executable('node')
+  Plug 'prettier/vim-prettier', {
+    \ 'do': 'yarn install',
+    \ 'for': ['javascript', 'typescript', 'css', 'less', 'scss', 'json', 'graphql', 'markdown', 'vue'] }
 endif
 Plug 'othree/html5.vim', { 'for': 'html' }
 Plug 'raichoo/haskell-vim', { 'for': 'haskell' }
@@ -90,7 +96,7 @@ call plug#end()
 " Colorschemes
 " ----------------------------------------------------------------------------
 syntax enable
-if (has("termguicolors"))
+if has("termguicolors")
     set termguicolors
     silent! colorscheme tender
     "hi ColorColumn guibg=#111111
@@ -140,7 +146,9 @@ set directory=~/.config/nvim/backup
 set laststatus=2
 set pastetoggle=<F7>
 set splitbelow
-set inccommand=split
+if v:version >= 800 || has('nvim')
+  set inccommand=split
+endif
 if has('patch-7.4.338')
     set showbreak=↳\ 
     set breakindent
@@ -368,15 +376,15 @@ function! NERDTreeFindOrToggle()
     :NERDTreeFind
   endif
 endfunction
+map <silent> <Leader>n :call NERDTreeFindOrToggle()<CR>
 
 function! NERDTreeFindUpdate()
-  if exists("t:NERDTreeBufName") && bufwinnr(t:NERDTreeBufName) != -1 && expand("%:p") =~ getcwd()
+  if exists("t:NERDTreeBufName") && bufwinnr(t:NERDTreeBufName) != -1 && expand("%:p") =~ getcwd() && !exists("b:fugitive_type")
     :NERDTreeFind
     exec "normal! \<c-w>p"
   endif
 endfunction
 
-map <silent> <Leader>n :call NERDTreeFindOrToggle()<CR>
 augroup nerd
   autocmd!
   autocmd BufReadPost * call NERDTreeFindUpdate()
@@ -430,7 +438,7 @@ function! CTRLP()
 endfunction
 command! CTRLP call CTRLP()
 nnoremap <silent> <C-p> :CTRLP<CR>
-nnoremap ?     :Ag 
+nnoremap <leader>/ :Ag 
 
 imap <c-x><c-k> <plug>(fzf-complete-word)
 imap <c-x><c-f> <plug>(fzf-complete-path)
@@ -1120,13 +1128,6 @@ if filereadable(s:eslint_path)
   let g:neomake_javascript_eslint_exe = s:eslint_path
   let g:neomake_javascript_enabled_makers += ['eslint']
 endif
-if filereadable("./.flowconfig")
-  let g:neomake_javascript_flow_exe = 'flow'
-  let g:neomake_javascript_enabled_makers += ['flow']
-  let g:javascript_plugin_flow = 1
-endif
-let g:flow#enable = 0
-let g:flow#omnifunc = 0
 silent! if emoji#available()
   let g:neomake_error_sign = {'text': emoji#for('fire')}
   let g:neomake_warning_sign = {'text': emoji#for('bulb')}

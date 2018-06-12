@@ -6,10 +6,6 @@
 # RC files
 cd $(dirname $BASH_SOURCE)
 BASE=$(pwd)
-touch bashrc-extra
-for rc in *rc tmux.conf gitconfig; do
-  ln -sfv $BASE/$rc ~/.$rc
-done
 
 # git-prompt
 if [ ! -e ~/.git-prompt.sh ]; then
@@ -19,6 +15,3 @@ fi
 if [ ! -e ~/.git-completion.bash ]; then
   curl https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash -o ~/.git-completion.bash
 fi
-
-
-./install-vim
