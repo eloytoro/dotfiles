@@ -81,8 +81,10 @@ if [ -d "$HOME/.nvm" ]; then
 fi
 
 
-export PATH="$HOME/.rbenv/bin:$PATH"
-eval "$(rbenv init -)"
+if [ -d "$HOME/.rbenv" ]; then
+  export PATH="$HOME/.rbenv/bin:$PATH"
+  eval "$(rbenv init -)"
+fi
 
 if [ -d "$HOME/.cargo" ]; then
   export PATH=$PATH:$HOME/.cargo/bin
