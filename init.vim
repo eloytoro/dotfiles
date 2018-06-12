@@ -283,10 +283,10 @@ nmap gh <C-w>h
 nmap gj <C-w>j
 nmap gk <C-w>k
 nmap gl <C-w>l
-nmap <down> :res -2<CR>
-nmap <up> :res +2<CR>
-nmap <right> 2<C-W>>
-nmap <left> 2<C-W><
+" nmap <down> :res -2<CR>
+" nmap <up> :res +2<CR>
+" nmap <right> 2<C-W>>
+" nmap <left> 2<C-W><
 nmap <C-w>- :sp<CR>
 nmap <C-w>\ :vsp<CR>
 
@@ -343,7 +343,6 @@ nmap <leader>gv :GV<CR>
 nmap <leader>gV :GV!<CR>
 nmap <leader>gg :Ggrep 
 nmap git :Git
-nmap [m :Git merge --abort<CR>
 nmap [r :Git rebase --abort<CR>
 nmap ]r :Git rebase --continue<CR>
 let g:Gitv_OpenHorizontal = 1
@@ -665,7 +664,7 @@ nmap <silent> @ :Tmux resize-pane -Z<CR>
 let g:deoplete#enable_at_startup = 1
 let g:deoplete#enable_smart_case = 1
 let g:tern#arguments = ["--persistent"]
-set completeopt=menuone,noinsert,noselect
+set completeopt=menuone,noselect
 if executable("racer")
   let g:deoplete#sources#rust#racer_binary = "/Users/etf/.cargo/bin/racer"
   let g:deoplete#sources#rust#rust_source_path = systemlist("rustc --print sysroot")[0]."/lib/rustlib/src/rust/src"
@@ -1145,8 +1144,12 @@ omap gF <Plug>(easymotion-Fl)
 omap gt <Plug>(easymotion-tl)
 omap gT <Plug>(easymotion-Tl)
 map / <Plug>(incsearch-forward)
+map ? <Plug>(incsearch-backward)
+map n <Plug>(incsearch-nohl-n)
+map N <Plug>(incsearch-nohl-N)
 set hlsearch
 let g:incsearch#auto_nohlsearch = 1
+let g:incsearch#consistent_n_direction = 1
 map n  <Plug>(incsearch-nohl-n)
 map N  <Plug>(incsearch-nohl-N)
 map *  <Plug>(incsearch-nohl-*)
