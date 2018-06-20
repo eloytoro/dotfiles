@@ -19,9 +19,9 @@ if filereadable(expand("~/.vimrc.local"))
   source ~/.vimrc.local
 endif
 
-if expand("~") != getcwd() && filereadable(expand(".vimrc"))
-  source .vimrc
-endif
+" if expand("~") != getcwd() && filereadable(expand(".vimrc"))
+"   source .vimrc
+" endif
 
 " Essential
 Plug 'tpope/vim-git'
@@ -170,23 +170,33 @@ endfunction
 set statusline=%f\ %y\ %{exists('g:loaded_fugitive')?fugitive#statusline():''}%{S_modified()}%=%-14.(%l/%L,%c%V%)
 "hi StatusLine ctermfg=232 ctermbg=45 guibg=#00bff4 guifg=#000000
 "hi StatusLineNC ctermfg=232 ctermbg=237 guibg=#777777 guifg=#000000
+if has('nvim')
+    tnoremap <Esc> <C-\><C-n>
+    set ttimeout
+    set ttimeoutlen=0
+else
+    set nocompatible
+    set noswapfile
+endif
 
-let g:markdown_composer_autostart = 0
+" let g:markdown_composer_autostart = 0
 let g:jsx_ext_required = 0
 
 " ----------------------------------------------------------------------------
 " Fix Indent
 " ----------------------------------------------------------------------------
-augroup vimrc
+augroup FTOptions
   autocmd!
   au BufNewFile,BufReadPost *.css set filetype=sass
   au BufNewFile,BufReadPost *.tsx,*.ts set filetype=javascript.jsx
   au BufWritePost vimrc,.vimrc,init.vim nested if expand('%') !~ 'fugitive' | source % | endif
   au filetype racket set lisp
   au filetype racket set autoindent
-  autocmd BufReadPost quickfix nmap <buffer> <CR> :.cc<CR>
+  au BufReadPost quickfix nmap <buffer> <CR> :.cc<CR>
+  au FileType perl let b:dispatch = 'perl -Wc %'
+  au FileType javascript.jsx let b:dispatch = 'node %'
+  au BufReadPost * if getline(1) =~# '^#!' | let b:dispatch = getline(1)[2:-1] . ' %' | let b:start = b:dispatch | endif
 augroup END
-command! Reload :so $MYVIMRC
 filetype plugin indent on
 
 " ----------------------------------------------------------------------------
@@ -197,7 +207,7 @@ set list listchars=tab:¦\ ,trail:·,extends:»,precedes:«,nbsp:×
 " ----------------------------------------------------------------------------
 " Maps
 " ----------------------------------------------------------------------------
-map <F2> :source ~/.config/nvim/init.vim<CR>
+map <F2> :so $MYVIMRC<CR>
 " For inserting new lines
 nmap - o<Esc>
 nmap _ O<Esc>
@@ -222,6 +232,7 @@ vnoremap L $
 inoremap <silent> <c-t> <C-R>=strftime("%c")<CR>
 inoremap <c-l> <space>=><space>
 cnoremap <expr> %% expand('%:h').'/'
+cnoremap <expr> !! expand('%:p')
 nnoremap <silent> ]b :bn<CR>
 nnoremap <silent> [b :bp<CR>
 nnoremap <silent> ]q :cn<CR>
@@ -289,17 +300,6 @@ nmap gl <C-w>l
 " nmap <left> 2<C-W><
 nmap <C-w>- :sp<CR>
 nmap <C-w>\ :vsp<CR>
-
-" ----------------------------------------------------------------------------
-"  Neovim
-" ----------------------------------------------------------------------------
-if has('nvim')
-    tnoremap <Esc> <C-\><C-n>
-    set ttimeout
-    set ttimeoutlen=0
-else
-    set nocompatible
-endif
 
 " ----------------------------------------------------------------------------
 "  Surround
@@ -652,11 +652,24 @@ let g:UltiSnipsSnippetsDir = vim_folder."/UltiSnips"
 let g:ulti_expand_or_jump_res = 0
 
 " ----------------------------------------------------------------------------
-"  Tmux / Dispatch
+"  Dispatch
 " ----------------------------------------------------------------------------
-autocmd FileType javascript let b:dispatch = 'mocha %'
+nmap <F9> :Dispatch<CR>
+
+" ----------------------------------------------------------------------------
+"  Tmux
+" ----------------------------------------------------------------------------
 nmap <silent> @ :Tmux resize-pane -Z<CR>
-" nmap <silent> @ :Ttoggle<CR>
+function! s:zoom()
+  Tmux resize-pane -Z
+  if winnr('$') > 1
+    tab split
+  elseif len(filter(map(range(tabpagenr('$')), 'tabpagebuflist(v:val + 1)'),
+        \ 'index(v:val, '.bufnr('').') >= 0')) > 1
+    tabclose
+  endif
+endfunction
+" nnoremap <silent> <CR> :call <sid>zoom()<cr>
 
 " ----------------------------------------------------------------------------
 "  Deoplete
@@ -778,12 +791,11 @@ function! s:go_indent(times, dir)
     let l = line('.')
     let x = line('$')
     let i = s:indent_len(getline(l))
-    let e = empty(getline(l))
 
     while l >= 1 && l <= x
       let line = getline(l + a:dir)
       let l += a:dir
-      if s:indent_len(line) != i || empty(line) != e
+      if s:indent_len(line) != i && !empty(line)
         break
       endif
     endwhile
@@ -1164,20 +1176,6 @@ let g:calendar_google_calendar = 1
 let g:calendar_google_task = 1
 nnoremap <leader>c :Calendar<CR>
 autocmd FileType calendar map <buffer> <C-p> :CTRLP<CR>
-
-" ----------------------------------------------------------------------------
-" Zoom
-" ----------------------------------------------------------------------------
-function! s:zoom()
-  Tmux resize-pane -Z
-  if winnr('$') > 1
-    tab split
-  elseif len(filter(map(range(tabpagenr('$')), 'tabpagebuflist(v:val + 1)'),
-        \ 'index(v:val, '.bufnr('').') >= 0')) > 1
-    tabclose
-  endif
-endfunction
-" nnoremap <silent> <CR> :call <sid>zoom()<cr>
 
 " ----------------------------------------------------------------------------
 " Yank Position

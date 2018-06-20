@@ -25,7 +25,11 @@ export EDITOR=nvim
 export LANG=en_US.UTF-8
 
 # export FZF_DEFAULT_COMMAND='ag -g ""'
-export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+if ! [ -x "$(command -v fd)" ]; then
+  export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+else
+  export FZF_DEFAULT_COMMAND='find * -type f'
+fi
 # export FZF_COMPLETION_OPTS='--extended --cycle --tiebreak=end,length'
 
 # enable color support of ls and also add handy aliases
@@ -84,6 +88,10 @@ fi
 if [ -d "$HOME/.rbenv" ]; then
   export PATH="$HOME/.rbenv/bin:$PATH"
   eval "$(rbenv init -)"
+fi
+
+if [ -d "$HOME/.yarn" ]; then
+  export PATH="$HOME/.yarn/bin:$PATH"
 fi
 
 if [ -d "$HOME/.cargo" ]; then
