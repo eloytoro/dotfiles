@@ -25,7 +25,7 @@ export EDITOR=nvim
 export LANG=en_US.UTF-8
 
 # export FZF_DEFAULT_COMMAND='ag -g ""'
-if ! [ -x "$(command -v fd)" ]; then
+if [ -x "$(command -v fd)" ]; then
   export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
 else
   export FZF_DEFAULT_COMMAND='find * -type f'
