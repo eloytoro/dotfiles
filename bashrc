@@ -9,7 +9,7 @@ shopt -s histappend
 HISTSIZE=1000
 HISTFILESIZE=2000
 
-if [ -e ~/.git-completion.sh ]; then
+if [ -e ~/.git-completion.bash ]; then
   source ~/.git-completion.bash
 fi
 
