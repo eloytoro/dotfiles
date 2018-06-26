@@ -89,6 +89,11 @@ Plug 'jacoborus/tender'
 Plug 'junegunn/seoul256.vim'
 Plug 'tomasr/molokai'
 Plug 'yuttie/hydrangea-vim'
+Plug 'morhetz/gruvbox'
+Plug 'tyrannicaltoucan/vim-deep-space'
+Plug 'AlessandroYorba/Despacio'
+Plug 'cocopon/iceberg.vim'
+Plug 'w0ng/vim-hybrid'
 
 call plug#end()
 
@@ -98,7 +103,8 @@ call plug#end()
 syntax enable
 if has("termguicolors")
     set termguicolors
-    silent! colorscheme tender
+    set background=dark
+    silent! colorscheme hybrid
     "hi ColorColumn guibg=#111111
     " colorscheme solarized
 else
@@ -159,15 +165,21 @@ set visualbell
 set colorcolumn=100
 set formatoptions+=rojn
 set diffopt=filler,vertical
-" set nohlsearch
-set mouse=""
-function! S_modified()
-    if &modified
-        return ' [+] '
-    endif
-    return ''
+silent! set ttymouse=xterm2
+set mouse=a
+set nostartofline
+function! s:statusline_expr()
+  let mod = "%{&modified ? '[+] ' : !&modifiable ? '[x] ' : ''}"
+  let ro  = "%{&readonly ? '[RO] ' : ''}"
+  let ft  = "%{len(&filetype) ? '['.&filetype.'] ' : ''}"
+  let fug = "%{exists('g:loaded_fugitive') ? fugitive#statusline() : ''}"
+  let sep = ' %= '
+  let pos = ' %-12(%l : %c%V%) '
+  let pct = ' %P'
+
+  return '[%n] %F %<'.mod.ro.ft.fug.sep.pos.'%*'.pct
 endfunction
-set statusline=%f\ %y\ %{exists('g:loaded_fugitive')?fugitive#statusline():''}%{S_modified()}%=%-14.(%l/%L,%c%V%)
+let &statusline = s:statusline_expr()
 "hi StatusLine ctermfg=232 ctermbg=45 guibg=#00bff4 guifg=#000000
 "hi StatusLineNC ctermfg=232 ctermbg=237 guibg=#777777 guifg=#000000
 if has('nvim')
@@ -235,13 +247,13 @@ cnoremap <expr> %% expand('%:h').'/'
 cnoremap <expr> !! expand('%:p')
 nnoremap <silent> ]b :bn<CR>
 nnoremap <silent> [b :bp<CR>
-nnoremap <silent> ]q :cn<CR>
-nnoremap <silent> [q :cp<CR>
+nnoremap <silent> ]q :cn<CR>zz
+nnoremap <silent> [q :cp<CR>zz
 nnoremap <silent> <C-t> :tabnew<cr>
 inoremap <C-s> <C-O>:update<cr>
 nnoremap <C-s> :update<cr>
-inoremap <C-q> <esc>:q<cr>
-nnoremap <C-q> :q<cr>
+inoremap <C-Q> <esc>:q<cr>
+nnoremap <C-Q> :q<cr>
 inoremap <C-e> <End>
 inoremap <C-a> <Home>
 
@@ -387,6 +399,12 @@ endfunction
 augroup nerd
   autocmd!
   autocmd BufReadPost * call NERDTreeFindUpdate()
+  autocmd VimEnter * silent! autocmd! FileExplorer
+  autocmd BufEnter,BufNew *
+        \  if isdirectory(expand('<amatch>'))
+        \|   call plug#load('nerdtree')
+        \|   execute 'autocmd! nerd'
+        \| endif
 augroup END
 
 " function! StartScreen()
@@ -1027,26 +1045,29 @@ onoremap <silent> a~ :<C-U>execute "normal va`"<cr>
 " ----------------------------------------------------------------------------
 " <leader>t | vim-tbone
 " ----------------------------------------------------------------------------
-function! s:tmux_send(dest) range
-  call inputsave()
+function! s:tmux_send(content, dest) range
   let dest = empty(a:dest) ? input('To which pane? ') : a:dest
-  call inputrestore()
-  silent call tbone#write_command(0, a:firstline, a:lastline, 1, dest)
+  let tempfile = tempname()
+  call writefile(split(a:content, "\n", 1), tempfile, 'b')
+  call system(printf('tmux load-buffer -b vim-tmux %s \; paste-buffer -d -b vim-tmux -t %s',
+        \ shellescape(tempfile), shellescape(dest)))
+  call delete(tempfile)
 endfunction
-unlet! m
-for m in ['n', 'x']
-  let gv = m == 'x' ? 'gv' : ''
-  execute m."noremap <silent> <leader>tt :call <SID>tmux_send('')<cr>".gv
-  execute m."noremap <silent> <leader>th :call <SID>tmux_send('.left')<cr>".gv
-  execute m."noremap <silent> <leader>tj :call <SID>tmux_send('.bottom')<cr>".gv
-  execute m."noremap <silent> <leader>tk :call <SID>tmux_send('.top')<cr>".gv
-  execute m."noremap <silent> <leader>tl :call <SID>tmux_send('.right')<cr>".gv
-  execute m."noremap <silent> <leader>ty :call <SID>tmux_send('.top-left')<cr>".gv
-  execute m."noremap <silent> <leader>to :call <SID>tmux_send('.top-right')<cr>".gv
-  execute m."noremap <silent> <leader>tn :call <SID>tmux_send('.bottom-left')<cr>".gv
-  execute m."noremap <silent> <leader>t. :call <SID>tmux_send('.bottom-right')<cr>".gv
-endfor
-unlet m
+
+function! s:tmux_map(key, dest)
+  execute printf('nnoremap <silent> %s "tyy:call <SID>tmux_send(@t, "%s")<cr>', a:key, a:dest)
+  execute printf('xnoremap <silent> %s "ty:call <SID>tmux_send(@t, "%s")<cr>gv', a:key, a:dest)
+endfunction
+
+call s:tmux_map('<leader>tt', '')
+call s:tmux_map('<leader>th', '.left')
+call s:tmux_map('<leader>tj', '.bottom')
+call s:tmux_map('<leader>tk', '.top')
+call s:tmux_map('<leader>tl', '.right')
+call s:tmux_map('<leader>ty', '.top-left')
+call s:tmux_map('<leader>to', '.top-right')
+call s:tmux_map('<leader>tn', '.bottom-left')
+call s:tmux_map('<leader>t.', '.bottom-right')
 
 " ----------------------------------------------------------------------------
 " gv.vim / gl.vim
@@ -1119,7 +1140,7 @@ endfunction
 autocmd! User GoyoEnter nested call <SID>goyo_enter()
 autocmd! User GoyoLeave nested call <SID>goyo_leave()
 
-nnoremap <Leader>G :Goyo 120<CR>
+nnoremap <Leader>G :Goyo 100<CR>
 
 " ----------------------------------------------------------------------------
 " undotree

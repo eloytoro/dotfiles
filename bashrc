@@ -5,6 +5,9 @@ HISTCONTROL=ignoreboth
 # append to the history file, don't overwrite it
 shopt -s histappend
 
+### Disable CTRL-S and CTRL-Q
+[[ $- =~ i ]] && stty -ixoff -ixon
+
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 HISTSIZE=1000
 HISTFILESIZE=2000
@@ -29,6 +32,10 @@ if [ -x "$(command -v fd)" ]; then
   export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
 else
   export FZF_DEFAULT_COMMAND='find * -type f'
+fi
+[ -n "$NVIM_LISTEN_ADDRESS" ] && export FZF_DEFAULT_OPTS='--no-height'
+if [ -x ~/.vim/plugged/fzf.vim/bin/preview.rb ]; then
+  export FZF_CTRL_T_OPTS="--preview '~/.vim/plugged/fzf.vim/bin/preview.rb {} | head -200'"
 fi
 # export FZF_COMPLETION_OPTS='--extended --cycle --tiebreak=end,length'
 
@@ -79,7 +86,7 @@ fi
 
 export TERM=xterm-256color
 
-if [ -d "$HOME/.nvm" ]; then
+if [ -x "$(command -v node)" ]; then
   # local node_modules
   export PATH=$PATH:./node_modules/.bin
 fi
@@ -100,8 +107,34 @@ fi
 
 export CFLAGS="-I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib"
 
+# c - browse chrome history
+c() {
+  local cols sep
+  export cols=$(( COLUMNS / 3 ))
+  export sep='{::}'
+
+  cp -f ~/Library/Application\ Support/Google/Chrome/Default/History /tmp/h
+  sqlite3 -separator $sep /tmp/h \
+    "select title, url from urls order by last_visit_time desc" |
+  ruby -ne '
+    cols = ENV["cols"].to_i
+    title, url = $_.split(ENV["sep"])
+    len = 0
+    puts "\x1b[36m" + title.each_char.take_while { |e|
+      if len < cols
+        len += e =~ /\p{Han}|\p{Katakana}|\p{Hiragana}|\p{Hangul}/ ? 2 : 1
+      end
+    }.join + " " * (2 + cols - len) + "\x1b[m" + url' |
+  fzf --ansi --multi --no-hscroll --tiebreak=index |
+  sed 's#.*\(https*://\)#\1#' | xargs open
+}
+
 # GIT heart FZF
 # -------------
+
+fzf-down() {
+  fzf --height 50% "$@" --border
+}
 
 is_in_git_repo() {
   git rev-parse HEAD > /dev/null 2>&1
@@ -172,3 +205,11 @@ if [ -s "$HOME/.nvm/nvm.sh" ] && [ ! "$(type -t __init_nvm)" = function ]; then
   }
   for i in "${__node_commands[@]}"; do alias $i='__init_nvm && '$i; done
 fi
+
+# Z integration
+# source "$HOME/dotfiles/z.sh"
+# unalias z 2> /dev/null
+# z() {
+#   [ $# -gt 0 ] && _z "$*" && return
+#   cd "$(_z -l 2>&1 | fzf --height 40% --nth 2.. --reverse --inline-info +s --tac --query "${*##-* }" | sed 's/^[0-9,.]* *//')"
+# }
