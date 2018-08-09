@@ -104,7 +104,7 @@ syntax enable
 if has("termguicolors")
     set termguicolors
     set background=dark
-    silent! colorscheme hybrid
+    silent! colorscheme gruvbox
     "hi ColorColumn guibg=#111111
     " colorscheme solarized
 else
@@ -207,6 +207,7 @@ augroup FTOptions
   au BufReadPost quickfix nmap <buffer> <CR> :.cc<CR>
   au FileType perl let b:dispatch = 'perl -Wc %'
   au FileType javascript.jsx let b:dispatch = 'node %'
+  au BufNewFile,BufReadPost *.test.js let b:dispatch = 'yarn test %'
   au BufReadPost * if getline(1) =~# '^#!' | let b:dispatch = getline(1)[2:-1] . ' %' | let b:start = b:dispatch | endif
 augroup END
 filetype plugin indent on
@@ -1153,11 +1154,10 @@ nnoremap U :UndotreeToggle<CR>
 " Neomake
 " ----------------------------------------------------------------------------
 call neomake#configure#automake('w')
-let g:neomake_verbose = 0
+" let g:neomake_verbose = 0
 let g:neomake_javascript_enabled_makers = []
-let s:eslint_path = getcwd().'/node_modules/.bin/eslint'
-if filereadable(s:eslint_path)
-  let g:neomake_javascript_eslint_exe = s:eslint_path
+if executable('eslint')
+  let g:neomake_javascript_eslint_exe = exepath('eslint')
   let g:neomake_javascript_enabled_makers += ['eslint']
 endif
 silent! if emoji#available()
@@ -1232,3 +1232,7 @@ function! Shrug()
   return "¯\\_(ツ)_/¯"
 endfunction
 inoremap <silent> <c-\> <C-R>=Shrug()<CR>
+
+" Replace
+nmap coi :%s/import\(\_.\{-}\)from\s\(.\{-}\);/const\1= require(\2);/gc<CR>
+nmap cor :%s/const\(\_.\{-}\)=\srequire(\(.\{-}\));/import\1from \2;/gc<CR>
