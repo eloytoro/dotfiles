@@ -88,7 +88,7 @@ export TERM=xterm-256color
 
 if [ -x "$(command -v node)" ]; then
   # local node_modules
-  export PATH=$PATH:./node_modules/.bin
+  export PATH=./node_modules/.bin:$PATH
 fi
 
 

@@ -1122,7 +1122,6 @@ function! s:goyo_enter()
   elseif exists('$TMUX')
     silent !tmux set status off
   endif
-  Limelight
   let &l:statusline = '%M'
   hi StatusLine ctermfg=red guifg=red cterm=NONE gui=NONE
 endfunction
@@ -1135,7 +1134,6 @@ function! s:goyo_leave()
   elseif exists('$TMUX')
     silent !tmux set status on
   endif
-  Limelight!
 endfunction
 
 autocmd! User GoyoEnter nested call <SID>goyo_enter()
