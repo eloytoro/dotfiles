@@ -79,7 +79,7 @@ if executable('node')
     \ 'for': ['javascript', 'typescript', 'css', 'less', 'scss', 'json', 'graphql', 'markdown', 'vue'] }
 endif
 Plug 'othree/html5.vim', { 'for': 'html' }
-Plug 'raichoo/haskell-vim', { 'for': 'haskell' }
+" Plug 'raichoo/haskell-vim', { 'for': 'haskell' }
 Plug 'digitaltoad/vim-jade', { 'for': 'jade' }
 " Colorschemes
 Plug 'jacoborus/tender'
