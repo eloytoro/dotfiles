@@ -181,6 +181,10 @@ gr() {
   cut -d$'\t' -f1
 }
 
+gc() {
+  gb | xargs git checkout
+}
+
 opl() {
   op list items |
   jq '[.[] | [.overview.title, .uuid] | join(": ")] | join("\n")' -r |
