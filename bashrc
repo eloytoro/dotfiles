@@ -181,6 +181,16 @@ gr() {
   cut -d$'\t' -f1
 }
 
+opl() {
+  op list items |
+  jq '[.[] | [.overview.title, .uuid] | join(": ")] | join("\n")' -r |
+  fzf-down --ansi --multi --tac --preview-window right:40% \
+    --preview 'op get item $(sed "s/^.*:[[:space:]]//" <<< {}) | jq "{ title: .overview.title, fields: .details.fields | map(.designation) }" -C' |
+  sed "s/^.*:[[:space:]]//" |
+  xargs -I {} op get item {} |
+  jq ".details.fields | map(select(.designation == \"password\")) | .[0].value" -r
+}
+
 if [[ $- =~ i ]]; then
   bind '"\er": redraw-current-line'
   bind '"\C-g\C-f": "$(gf)\e\C-e\er"'
