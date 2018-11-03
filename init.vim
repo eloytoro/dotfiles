@@ -456,9 +456,14 @@ function! CTRLP()
   if (target == '')
     let target = '.'
   endif
-  call fzf#vim#files('', {
-        \ 'source': $HOME.'/dotfiles/fdup.sh '.target
-        \ })
+  if executable("fd")
+    call fzf#vim#files('', {
+          \ 'source': $HOME.'/dotfiles/fdup.sh '.target,
+          \ 'options': '--no-sort'
+          \ })
+  else
+    Files
+  endif
 endfunction
 command! CTRLP call CTRLP()
 nnoremap <silent> <C-p> :CTRLP<CR>
