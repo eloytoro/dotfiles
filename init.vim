@@ -452,7 +452,13 @@ function! CTRLP()
   if expand('%') =~ 'NERD_tree'
     exec "normal! \<c-w>w"
   endif
-  Files
+  let target = expand("%:h")
+  if (target == '')
+    let target = '.'
+  endif
+  call fzf#vim#files('', {
+        \ 'source': $HOME.'/dotfiles/fdup.sh '.target
+        \ })
 endfunction
 command! CTRLP call CTRLP()
 nnoremap <silent> <C-p> :CTRLP<CR>
