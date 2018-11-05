@@ -63,7 +63,8 @@ if has('python3') && has('nvim')
       !cargo install racer
       !rustup component add rust-src
     endfunction
-    Plug 'sebastianmarkow/deoplete-rust', { 'do': function('InstallRacer') }
+    " Plug 'sebastianmarkow/deoplete-rust', { 'do': function('InstallRacer') }
+    Plug 'racer-rust/vim-racer', { 'do': function('InstallRacer') }
   endif
 endif
 " Language specific
@@ -432,16 +433,6 @@ imap <c-v> <Plug>EasyClipInsertModePaste
 nmap M mL
 
 " ----------------------------------------------------------------------------
-"  CtrlP
-" ----------------------------------------------------------------------------
-set wildignore+=*/tmp/*,*.so,*.sw?,*.zip,*/vendor/*,*/bower_components/*,*/node_modules/*,*/dist/*
-"let g:ctrlp_match_window_bottom = 0
-let g:ctrlp_mru_files = 1
-let g:ctrlp_extensions = ['merge', 'checkout']
-let g:ctrlp_funky_syntax_highlight = 1
-let g:ctrlp_working_path_mode = 'ra'
-
-" ----------------------------------------------------------------------------
 "  FZF
 " ----------------------------------------------------------------------------
 if has('nvim')
@@ -502,7 +493,7 @@ function! s:branch_handler(line)
 endfunction
 
 function! s:ref_handler(line)
-    exec "Gvdiff ".s:get_log_ref(a:line)."^"
+    exec "Gvdiff ".s:get_log_ref(a:line)
 endfunction
 
 function! s:fzf_show_commits(here, handler)
@@ -517,18 +508,18 @@ function! s:fzf_show_commits(here, handler)
     call fzf#run({
                 \ 'source': 'git log '.join(options, ' '),
                 \ 'sink': a:handler,
-                \ 'options': '--ansi --multi --no-sort --tiebreak=index --reverse '.
+                \ 'options': '--ansi --multi --no-sort --tiebreak=index '.
                 \   '--inline-info -e --prompt "Commit> " --bind=ctrl-s:toggle-sort',
-                \ 'left': '50%'})
+                \ 'down': 8})
 endfunction
 
 function! s:fzf_show_branches(handler)
   call fzf#run({
-        \ 'source': 'git branch',
+        \ 'source': 'git for-each-ref --sort=-committerdate refs/heads/ --format="%(refname:short)"',
         \ 'sink': a:handler,
         \ 'options': '--ansi --multi --no-sort --tiebreak=index --reverse '.
         \   '--inline-info -e --prompt "Commit> " --bind=ctrl-s:toggle-sort',
-        \ 'left': '50%'})
+        \ 'left': '50'})
 endfunction
 
 command! -nargs=0 FZFCheckout call s:fzf_show_branches(function('s:branch_handler'))
@@ -680,6 +671,7 @@ let g:jsdoc_return = 0
 let g:UltiSnipsExpandTrigger = "<C-u>"
 let g:UltiSnipsSnippetsDir = vim_folder."/UltiSnips"
 let g:ulti_expand_or_jump_res = 0
+let g:UltiSnipsJumpForwardTrigger = "<CR>"
 
 " ----------------------------------------------------------------------------
 "  Dispatch
@@ -709,7 +701,7 @@ let g:deoplete#enable_smart_case = 1
 let g:tern#arguments = ["--persistent"]
 set completeopt=menuone,noselect
 if executable("racer")
-  let g:deoplete#sources#rust#racer_binary = "/Users/etf/.cargo/bin/racer"
+  let g:deoplete#sources#rust#racer_binary = $HOME."/.cargo/bin/racer"
   let g:deoplete#sources#rust#rust_source_path = systemlist("rustc --print sysroot")[0]."/lib/rustlib/src/rust/src"
 endif
 
