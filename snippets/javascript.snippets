@@ -1,5 +1,15 @@
 global !p
 import re
+import string
+
+def cap(matches):
+	if (matches[1] in ['fs', 'path', 'child_process', 'crypto']):
+		return matches[1]
+	last = matches[1].split('/')[-1]
+	last = re.sub(r"\.", "", last)
+	if len(last) == 0:
+		return ''
+	return last[0].upper()  + last[1:]
 endglobal
 
 snippet if "if"
@@ -27,12 +37,14 @@ function* ${1}(${2}) {
 endsnippet
 
 snippet require
-const ${2:$1} = require('${1}');
+const ${2:`!p
+snip.rv = cap(t)
+`} = require('${1}');
 endsnippet
 
 snippet import
 import ${2:`!p
-snip.rv = ''.join(x.title() for x in re.compile(r"[/_]").split(re.sub(r"\.", "", t[1])))
+snip.rv = cap(t)
 `} from '${1}';
 endsnippet
 
