@@ -24,7 +24,6 @@ fi
 PS1="\[\e[1;38m\]\u\[\e[1;34m\]@\[\e[1;31m\]\h\[\e[1;30m\]:"
 PS1=$PS1'\[\e[0;38m\]\w$(__git_ps1 "\[\033[38;5;214m\] [⎇ %s]")\[\e[1;35m\]\n$ \[\e[0m\]'
 
-export EDITOR=nvim
 export LANG=en_US.UTF-8
 
 # export FZF_DEFAULT_COMMAND='ag -g ""'
@@ -34,8 +33,8 @@ else
   export FZF_DEFAULT_COMMAND='find * -type f'
 fi
 [ -n "$NVIM_LISTEN_ADDRESS" ] && export FZF_DEFAULT_OPTS='--no-height'
-if [ -x ~/.vim/plugged/fzf.vim/bin/preview.rb ]; then
-  export FZF_CTRL_T_OPTS="--preview '~/.vim/plugged/fzf.vim/bin/preview.rb {} | head -200'"
+if [ -x ~/.config/nvim/plug/fzf.vim/bin/preview.rb ]; then
+  export FZF_CTRL_T_OPTS="--preview '~/.config/nvim/plug/fzf.vim/bin/preview.rb {} | head -200'"
 fi
 # export FZF_COMPLETION_OPTS='--extended --cycle --tiebreak=end,length'
 
@@ -73,9 +72,9 @@ alias opentorrent='peerflix --vlc -n -d --list '
 # sources /etc/bash.bashrc).
 if ! shopt -oq posix; then
   if [ -f /usr/share/bash-completion/bash_completion ]; then
-    . /usr/share/bash-completion/bash_completion
+    source /usr/share/bash-completion/bash_completion
   elif [ -f /etc/bash_completion ]; then
-    . /etc/bash_completion
+    source /etc/bash_completion
   fi
 fi
 
@@ -101,6 +100,10 @@ fi
 
 if [ -d "$HOME/.cargo" ]; then
   export PATH=$PATH:$HOME/.cargo/bin
+fi
+
+if [ -d "$HOME/dotfiles/bin" ]; then
+  export PATH=$PATH:$HOME/dotfiles/bin
 fi
 
 export CFLAGS="-I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib"

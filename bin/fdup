@@ -1,3 +1,5 @@
+#!/bin/bash
+
 set -e
 path=$1
 shift 1

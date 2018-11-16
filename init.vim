@@ -449,7 +449,7 @@ function! CTRLP()
   endif
   if executable("fd")
     call fzf#vim#files('', {
-          \ 'source': $HOME.'/dotfiles/fdup.sh '.target,
+          \ 'source': 'fdup '.target,
           \ 'options': '--no-sort'
           \ })
   else
