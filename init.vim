@@ -167,7 +167,7 @@ set colorcolumn=100
 set formatoptions+=rojn
 set diffopt=filler,vertical
 silent! set ttymouse=xterm2
-set mouse=a
+" set mouse=a
 set nostartofline
 function! s:statusline_expr()
   let mod = "%{&modified ? '[+] ' : !&modifiable ? '[x] ' : ''}"
@@ -206,7 +206,7 @@ augroup FTOptions
   au filetype racket set lisp
   au filetype racket set autoindent
   au BufReadPost quickfix nmap <buffer> <CR> :.cc<CR>
-  au FileType perl let b:dispatch = 'perl -Wc %'
+  au FileType perl let b:dispatch = 'perl %'
   au FileType javascript.jsx let b:dispatch = 'node %'
   au BufNewFile,BufReadPost *.test.js let b:dispatch = 'yarn test %'
   au BufReadPost * if getline(1) =~# '^#!' | let b:dispatch = getline(1)[2:-1] . ' %' | let b:start = b:dispatch | endif
@@ -231,6 +231,8 @@ nmap <leader>q :cope<CR>
 " <tab> for tab switcing
 nnoremap <Tab> gt
 nnoremap <S-Tab> gT
+nnoremap <silent> <M-n> :execute 'silent! tabmove ' . (tabpagenr()+1)<CR>
+nnoremap <silent> <M-p> :execute 'silent! tabmove ' . (tabpagenr()-2)<CR>
 " cd changes directory to the current file's
 nmap cd :cd %:p:h<CR>
 " Retain cursor position on page scrolling
@@ -247,6 +249,7 @@ inoremap <silent> <c-t> <C-R>=strftime("%c")<CR>
 inoremap <c-l> <space>=><space>
 cnoremap <expr> %% expand('%:h').'/'
 cnoremap <expr> !! expand('%:p')
+cnoremap <expr> @@ expand('%:p:h').'/'
 nnoremap <silent> ]b :bn<CR>
 nnoremap <silent> [b :bp<CR>
 nnoremap <silent> ]q :cn<CR>zz
@@ -258,20 +261,6 @@ inoremap <C-Q> <esc>:q<cr>
 nnoremap <C-Q> :q<cr>
 inoremap <C-e> <End>
 inoremap <C-a> <Home>
-
-" ----------------------------------------------------------------------------
-" RENAME CURRENT FILE
-" ----------------------------------------------------------------------------
-function! RenameFile()
-    let old_name = expand('%')
-    let new_name = input('New file name: ', expand('%'), 'file')
-    if new_name != '' && new_name != old_name
-        exec ':saveas ' . new_name
-        exec ':silent !rm ' . old_name
-        redraw!
-    endif
-endfunction
-map <leader>r :call RenameFile()<cr>
 
 " ----------------------------------------------------------------------------
 " OpenChangedFiles COMMAND
@@ -324,10 +313,10 @@ nmap s} ySil{
 " ----------------------------------------------------------------------------
 "  Sneak
 " ----------------------------------------------------------------------------
-nmap gf  <Plug>Sneak_s
-omap gf  <Plug>Sneak_s
-nmap gb <Plug>Sneak_S
-omap gb <Plug>Sneak_S
+" nmap gf  <Plug>Sneak_s
+" omap gf  <Plug>Sneak_s
+" nmap gb <Plug>Sneak_S
+" omap gb <Plug>Sneak_S
 
 " ----------------------------------------------------------------------------
 " Readline-style key bindings in command-line (excerpt from rsi.vim)
@@ -389,7 +378,8 @@ function! NERDTreeFindOrToggle()
     :NERDTreeFind
   endif
 endfunction
-map <silent> <Leader>n :call NERDTreeFindOrToggle()<CR>
+map <silent> <leader>n :call NERDTreeFindOrToggle()<CR>
+map <silent> <leader>o :NERDTreeFind<CR>
 
 function! NERDTreeFindUpdate()
   if exists("t:NERDTreeBufName") && bufwinnr(t:NERDTreeBufName) != -1 && expand("%:p") =~ getcwd() && !exists("b:fugitive_type")
@@ -691,7 +681,7 @@ function! s:zoom()
     tabclose
   endif
 endfunction
-" nnoremap <silent> <CR> :call <sid>zoom()<cr>
+nnoremap <silent> <leader>z :call <sid>zoom()<cr>
 
 " ----------------------------------------------------------------------------
 "  Deoplete
@@ -1169,14 +1159,12 @@ endif
 " ----------------------------------------------------------------------------
 " Easymotion
 " ----------------------------------------------------------------------------
-nmap g<CR> <Plug>(easymotion-overwin-line)
+nmap <CR> <Plug>(easymotion-overwin-line)
 nmap go <Plug>(easymotion-overwin-w)
-nmap gf <Plug>(easymotion-f)
-nmap gF <Plug>(easymotion-F)
-omap gf <Plug>(easymotion-fl)
-omap gF <Plug>(easymotion-Fl)
-omap gt <Plug>(easymotion-tl)
-omap gT <Plug>(easymotion-Tl)
+nmap <leader>f <Plug>(easymotion-overwin-f)
+nmap <leader>s <Plug>(easymotion-overwin-f2)
+omap <leader>f <Plug>(easymotion-fl)
+omap <leader>s <Plug>(easymotion-fl2)
 map / <Plug>(incsearch-forward)
 map ? <Plug>(incsearch-backward)
 map n <Plug>(incsearch-nohl-n)
