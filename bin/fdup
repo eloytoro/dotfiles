@@ -3,6 +3,11 @@
 set -e
 path=$1
 shift 1
+
+if [ ! -e "$path" ]; then
+  path="."
+fi
+
 while true; do
   cmd="fd"
   if [ -n "$prev" ]; then
