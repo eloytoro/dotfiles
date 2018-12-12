@@ -686,13 +686,15 @@ nnoremap <silent> <leader>z :call <sid>zoom()<cr>
 " ----------------------------------------------------------------------------
 "  Deoplete
 " ----------------------------------------------------------------------------
-let g:deoplete#enable_at_startup = 1
-let g:deoplete#enable_smart_case = 1
-let g:tern#arguments = ["--persistent"]
-set completeopt=menuone,noselect
-if executable("racer")
-  let g:deoplete#sources#rust#racer_binary = $HOME."/.cargo/bin/racer"
-  let g:deoplete#sources#rust#rust_source_path = systemlist("rustc --print sysroot")[0]."/lib/rustlib/src/rust/src"
+if has('nvim')
+  let g:deoplete#enable_at_startup = 1
+  let g:deoplete#enable_smart_case = 1
+  let g:tern#arguments = ["--persistent"]
+  set completeopt=menuone,noselect
+  if executable("racer")
+    let g:deoplete#sources#rust#racer_binary = $HOME."/.cargo/bin/racer"
+    let g:deoplete#sources#rust#rust_source_path = systemlist("rustc --print sysroot")[0]."/lib/rustlib/src/rust/src"
+  endif
 endif
 
 
