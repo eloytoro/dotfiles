@@ -148,8 +148,8 @@ set noshowmode
 set nolist
 set expandtab smarttab
 set virtualedit=block
-set backupdir=~/.config/nvim/backup
-set directory=~/.config/nvim/backup
+" set backupdir=~/.config/nvim/backup
+" set directory=~/.config/nvim/backup
 set laststatus=2
 set pastetoggle=<F7>
 set splitbelow
@@ -382,7 +382,8 @@ map <silent> <leader>n :call NERDTreeFindOrToggle()<CR>
 map <silent> <leader>o :NERDTreeFind<CR>
 
 function! NERDTreeFindUpdate()
-  if exists("t:NERDTreeBufName") && bufwinnr(t:NERDTreeBufName) != -1 && expand("%:p") =~ getcwd() && !exists("b:fugitive_type")
+  let s:path = expand("%:p")
+  if exists("t:NERDTreeBufName") && bufwinnr(t:NERDTreeBufName) != -1 && s:path =~ getcwd() && !exists("b:fugitive_type") && s:path !~ ".git$"
     :NERDTreeFind
     exec "normal! \<c-w>p"
   endif
