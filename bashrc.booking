@@ -1,17 +1,8 @@
-# Get the aliases and functions
-if [ -f ~/.bashrc ]; then
-        . ~/.bashrc
-fi
-
 if [ -z "$TMUX" ]; then
         tmux attach
 else
         tmux
 fi
-
-# User specific environment and startup programs
-
-PATH=$PATH:$HOME/.local/bin:$HOME/bin
 
 alias nvim=vim
 alias main="cd /usr/local/git_tree/main"
@@ -20,3 +11,10 @@ alias fixssh='eval $(tmux showenv -s SSH_AUTH_SOCK)'
 alias vpscripts="cd /usr/local/git_tree/main/apps/suite/scripts/cron/VendorPortal"
 export FZF_DEFAULT_COMMAND='find * -type f'
 export EDITOR=vim
+
+function enable_proxy() {
+	export HTTP_PROXY=http://webproxy.lhr4.dqs.booking.com:3128/
+	export http_proxy=http://webproxy.lhr4.dqs.booking.com:3128/
+	export HTTPS_PROXY=http://webproxy.lhr4.dqs.booking.com:3128/
+	export https_proxy=http://webproxy.lhr4.dqs.booking.com:3128/
+}
