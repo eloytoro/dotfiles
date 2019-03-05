@@ -19,9 +19,9 @@ if filereadable(expand("~/.vimrc.local"))
   source ~/.vimrc.local
 endif
 
-" if expand("~") != getcwd() && filereadable(expand(".vimrc"))
-"   source .vimrc
-" endif
+if expand("~") != getcwd() && filereadable(expand(".vimrc"))
+  source .vimrc
+endif
 
 " Essential
 Plug 'tpope/vim-git'
@@ -35,7 +35,7 @@ Plug 'tpope/vim-dispatch'
 Plug 'shumphrey/fugitive-gitlab.vim'
 Plug 'airblade/vim-gitgutter'
 Plug 'mbbill/undotree'
-Plug 'neomake/neomake'
+Plug 'w0rp/ale'
 Plug 'kassio/neoterm'
 Plug 'scrooloose/nerdtree'
 Plug 'svermeulen/vim-easyclip'
@@ -51,20 +51,22 @@ Plug 'junegunn/fzf.vim'
 Plug 'junegunn/goyo.vim'
 Plug 'junegunn/limelight.vim'
 Plug 'itchyny/calendar.vim'
-if has('python3') && has('nvim')
-  Plug 'Shougo/deoplete.nvim'
+if has('python3')
   Plug 'SirVer/ultisnips'
-  if executable("node")
-    Plug 'carlitux/deoplete-ternjs', { 'do': 'yarn global add tern' }
-    Plug 'ternjs/tern_for_vim', { 'do': 'yarn' }
-  endif
-  if executable("cargo")
-    function! InstallRacer(info)
-      !cargo install racer
-      !rustup component add rust-src
-    endfunction
-    " Plug 'sebastianmarkow/deoplete-rust', { 'do': function('InstallRacer') }
-    Plug 'racer-rust/vim-racer', { 'do': function('InstallRacer') }
+  if has('nvim')
+    Plug 'Shougo/deoplete.nvim'
+    if executable("node")
+      Plug 'carlitux/deoplete-ternjs', { 'do': 'yarn global add tern' }
+      Plug 'ternjs/tern_for_vim', { 'do': 'yarn' }
+    endif
+    if executable("cargo")
+      function! InstallRacer(info)
+        !cargo install racer
+        !rustup component add rust-src
+      endfunction
+      " Plug 'sebastianmarkow/deoplete-rust', { 'do': function('InstallRacer') }
+      Plug 'racer-rust/vim-racer', { 'do': function('InstallRacer') }
+    endif
   endif
 endif
 " Language specific
@@ -73,7 +75,9 @@ Plug 'pangloss/vim-javascript'
 Plug 'othree/yajs.vim'
 Plug 'heavenshell/vim-jsdoc'
 Plug 'mxw/vim-jsx'
-Plug 'rust-lang/rust.vim'
+Plug 'leafgarland/typescript-vim'
+Plug 'Quramy/tsuquyomi', { 'do': 'yarn global add typescript' }
+Plug 'rust-lang/rust.vim', { 'for': 'rust' }
 if executable('node')
   Plug 'prettier/vim-prettier', {
     \ 'do': 'yarn install',
@@ -95,6 +99,8 @@ Plug 'tyrannicaltoucan/vim-deep-space'
 Plug 'AlessandroYorba/Despacio'
 Plug 'cocopon/iceberg.vim'
 Plug 'w0ng/vim-hybrid'
+Plug 'Nequo/vim-allomancer'
+Plug 'junegunn/vim-emoji'
 
 call plug#end()
 
@@ -105,7 +111,8 @@ syntax enable
 if has("termguicolors")
     set termguicolors
     set background=dark
-    silent! colorscheme gruvbox
+    " silent! colorscheme gruvbox
+    silent! colorscheme allomancer
     "hi ColorColumn guibg=#111111
     " colorscheme solarized
 else
@@ -355,12 +362,6 @@ let g:Gitv_OpenPreviewOnLaunch = 1
 "  GitGutter
 " ----------------------------------------------------------------------------
 nmap <leader>gh :GitGutterLineHighlightsToggle<CR>
-silent! if emoji#available()
-  let g:gitgutter_sign_added = emoji#for('small_blue_diamond')
-  let g:gitgutter_sign_modified = emoji#for('small_orange_diamond')
-  let g:gitgutter_sign_removed = emoji#for('small_red_triangle')
-  let g:gitgutter_sign_modified_removed = emoji#for('small_red_triangle_down')
-endif
 
 " ----------------------------------------------------------------------------
 " EasyAlign
@@ -594,16 +595,14 @@ inoremap <silent> <CR> <C-R>=CarriageReturn()<CR>
 function! CloseTag()
     let n = getline('.')
     let column = col('.') - 1
-    let hl = s:hl()
+    let hl = s:hl()[-1]
     let close = '>'
     if !column
       return close
     endif
-    for item in s:hl_whitelist
-      if index(hl, item) == -1
-        return close
-      endif
-    endfor
+    if index(s:hl_whitelist, hl) == -1
+      return close
+    endif
     let line_before_cursor = strpart(n, 0, column)
     if line_before_cursor !~ s:tag_regexp.'$'
       return close
@@ -1145,18 +1144,17 @@ nnoremap U :UndotreeToggle<CR>
 
 
 " ----------------------------------------------------------------------------
-" Neomake
+" ALE
 " ----------------------------------------------------------------------------
-call neomake#configure#automake('w')
-" let g:neomake_verbose = 0
-let g:neomake_javascript_enabled_makers = []
-if executable('eslint')
-  let g:neomake_javascript_eslint_exe = exepath('eslint')
-  let g:neomake_javascript_enabled_makers += ['eslint']
-endif
+let g:ale_linters = {
+      \ 'javascript': ['eslint'],
+      \ }
+
 silent! if emoji#available()
-  let g:neomake_error_sign = {'text': emoji#for('fire')}
-  let g:neomake_warning_sign = {'text': emoji#for('bulb')}
+  let g:ale_sign_error = emoji#for('fire')
+  let g:ale_sign_warning = emoji#for('bulb')
+  highlight clear ALEErrorSign
+  highlight clear ALEWarningSign
 endif
 
 " ----------------------------------------------------------------------------
