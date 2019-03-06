@@ -595,12 +595,12 @@ inoremap <silent> <CR> <C-R>=CarriageReturn()<CR>
 function! CloseTag()
     let n = getline('.')
     let column = col('.') - 1
-    let hl = s:hl()[-1]
+    let hl = s:hl()
     let close = '>'
     if !column
       return close
     endif
-    if index(s:hl_whitelist, hl) == -1
+    if !len(hl) || index(s:hl_whitelist, hl[-1]) == -1
       return close
     endif
     let line_before_cursor = strpart(n, 0, column)
@@ -1148,6 +1148,7 @@ nnoremap U :UndotreeToggle<CR>
 " ----------------------------------------------------------------------------
 let g:ale_linters = {
       \ 'javascript': ['eslint'],
+      \ 'rust': ['rustc'],
       \ }
 
 silent! if emoji#available()
