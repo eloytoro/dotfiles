@@ -491,7 +491,9 @@ endfunction
 function! s:fzf_show_commits(here, handler)
     let options  = [
                 \ '--color=always',
-                \ '--format="%C(auto)%h%d %s %C(magenta)%an, %cr"']
+                \ '--format="%C(auto)%h%d %s %C(magenta)%an, %cr"',
+                \ '--skip 1'
+                \ ]
 
     if a:here
       call add(options, '--follow -- '.expand("%:P"))
