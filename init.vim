@@ -74,8 +74,8 @@ Plug 'cakebaker/scss-syntax.vim', { 'for': 'scss' }
 Plug 'pangloss/vim-javascript'
 Plug 'othree/yajs.vim'
 Plug 'heavenshell/vim-jsdoc'
-Plug 'mxw/vim-jsx'
 Plug 'leafgarland/typescript-vim'
+Plug 'maxmellon/vim-jsx-pretty'
 Plug 'Quramy/tsuquyomi', { 'do': 'yarn global add typescript' }
 Plug 'rust-lang/rust.vim', { 'for': 'rust' }
 if executable('node')
@@ -200,7 +200,7 @@ else
 endif
 
 " let g:markdown_composer_autostart = 0
-let g:jsx_ext_required = 0
+" let g:jsx_ext_required = 0
 
 " ----------------------------------------------------------------------------
 " Fix Indent
@@ -208,13 +208,13 @@ let g:jsx_ext_required = 0
 augroup FTOptions
   autocmd!
   au BufNewFile,BufReadPost *.css set filetype=sass
-  au BufNewFile,BufReadPost *.tsx,*.ts set filetype=javascript.jsx
+  " au BufNewFile,BufReadPost *.tsx,*.ts set filetype=javascript.jsx
   au BufWritePost vimrc,.vimrc,init.vim nested if expand('%') !~ 'fugitive' | source % | endif
   au filetype racket set lisp
   au filetype racket set autoindent
   au BufReadPost quickfix nmap <buffer> <CR> :.cc<CR>
   au FileType perl let b:dispatch = 'perl %'
-  au FileType javascript.jsx let b:dispatch = 'node %'
+  " au FileType javascript.jsx let b:dispatch = 'node %'
   au BufNewFile,BufReadPost *.test.js let b:dispatch = 'yarn test %'
   au BufReadPost * if getline(1) =~# '^#!' | let b:dispatch = getline(1)[2:-1] . ' %' | let b:start = b:dispatch | endif
 augroup END
@@ -639,8 +639,8 @@ function! EraseTag()
 endfunction
 augroup autoclose_tags
   autocmd!
-  autocmd FileType javascript.jsx inoremap <buffer> <silent> > <C-R>=CloseTag()<CR>
-  autocmd FileType javascript.jsx inoremap <buffer> <silent> <BS> <C-R>=EraseTag()<CR>
+  autocmd FileType javascript,typescript inoremap <buffer> <silent> > <C-R>=CloseTag()<CR>
+  autocmd FileType javascript,typescript inoremap <buffer> <silent> <BS> <C-R>=EraseTag()<CR>
   autocmd FileType html,xml inoremap <buffer> <silent> <BS> <C-R>=EraseTag()<CR>
 augroup END
 
