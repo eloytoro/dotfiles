@@ -33,7 +33,9 @@ Plug 'tpope/vim-tbone'
 Plug 'tpope/vim-sleuth'
 Plug 'tpope/vim-dispatch'
 Plug 'shumphrey/fugitive-gitlab.vim'
-" Plug 'airblade/vim-gitgutter'
+if has('nvim')
+  Plug 'airblade/vim-gitgutter'
+endif
 Plug 'mbbill/undotree'
 Plug 'w0rp/ale'
 Plug 'kassio/neoterm'
@@ -54,11 +56,14 @@ Plug 'itchyny/calendar.vim'
 if has('python3')
   Plug 'SirVer/ultisnips'
   if has('nvim')
-    Plug 'Shougo/deoplete.nvim'
     if executable("node")
       Plug 'carlitux/deoplete-ternjs', { 'do': 'yarn global add tern' }
       Plug 'ternjs/tern_for_vim', { 'do': 'yarn' }
+      Plug 'HerringtonDarkholme/yats.vim'
+      Plug 'mhartington/nvim-typescript', {'do': './install.sh'}
     endif
+    Plug 'Shougo/deoplete.nvim'
+    Plug 'Shougo/denite.nvim'
     if executable("cargo")
       function! InstallRacer(info)
         !cargo install racer
@@ -76,7 +81,7 @@ Plug 'othree/yajs.vim'
 Plug 'heavenshell/vim-jsdoc'
 Plug 'leafgarland/typescript-vim'
 Plug 'maxmellon/vim-jsx-pretty'
-Plug 'Quramy/tsuquyomi', { 'do': 'yarn global add typescript' }
+" Plug 'Quramy/tsuquyomi', { 'do': 'yarn global add typescript' }
 Plug 'rust-lang/rust.vim', { 'for': 'rust' }
 if executable('node')
   Plug 'prettier/vim-prettier', {
