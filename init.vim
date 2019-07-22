@@ -33,7 +33,7 @@ Plug 'tpope/vim-tbone'
 Plug 'tpope/vim-sleuth'
 Plug 'tpope/vim-dispatch'
 Plug 'shumphrey/fugitive-gitlab.vim'
-Plug 'airblade/vim-gitgutter'
+" Plug 'airblade/vim-gitgutter'
 Plug 'mbbill/undotree'
 Plug 'w0rp/ale'
 Plug 'kassio/neoterm'
@@ -101,6 +101,8 @@ Plug 'cocopon/iceberg.vim'
 Plug 'w0ng/vim-hybrid'
 Plug 'Nequo/vim-allomancer'
 Plug 'junegunn/vim-emoji'
+Plug 'git@gitlab.booking.com:devtools/vim-booking.git'
+Plug 'posva/vim-vue'
 
 call plug#end()
 
@@ -1153,7 +1155,7 @@ let g:ale_linters = {
       \ 'rust': ['rustc'],
       \ }
 
-silent! if emoji#available()
+silent! if emoji#available() && has('nvim')
   let g:ale_sign_error = emoji#for('fire')
   let g:ale_sign_warning = emoji#for('bulb')
   highlight clear ALEErrorSign
