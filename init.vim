@@ -106,7 +106,9 @@ Plug 'cocopon/iceberg.vim'
 Plug 'w0ng/vim-hybrid'
 Plug 'Nequo/vim-allomancer'
 Plug 'junegunn/vim-emoji'
-Plug 'git@gitlab.booking.com:devtools/vim-booking.git'
+if !has('nvim')
+  Plug 'git@gitlab.booking.com:devtools/vim-booking.git'
+endif
 Plug 'posva/vim-vue'
 
 call plug#end()
