@@ -38,21 +38,22 @@ if has('nvim')
 endif
 Plug 'mbbill/undotree'
 Plug 'w0rp/ale'
-Plug 'kassio/neoterm'
+" Plug 'kassio/neoterm'
 Plug 'scrooloose/nerdtree'
 Plug 'svermeulen/vim-easyclip'
 " Plug 'justinmk/vim-sneak'
 Plug 'easymotion/vim-easymotion'
 Plug 'haya14busa/incsearch.vim'
 Plug 'Raimondi/delimitMate'
+" Plug 'jiangmiao/auto-pairs'
 " Plug 'eloytoro/vim-istanbul', { 'on': 'IstanbulShow' }
 Plug 'junegunn/vim-easy-align'
 Plug 'junegunn/gv.vim'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
-Plug 'junegunn/goyo.vim'
-Plug 'junegunn/limelight.vim'
-Plug 'itchyny/calendar.vim'
+" Plug 'junegunn/goyo.vim'
+" Plug 'junegunn/limelight.vim'
+" Plug 'itchyny/calendar.vim'
 if has('python3')
   Plug 'SirVer/ultisnips'
   if has('nvim')
@@ -60,7 +61,7 @@ if has('python3')
       Plug 'carlitux/deoplete-ternjs', { 'do': 'yarn global add tern' }
       Plug 'ternjs/tern_for_vim', { 'do': 'yarn' }
       Plug 'HerringtonDarkholme/yats.vim'
-      Plug 'mhartington/nvim-typescript', {'do': './install.sh'}
+      " Plug 'mhartington/nvim-typescript', {'do': './install.sh'}
     endif
     Plug 'Shougo/deoplete.nvim'
     Plug 'Shougo/denite.nvim'
@@ -80,7 +81,8 @@ Plug 'pangloss/vim-javascript'
 Plug 'othree/yajs.vim'
 Plug 'heavenshell/vim-jsdoc'
 Plug 'leafgarland/typescript-vim'
-Plug 'maxmellon/vim-jsx-pretty'
+Plug 'mxw/vim-jsx'
+" Plug 'maxmellon/vim-jsx-pretty'
 " Plug 'Quramy/tsuquyomi', { 'do': 'yarn global add typescript' }
 Plug 'rust-lang/rust.vim', { 'for': 'rust' }
 if executable('node')
@@ -109,7 +111,7 @@ Plug 'junegunn/vim-emoji'
 if !has('nvim')
   Plug 'git@gitlab.booking.com:devtools/vim-booking.git'
 endif
-Plug 'posva/vim-vue'
+Plug 'posva/vim-vue', { 'for': 'vue' }
 
 call plug#end()
 
@@ -146,7 +148,7 @@ set scrolloff=2
 set wrap
 set linebreak
 set breakat-=*
-set incsearch
+" set incsearch
 set wildmenu
 let g:html_indent_inctags = "html,body,head,tbody"
 let mapleader = ' '
@@ -217,14 +219,11 @@ endif
 augroup FTOptions
   autocmd!
   au BufNewFile,BufReadPost *.css set filetype=sass
-  " au BufNewFile,BufReadPost *.tsx,*.ts set filetype=javascript.jsx
   au BufWritePost vimrc,.vimrc,init.vim nested if expand('%') !~ 'fugitive' | source % | endif
-  au filetype racket set lisp
-  au filetype racket set autoindent
   au BufReadPost quickfix nmap <buffer> <CR> :.cc<CR>
   au FileType perl let b:dispatch = 'perl %'
-  " au FileType javascript.jsx let b:dispatch = 'node %'
-  au BufNewFile,BufReadPost *.test.js let b:dispatch = 'yarn test %'
+  au FileType javascript.jsx let b:dispatch = 'node %'
+  " au BufNewFile,BufReadPost *.test.js let b:dispatch = 'yarn test %'
   au BufReadPost * if getline(1) =~# '^#!' | let b:dispatch = getline(1)[2:-1] . ' %' | let b:start = b:dispatch | endif
 augroup END
 filetype plugin indent on
@@ -648,8 +647,8 @@ function! EraseTag()
 endfunction
 augroup autoclose_tags
   autocmd!
-  autocmd FileType javascript,typescript inoremap <buffer> <silent> > <C-R>=CloseTag()<CR>
-  autocmd FileType javascript,typescript inoremap <buffer> <silent> <BS> <C-R>=EraseTag()<CR>
+  autocmd FileType javascript,typescript,javascript.jsx inoremap <buffer> <silent> > <C-R>=CloseTag()<CR>
+  autocmd FileType javascript,typescript,javascript.jsx inoremap <buffer> <silent> <BS> <C-R>=EraseTag()<CR>
   autocmd FileType html,xml inoremap <buffer> <silent> <BS> <C-R>=EraseTag()<CR>
 augroup END
 
@@ -683,16 +682,6 @@ nmap <F9> :Dispatch<CR>
 "  Tmux
 " ----------------------------------------------------------------------------
 nmap <silent> @ :Tmux resize-pane -Z<CR>
-function! s:zoom()
-  Tmux resize-pane -Z
-  if winnr('$') > 1
-    tab split
-  elseif len(filter(map(range(tabpagenr('$')), 'tabpagebuflist(v:val + 1)'),
-        \ 'index(v:val, '.bufnr('').') >= 0')) > 1
-    tabclose
-  endif
-endfunction
-nnoremap <silent> <leader>z :call <sid>zoom()<cr>
 
 " ----------------------------------------------------------------------------
 "  Deoplete
@@ -806,7 +795,7 @@ function! s:root()
       return root
   endif
 endfunction
-command! Root execute 'lcd'.s:root()
+command! GitRoot execute 'lcd'.s:root()
 
 " ----------------------------------------------------------------------------
 " #]i / #[i | go to next/previous indentation level
@@ -1113,39 +1102,6 @@ function! s:gld() range
 endfunction
 
 command! -range=% GL call s:gl(bufnr(''), <line1>, <line2>)
-
-" ----------------------------------------------------------------------------
-" goyo.vim + limelight.vim
-" ----------------------------------------------------------------------------
-let g:limelight_paragraph_span = 1
-let g:limelight_priority = -1
-
-function! s:goyo_enter()
-  if has('gui_running')
-    set fullscreen
-    set background=light
-    set linespace=7
-  elseif exists('$TMUX')
-    silent !tmux set status off
-  endif
-  let &l:statusline = '%M'
-  hi StatusLine ctermfg=red guifg=red cterm=NONE gui=NONE
-endfunction
-
-function! s:goyo_leave()
-  if has('gui_running')
-    set nofullscreen
-    set background=dark
-    set linespace=0
-  elseif exists('$TMUX')
-    silent !tmux set status on
-  endif
-endfunction
-
-autocmd! User GoyoEnter nested call <SID>goyo_enter()
-autocmd! User GoyoLeave nested call <SID>goyo_leave()
-
-nnoremap <Leader>G :Goyo 100<CR>
 
 " ----------------------------------------------------------------------------
 " undotree
