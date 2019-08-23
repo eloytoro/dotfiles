@@ -80,7 +80,7 @@ Plug 'cakebaker/scss-syntax.vim', { 'for': 'scss' }
 Plug 'pangloss/vim-javascript'
 Plug 'othree/yajs.vim'
 Plug 'heavenshell/vim-jsdoc'
-Plug 'leafgarland/typescript-vim'
+" Plug 'leafgarland/typescript-vim'
 Plug 'mxw/vim-jsx'
 " Plug 'maxmellon/vim-jsx-pretty'
 " Plug 'Quramy/tsuquyomi', { 'do': 'yarn global add typescript' }
@@ -112,6 +112,7 @@ if !has('nvim')
   Plug 'git@gitlab.booking.com:devtools/vim-booking.git'
 endif
 Plug 'posva/vim-vue', { 'for': 'vue' }
+Plug 'jelera/vim-javascript-syntax'
 
 call plug#end()
 
@@ -211,7 +212,7 @@ else
 endif
 
 " let g:markdown_composer_autostart = 0
-" let g:jsx_ext_required = 0
+let g:jsx_ext_required = 0
 
 " ----------------------------------------------------------------------------
 " Fix Indent
