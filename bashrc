@@ -189,6 +189,9 @@ gc() {
 }
 
 opl() {
+  if [[ -z "$OP_SESSION_torofaria" ]]; then
+    eval $(op signin)
+  fi
   op list items |
   jq '[.[] | [.overview.title, .uuid] | join(": ")] | join("\n")' -r |
   fzf-down --ansi --multi --tac --preview-window right:40% \
@@ -214,15 +217,3 @@ fi
 #   [ $# -gt 0 ] && _z "$*" && return
 #   cd "$(_z -l 2>&1 | fzf --height 40% --nth 2.. --reverse --inline-info +s --tac --query "${*##-* }" | sed 's/^[0-9,.]* *//')"
 # }
-
-function enable_proxy() {
-        export HTTP_PROXY=http://webproxy.lhr4.dqs.booking.com:3128/
-        export http_proxy=http://webproxy.lhr4.dqs.booking.com:3128/
-        export HTTPS_PROXY=http://webproxy.lhr4.dqs.booking.com:3128/
-        export https_proxy=http://webproxy.lhr4.dqs.booking.com:3128/
-}
-
-function appstore() {
-  sshfs adm:/usr/local/git_tree/main/apps/admin/hoteladmin/extranet_ng/static/js/manage/app_store/app/ $HOME/workspace/appstore
-  cd $HOME/workspace/appstore
-}

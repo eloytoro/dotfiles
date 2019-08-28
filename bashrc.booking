@@ -1,13 +1,53 @@
-alias nvim=vim
-alias main="cd /usr/local/git_tree/main"
-alias vendorportal="cd /usr/local/git_tree/vendorportal-web"
-alias fixssh='eval $(tmux showenv -s SSH_AUTH_SOCK)'
-alias vpscripts="cd /usr/local/git_tree/main/apps/suite/scripts/cron/VendorPortal"
-export FZF_DEFAULT_COMMAND='find * -type f'
-export EDITOR=vim
+#!/bin/bash
 
-if [ -z "$TMUX" ]; then
-	tmux attach
-else
-	tmux
-fi
+function enable_proxy() {
+  export HTTP_PROXY=http://webproxy.lhr4.dqs.booking.com:3128/
+  export http_proxy=http://webproxy.lhr4.dqs.booking.com:3128/
+  export HTTPS_PROXY=http://webproxy.lhr4.dqs.booking.com:3128/
+  export https_proxy=http://webproxy.lhr4.dqs.booking.com:3128/
+}
+
+function appstore() {
+  sshfs adm:/usr/local/git_tree/main/apps/admin/hoteladmin/extranet_ng/static/js/manage/app_store/app/ $HOME/workspace/appstore
+  cd $HOME/workspace/appstore
+}
+
+function rssh() {
+  booking_op_item_id=mi7n2bbvhbwwkkkybmbkn62btm
+  booking_password=$(op get item $booking_op_item_id | jq ".details.fields | map(select(.designation == \"password\")) | .[0].value" -r)
+  booking_2fa=$(op get totp $booking_op_item_id)
+  expect -c 'spawn ssh -A ssh.booking.com
+    expect {
+       "Password: "  { send "'$booking_password'\r" ; exp_continue }
+       "2FA Token: " { send "'$booking_2fa'\r"; exp_continue }
+       timeout       abort
+       eof
+    }
+  '
+}
+alias cmp="cd /Users/etorofaria/workspace/main/apps/cuca/hoteladmin/extranet_ng/manage/app_store"
+
+function execpod() {
+  pods=$(kubectl get pods | awk '{ if(NR>1)print $1 }')
+  select pod in $pods; do
+    kubectl exec -it $pod -- $@
+    break;
+  done
+}
+
+function execcontainer() {
+  container=$1
+  shift 1
+  pods=$(kubectl get pods | awk '{ if(NR>1)print $1 }')
+  select pod in $pods; do
+    kubectl exec -c $container -it $pod -- $@
+    break;
+  done
+}
+
+alias k8sdqs="bkcloud use context etorofaria/vendor-portal/kubernetes-dev-etorofaria-87f7cfa3"
+alias k8sprod="bkcloud use context bookingsuite-portal/vendorportal-service-prod/kubernetes-prod"
+
+function k8sip() {
+  kubectl get pod $@ -o yaml | grep podIP
+}
