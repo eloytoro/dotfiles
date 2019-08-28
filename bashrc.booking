@@ -13,6 +13,9 @@ function appstore() {
 }
 
 function rssh() {
+  if [[ -z "$OP_SESSION_torofaria" ]]; then
+    eval $(op signin)
+  fi
   booking_op_item_id=mi7n2bbvhbwwkkkybmbkn62btm
   booking_password=$(op get item $booking_op_item_id | jq ".details.fields | map(select(.designation == \"password\")) | .[0].value" -r)
   booking_2fa=$(op get totp $booking_op_item_id)
