@@ -59,7 +59,7 @@ if has('python3')
   if has('nvim')
     if executable("node")
       Plug 'carlitux/deoplete-ternjs', { 'do': 'yarn global add tern' }
-      Plug 'ternjs/tern_for_vim', { 'do': 'yarn' }
+      " Plug 'ternjs/tern_for_vim', { 'do': 'yarn' }
       Plug 'HerringtonDarkholme/yats.vim'
       " Plug 'mhartington/nvim-typescript', {'do': './install.sh'}
     endif
@@ -81,8 +81,7 @@ Plug 'pangloss/vim-javascript'
 Plug 'othree/yajs.vim'
 Plug 'heavenshell/vim-jsdoc'
 " Plug 'leafgarland/typescript-vim'
-Plug 'mxw/vim-jsx'
-" Plug 'maxmellon/vim-jsx-pretty'
+Plug 'maxmellon/vim-jsx-pretty'
 " Plug 'Quramy/tsuquyomi', { 'do': 'yarn global add typescript' }
 Plug 'rust-lang/rust.vim', { 'for': 'rust' }
 if executable('node')
@@ -494,7 +493,7 @@ function! s:branch_handler(line)
 endfunction
 
 function! s:ref_handler(line)
-    exec "Gvdiff ".s:get_log_ref(a:line)
+    exec "Gtabedit! show ".s:get_log_ref(a:line)
 endfunction
 
 function! s:fzf_show_commits(here, handler)

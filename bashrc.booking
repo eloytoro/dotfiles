@@ -13,18 +13,18 @@ function appstore() {
 }
 
 function rssh() {
-  if [[ -z "$OP_SESSION_torofaria" ]]; then
-    eval $(op signin)
+  OP_SESSION_torofaria=$(op signin --output=raw)
+  if [ $? -ne 0 ]; then
+    return 1
   fi
   booking_op_item_id=mi7n2bbvhbwwkkkybmbkn62btm
-  booking_password=$(op get item $booking_op_item_id | jq ".details.fields | map(select(.designation == \"password\")) | .[0].value" -r)
-  booking_2fa=$(op get totp $booking_op_item_id)
+  booking_password=$(OP_SESSION_torofaria=$OP_SESSION_torofaria op get item $booking_op_item_id | jq ".details.fields | map(select(.designation == \"password\")) | .[0].value" -r)
+  booking_2fa=$(OP_SESSION_torofaria=$OP_SESSION_torofaria op get totp $booking_op_item_id)
   expect -c 'spawn ssh -A ssh.booking.com
     expect {
        "Password: "  { send "'$booking_password'\r" ; exp_continue }
        "2FA Token: " { send "'$booking_2fa'\r"; exp_continue }
-       timeout       abort
-       eof
+       exit
     }
   '
 }
