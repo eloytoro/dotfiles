@@ -51,6 +51,12 @@ Plug 'junegunn/vim-easy-align'
 Plug 'junegunn/gv.vim'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
+Plug 'junegunn/vim-after-object'
+if exists('##TextYankPost')
+  Plug 'machakann/vim-highlightedyank'
+  let g:highlightedyank_highlight_duration = 100
+endif
+Plug 'justinmk/vim-gtfo'
 " Plug 'junegunn/goyo.vim'
 " Plug 'junegunn/limelight.vim'
 " Plug 'itchyny/calendar.vim'
@@ -58,13 +64,14 @@ if has('python3')
   Plug 'SirVer/ultisnips'
   if has('nvim')
     if executable("node")
-      Plug 'carlitux/deoplete-ternjs', { 'do': 'yarn global add tern' }
+      " Plug 'carlitux/deoplete-ternjs', { 'do': 'yarn global add tern' }
       " Plug 'ternjs/tern_for_vim', { 'do': 'yarn' }
-      Plug 'HerringtonDarkholme/yats.vim'
+      " Plug 'HerringtonDarkholme/yats.vim'
       " Plug 'mhartington/nvim-typescript', {'do': './install.sh'}
+      Plug 'neoclide/coc.nvim', {'do': 'yarn install --frozen-lockfile'}
     endif
-    Plug 'Shougo/deoplete.nvim'
-    Plug 'Shougo/denite.nvim'
+    " Plug 'Shougo/deoplete.nvim'
+    " Plug 'Shougo/denite.nvim'
     if executable("cargo")
       function! InstallRacer(info)
         !cargo install racer
@@ -77,11 +84,8 @@ if has('python3')
 endif
 " Language specific
 Plug 'cakebaker/scss-syntax.vim', { 'for': 'scss' }
-Plug 'pangloss/vim-javascript'
 Plug 'othree/yajs.vim'
-Plug 'heavenshell/vim-jsdoc'
-" Plug 'leafgarland/typescript-vim'
-Plug 'maxmellon/vim-jsx-pretty'
+" Plug 'heavenshell/vim-jsdoc'
 " Plug 'Quramy/tsuquyomi', { 'do': 'yarn global add typescript' }
 Plug 'rust-lang/rust.vim', { 'for': 'rust' }
 if executable('node')
@@ -99,19 +103,31 @@ Plug 'jacoborus/tender'
 "Plug 'eloytoro/xoria256'
 Plug 'junegunn/seoul256.vim'
 Plug 'tomasr/molokai'
-Plug 'yuttie/hydrangea-vim'
 Plug 'morhetz/gruvbox'
 Plug 'tyrannicaltoucan/vim-deep-space'
 Plug 'AlessandroYorba/Despacio'
 Plug 'cocopon/iceberg.vim'
 Plug 'w0ng/vim-hybrid'
 Plug 'Nequo/vim-allomancer'
+Plug 'danilo-augusto/vim-afterglow'
+Plug 'tlhr/anderson.vim'
+Plug 'romainl/Apprentice'
+Plug 'arcticicestudio/nord-vim'
+Plug 'mhartington/oceanic-next'
+Plug 'rakr/vim-one'
+Plug 'joshdick/onedark.vim'
+Plug 'sts10/vim-pink-moon'
+Plug 'rakr/vim-two-firewatch'
 Plug 'junegunn/vim-emoji'
 if !has('nvim')
   Plug 'git@gitlab.booking.com:devtools/vim-booking.git'
 endif
 Plug 'posva/vim-vue', { 'for': 'vue' }
-Plug 'jelera/vim-javascript-syntax'
+Plug 'maxmellon/vim-jsx-pretty', { 'for': 'javascript' }
+Plug 'pangloss/vim-javascript', { 'for': 'javascript' }
+Plug 'jelera/vim-javascript-syntax', { 'for': 'javascript' }
+Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
+Plug 'peitalin/vim-jsx-typescript', { 'for': 'typescript' }
 
 call plug#end()
 
@@ -122,8 +138,10 @@ syntax enable
 if has("termguicolors")
     set termguicolors
     set background=dark
-    " silent! colorscheme gruvbox
-    silent! colorscheme allomancer
+    " silent! colorscheme afterglow
+    " silent! colorscheme Apprentice
+    " silent! colorscheme one
+    silent! colorscheme hybrid
     "hi ColorColumn guibg=#111111
     " colorscheme solarized
 else
