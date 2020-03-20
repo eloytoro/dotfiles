@@ -37,12 +37,11 @@ if has('nvim')
   Plug 'airblade/vim-gitgutter'
 endif
 Plug 'mbbill/undotree'
-Plug 'w0rp/ale'
+Plug 'dense-analysis/ale'
 " Plug 'kassio/neoterm'
 Plug 'scrooloose/nerdtree'
 Plug 'svermeulen/vim-easyclip'
-" Plug 'justinmk/vim-sneak'
-Plug 'easymotion/vim-easymotion'
+Plug 'justinmk/vim-sneak'
 Plug 'haya14busa/incsearch.vim'
 Plug 'Raimondi/delimitMate'
 " Plug 'jiangmiao/auto-pairs'
@@ -56,7 +55,7 @@ if exists('##TextYankPost')
   Plug 'machakann/vim-highlightedyank'
   let g:highlightedyank_highlight_duration = 100
 endif
-Plug 'justinmk/vim-gtfo'
+" Plug 'justinmk/vim-gtfo'
 " Plug 'junegunn/goyo.vim'
 " Plug 'junegunn/limelight.vim'
 " Plug 'itchyny/calendar.vim'
@@ -78,7 +77,7 @@ if has('python3')
         !rustup component add rust-src
       endfunction
       " Plug 'sebastianmarkow/deoplete-rust', { 'do': function('InstallRacer') }
-      Plug 'racer-rust/vim-racer', { 'do': function('InstallRacer') }
+      " Plug 'racer-rust/vim-racer', { 'do': function('InstallRacer') }
     endif
   endif
 endif
@@ -338,6 +337,37 @@ nmap <C-w>- :sp<CR>
 nmap <C-w>\ :vsp<CR>
 
 " ----------------------------------------------------------------------------
+"  coc.nvim
+" ----------------------------------------------------------------------------
+
+" Use `[g` and `]g` to navigate diagnostics
+nmap <silent> [g <Plug>(coc-diagnostic-prev)
+nmap <silent> ]g <Plug>(coc-diagnostic-next)
+
+" GoTo code navigation.
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gp <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+"
+" Use K to show documentation in preview window.
+nnoremap <silent> K :call <SID>show_documentation()<CR>
+
+function! s:show_documentation()
+  if (index(['vim','help'], &filetype) >= 0)
+    execute 'h '.expand('<cword>')
+  else
+    call CocAction('doHover')
+  endif
+endfunction
+
+" Highlight the symbol and its references when holding the cursor.
+autocmd CursorHold * silent call CocActionAsync('highlight')
+
+" Symbol renaming.
+nmap <leader>rn <Plug>(coc-rename)
+
+" ----------------------------------------------------------------------------
 "  Surround
 " ----------------------------------------------------------------------------
 nmap s{ ysil{
@@ -427,6 +457,8 @@ augroup nerd
         \| endif
 augroup END
 
+let NERDTreeIgnore = ['^node_modules$[[dir]]']
+
 " function! StartScreen()
 "   if !argc() && (line2byte('$') == -1)
 "     :Calendar
@@ -490,7 +522,7 @@ omap <leader><tab> <plug>(fzf-maps-o)
 set rtp+=~/.fzf
 
 function! s:merge_handler(line)
-    exec "Git merge --no-ff --no-commit ".a:line
+    exec "Git merge --no-ff -q".a:line
 endfunction
 
 command! FZFMerge call fzf#run({
@@ -1133,8 +1165,11 @@ nnoremap U :UndotreeToggle<CR>
 " ----------------------------------------------------------------------------
 let g:ale_linters = {
       \ 'javascript': ['eslint'],
+      \ 'typescript': ['eslint'],
       \ 'rust': ['rustc'],
       \ }
+
+let g:ale_set_loclist = 0
 
 silent! if emoji#available() && has('nvim')
   let g:ale_sign_error = emoji#for('fire')
@@ -1144,27 +1179,13 @@ silent! if emoji#available() && has('nvim')
 endif
 
 " ----------------------------------------------------------------------------
-" Easymotion
+" Sneak
 " ----------------------------------------------------------------------------
-nmap <CR> <Plug>(easymotion-overwin-line)
-nmap go <Plug>(easymotion-overwin-w)
-nmap <leader>f <Plug>(easymotion-overwin-f)
-nmap <leader>s <Plug>(easymotion-overwin-f2)
-omap <leader>f <Plug>(easymotion-fl)
-omap <leader>s <Plug>(easymotion-fl2)
-map / <Plug>(incsearch-forward)
-map ? <Plug>(incsearch-backward)
-map n <Plug>(incsearch-nohl-n)
-map N <Plug>(incsearch-nohl-N)
-set hlsearch
-let g:incsearch#auto_nohlsearch = 1
-let g:incsearch#consistent_n_direction = 1
-map n  <Plug>(incsearch-nohl-n)
-map N  <Plug>(incsearch-nohl-N)
-map *  <Plug>(incsearch-nohl-*)
-map #  <Plug>(incsearch-nohl-#)
-map g* <Plug>(incsearch-nohl-g*)
-map g# <Plug>(incsearch-nohl-g#)
+let g:sneak#label = 1
+nmap go <Plug>Sneak_s
+nmap gO <Plug>Sneak_S
+" nmap t <Plug>Sneak_t
+" nmap T <Plug>Sneak_T
 
 " ----------------------------------------------------------------------------
 " Calendar
