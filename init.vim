@@ -208,12 +208,14 @@ function! s:statusline_expr()
   let mod = "%{&modified ? '[+] ' : !&modifiable ? '[x] ' : ''}"
   let ro  = "%{&readonly ? '[RO] ' : ''}"
   let ft  = "%{len(&filetype) ? '['.&filetype.'] ' : ''}"
-  let fug = "%{exists('g:loaded_fugitive') ? fugitive#statusline() : ''}"
+  let fug = "%{exists('g:loaded_fugitive') ? fugitive#statusline().' ' : ''}"
+  let coc_status = exists('g:coc_enabled') ? coc#status() : ''
+  let coc = l:coc_status != '' ? '[Coc('.coc_status.')]' : ''
   let sep = ' %= '
   let pos = ' %-12(%l : %c%V%) '
   let pct = ' %P'
 
-  return '[%n] %F %<'.mod.ro.ft.fug.sep.pos.'%*'.pct
+  return '[%n] %F %<'.mod.ro.ft.fug.coc.sep.pos.'%*'.pct
 endfunction
 let &statusline = s:statusline_expr()
 "hi StatusLine ctermfg=232 ctermbg=45 guibg=#00bff4 guifg=#000000
@@ -340,32 +342,34 @@ nmap <C-w>\ :vsp<CR>
 "  coc.nvim
 " ----------------------------------------------------------------------------
 
-" Use `[g` and `]g` to navigate diagnostics
-nmap <silent> [g <Plug>(coc-diagnostic-prev)
-nmap <silent> ]g <Plug>(coc-diagnostic-next)
+if exists('g:coc_enabled')
+  " Use `[g` and `]g` to navigate diagnostics
+  nmap <silent> [g <Plug>(coc-diagnostic-prev)
+  nmap <silent> ]g <Plug>(coc-diagnostic-next)
 
-" GoTo code navigation.
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
-nmap <silent> gp <Plug>(coc-implementation)
-nmap <silent> gr <Plug>(coc-references)
-"
-" Use K to show documentation in preview window.
-nnoremap <silent> K :call <SID>show_documentation()<CR>
+  " GoTo code navigation.
+  nmap <silent> gd <Plug>(coc-definition)
+  nmap <silent> gy <Plug>(coc-type-definition)
+  nmap <silent> gp <Plug>(coc-implementation)
+  nmap <silent> gr <Plug>(coc-references)
+  "
+  " Use K to show documentation in preview window.
+  nnoremap <silent> K :call <SID>show_documentation()<CR>
 
-function! s:show_documentation()
-  if (index(['vim','help'], &filetype) >= 0)
-    execute 'h '.expand('<cword>')
-  else
-    call CocAction('doHover')
-  endif
-endfunction
+  function! s:show_documentation()
+    if (index(['vim','help'], &filetype) >= 0)
+      execute 'h '.expand('<cword>')
+    else
+      call CocAction('doHover')
+    endif
+  endfunction
 
-" Highlight the symbol and its references when holding the cursor.
-autocmd CursorHold * silent call CocActionAsync('highlight')
+  " Highlight the symbol and its references when holding the cursor.
+  autocmd CursorHold * silent call CocActionAsync('highlight')
 
-" Symbol renaming.
-nmap <leader>rn <Plug>(coc-rename)
+  " Symbol renaming.
+  nmap <leader>rn <Plug>(coc-rename)
+endif
 
 " ----------------------------------------------------------------------------
 "  Surround
@@ -1114,6 +1118,19 @@ call s:tmux_map('<leader>ty', '.top-left')
 call s:tmux_map('<leader>to', '.top-right')
 call s:tmux_map('<leader>tn', '.bottom-left')
 call s:tmux_map('<leader>t.', '.bottom-right')
+
+" ----------------------------------------------------------------------------
+" incsearch
+" ----------------------------------------------------------------------------
+map /  <Plug>(incsearch-forward)
+map ?  <Plug>(incsearch-backward)
+map g/ <Plug>(incsearch-stay)
+
+nmap n <Plug>(incsearch-nohl-n)
+nmap N <Plug>(incsearch-nohl-N)
+nmap * <Plug>(incsearch-nohl-*)
+nmap # <Plug>(incsearch-nohl-#)
+let g:incsearch#auto_nohlsearch = 1
 
 " ----------------------------------------------------------------------------
 " gv.vim / gl.vim
