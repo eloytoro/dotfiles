@@ -15,13 +15,6 @@ call plug#begin(vim_folder.'/plug')
 " ----------------------------------------------------------------------------
 "  Local vimrc
 " ----------------------------------------------------------------------------
-if filereadable(expand("~/.vimrc.local"))
-  source ~/.vimrc.local
-endif
-
-if expand("~") != getcwd() && filereadable(expand(".vimrc"))
-  source .vimrc
-endif
 
 " Essential
 Plug 'tpope/vim-git'
@@ -48,7 +41,7 @@ Plug 'Raimondi/delimitMate'
 " Plug 'eloytoro/vim-istanbul', { 'on': 'IstanbulShow' }
 Plug 'junegunn/vim-easy-align'
 Plug 'junegunn/gv.vim'
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'junegunn/vim-after-object'
 if exists('##TextYankPost')
@@ -614,7 +607,8 @@ command! -nargs=0 FZFChanges call fzf#run({
 
 nmap <silent> <leader>g; :FZFChanges<CR>
 
-let g:fzf_files_options = '-e --preview "(coderay {} || cat {}) 2> /dev/null | head -'.&lines.'"'
+let g:fzf_files_options = '-e --preview "bat --color=always -p {} 2> /dev/null"'
+" let g:fzf_preview_window = 'right:80%'
 let g:fzf_buffers_jump = 1
 
 " ----------------------------------------------------------------------------
