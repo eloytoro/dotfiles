@@ -53,14 +53,13 @@ endif
 " Plug 'junegunn/limelight.vim'
 " Plug 'itchyny/calendar.vim'
 if has('python3')
-  Plug 'SirVer/ultisnips'
   if has('nvim')
     if executable("node")
       " Plug 'carlitux/deoplete-ternjs', { 'do': 'yarn global add tern' }
       " Plug 'ternjs/tern_for_vim', { 'do': 'yarn' }
       " Plug 'HerringtonDarkholme/yats.vim'
       " Plug 'mhartington/nvim-typescript', {'do': './install.sh'}
-      Plug 'neoclide/coc.nvim', {'do': 'yarn install --frozen-lockfile'}
+      Plug 'neoclide/coc.nvim', {'branch': 'release'}
     endif
     " Plug 'Shougo/deoplete.nvim'
     " Plug 'Shougo/denite.nvim'
@@ -335,17 +334,18 @@ nmap <C-w>\ :vsp<CR>
 "  coc.nvim
 " ----------------------------------------------------------------------------
 
-if exists('g:coc_enabled')
+if has('python3') && has('nvim') && executable("node")
   " Use `[g` and `]g` to navigate diagnostics
   nmap <silent> [g <Plug>(coc-diagnostic-prev)
   nmap <silent> ]g <Plug>(coc-diagnostic-next)
 
   " GoTo code navigation.
-  nmap <silent> gd <Plug>(coc-definition)
+  " nmap <silent> gd <Plug>(coc-definition)
   nmap <silent> gy <Plug>(coc-type-definition)
-  nmap <silent> gp <Plug>(coc-implementation)
+  nmap <silent> gd <Plug>(coc-implementation)
   nmap <silent> gr <Plug>(coc-references)
-  "
+  nmap <silent> ge <Plug>(coc-diagnostic-info)
+
   " Use K to show documentation in preview window.
   nnoremap <silent> K :call <SID>show_documentation()<CR>
 
@@ -359,6 +359,19 @@ if exists('g:coc_enabled')
 
   " Highlight the symbol and its references when holding the cursor.
   autocmd CursorHold * silent call CocActionAsync('highlight')
+
+  set shortmess+=c
+
+  " Use <c-space> to trigger completion.
+  inoremap <silent><expr> <c-space> coc#refresh()
+
+  augroup mygroup
+    autocmd!
+    " Setup formatexpr specified filetype(s).
+    autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
+    " Update signature help on jump placeholder.
+    autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+  augroup end
 
   " Symbol renaming.
   nmap <leader>rn <Plug>(coc-rename)
@@ -748,8 +761,9 @@ endif
 
 " <TAB>: completion.
 imap <silent><expr> <TAB>
-            \ <SID>check_back_space() ? "\<TAB>" :
-            \ "<C-n>"
+      \ pumvisible() ? "<C-n>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
 function! s:check_back_space() abort
     let col = col('.') - 1
     return !col || strpart(getline('.'), 0, col) =~ '^\s*$'
