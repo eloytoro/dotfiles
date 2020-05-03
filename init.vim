@@ -25,6 +25,7 @@ Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-tbone'
 Plug 'tpope/vim-sleuth'
 Plug 'tpope/vim-dispatch'
+Plug 'tpope/vim-rhubarb'
 Plug 'shumphrey/fugitive-gitlab.vim'
 if has('nvim')
   Plug 'airblade/vim-gitgutter'
@@ -97,16 +98,11 @@ Plug 'tomasr/molokai'
 Plug 'morhetz/gruvbox'
 Plug 'tyrannicaltoucan/vim-deep-space'
 Plug 'AlessandroYorba/Despacio'
-Plug 'cocopon/iceberg.vim'
+" Plug 'cocopon/iceberg.vim'
 Plug 'w0ng/vim-hybrid'
 Plug 'Nequo/vim-allomancer'
-Plug 'danilo-augusto/vim-afterglow'
-Plug 'tlhr/anderson.vim'
-Plug 'romainl/Apprentice'
 Plug 'arcticicestudio/nord-vim'
 Plug 'mhartington/oceanic-next'
-Plug 'rakr/vim-one'
-Plug 'joshdick/onedark.vim'
 Plug 'sts10/vim-pink-moon'
 Plug 'rakr/vim-two-firewatch'
 Plug 'junegunn/vim-emoji'
@@ -114,11 +110,11 @@ if !has('nvim')
   Plug 'git@gitlab.booking.com:devtools/vim-booking.git'
 endif
 Plug 'posva/vim-vue', { 'for': 'vue' }
-Plug 'maxmellon/vim-jsx-pretty', { 'for': 'javascript' }
-Plug 'pangloss/vim-javascript', { 'for': 'javascript' }
-Plug 'jelera/vim-javascript-syntax', { 'for': 'javascript' }
-Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
-Plug 'peitalin/vim-jsx-typescript', { 'for': 'typescript' }
+" Plug 'maxmellon/vim-jsx-pretty', { 'for': 'javascript' }
+" Plug 'pangloss/vim-javascript', { 'for': 'javascript' }
+" Plug 'jelera/vim-javascript-syntax', { 'for': 'javascript' }
+Plug 'leafgarland/typescript-vim'
+Plug 'peitalin/vim-jsx-typescript'
 
 call plug#end()
 
@@ -129,12 +125,15 @@ syntax enable
 if has("termguicolors")
     set termguicolors
     set background=dark
-    " silent! colorscheme afterglow
-    " silent! colorscheme Apprentice
-    " silent! colorscheme one
-    silent! colorscheme hybrid
+    " silent! colorscheme hybrid
+    " silent! colorscheme tender
+    silent! colorscheme OceanicNext
+    " silent! colorscheme two-firewatch
+    " silent! colorscheme nord
+    " silent! colorscheme pink-moon
+    " silent! colorscheme despacio
+    " silent! colorscheme deep-space
     "hi ColorColumn guibg=#111111
-    " colorscheme solarized
 else
     let g:seoul256_background = 233
     silent! colorscheme seoul256
@@ -233,7 +232,7 @@ augroup FTOptions
   au BufWritePost vimrc,.vimrc,init.vim nested if expand('%') !~ 'fugitive' | source % | endif
   au BufReadPost quickfix nmap <buffer> <CR> :.cc<CR>
   au FileType perl let b:dispatch = 'perl %'
-  au FileType javascript.jsx let b:dispatch = 'node %'
+  " au FileType javascript.jsx let b:dispatch = 'node %'
   " au BufNewFile,BufReadPost *.test.js let b:dispatch = 'yarn test %'
   au BufReadPost * if getline(1) =~# '^#!' | let b:dispatch = getline(1)[2:-1] . ' %' | let b:start = b:dispatch | endif
 augroup END
@@ -348,6 +347,18 @@ if has('python3') && has('nvim') && executable("node")
 
   " Use K to show documentation in preview window.
   nnoremap <silent> K :call <SID>show_documentation()<CR>
+
+  " Formatting selected code.
+  xmap <leader>f  <Plug>(coc-format-selected)
+  nmap <leader>f  <Plug>(coc-format-selected)
+
+  " Use <cr> to confirm completion, `<C-g>u` means break undo chain at current
+  " position. Coc only does snippet and additional edit on confirm.
+  if exists('*complete_info')
+    inoremap <expr> <cr> complete_info()["selected"] != "-1" ? "\<C-y>" : "\<C-g>u\<CR>"
+  else
+    imap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+  endif
 
   function! s:show_documentation()
     if (index(['vim','help'], &filetype) >= 0)
@@ -467,7 +478,7 @@ augroup nerd
         \| endif
 augroup END
 
-let NERDTreeIgnore = ['^node_modules$[[dir]]']
+" let NERDTreeIgnore = ['^node_modules$[[dir]]']
 
 " function! StartScreen()
 "   if !argc() && (line2byte('$') == -1)
@@ -577,7 +588,7 @@ endfunction
 
 function! s:fzf_show_branches(handler)
   call fzf#run({
-        \ 'source': 'git for-each-ref --sort=-committerdate refs/heads/ --format="%(refname:short)"',
+        \ 'source': 'git for-each-ref --sort=-committerdate refs/{heads,remotes} --format="%(refname:lstrip=-1)" | grep -v HEAD | awk '."'!x[$0]++'",
         \ 'sink': a:handler,
         \ 'options': '--ansi --multi --no-sort --tiebreak=index --reverse '.
         \   '--inline-info -e --prompt "Commit> " --bind=ctrl-s:toggle-sort',
@@ -589,6 +600,8 @@ command! -nargs=0 FZFGitLog call s:fzf_show_commits(1, function('s:ref_handler')
 nmap <silent> <leader>gc :FZFCheckout<CR>
 nmap <silent> <leader>gl :FZFGitLog<CR>
 nmap <silent> <leader>gm :FZFMerge<CR>
+nmap <silent> ycl :.GBrowse!<CR>
+nmap <silent> ycf :GBrowse!<CR>
 
 function! s:get_changes_list()
   redir => result
@@ -648,12 +661,12 @@ let s:tag_regexp = s:tag_name_regexp.s:tag_properties.'[^\/]'
 let s:tag_blacklist = ['TMPL_*', 'input', 'br']
 let s:hl_whitelist = ['xmlTag']
 function! CarriageReturn()
-  if has('python3')
-    let snippet = UltiSnips#ExpandSnippetOrJump()
-    if g:ulti_expand_or_jump_res > 0
-      return snippet
-    endif
-  endif
+  " if has('python3')
+  "   let snippet = UltiSnips#ExpandSnippetOrJump()
+  "   if g:ulti_expand_or_jump_res > 0
+  "     return snippet
+  "   endif
+  " endif
   let col = col('.') - 1
   let line = getline('.')
   if col && strpart(line, col) =~ '^'.s:closed_tag_regexp && strpart(line, 0, col) =~ s:tag_name_regexp
@@ -661,7 +674,6 @@ function! CarriageReturn()
   endif
   return delimitMate#ExpandReturn()
 endfunction
-inoremap <silent> <CR> <C-R>=CarriageReturn()<CR>
 
 function! CloseTag()
     let n = getline('.')
@@ -708,8 +720,9 @@ function! EraseTag()
 endfunction
 augroup autoclose_tags
   autocmd!
-  autocmd FileType javascript,typescript,javascript.jsx inoremap <buffer> <silent> > <C-R>=CloseTag()<CR>
-  autocmd FileType javascript,typescript,javascript.jsx inoremap <buffer> <silent> <BS> <C-R>=EraseTag()<CR>
+  autocmd FileType javascript,typescript,javascript.jsx,typescript.tsx inoremap <buffer> <silent> > <C-R>=CloseTag()<CR>
+  autocmd FileType javascript,typescript,javascript.jsx,typescript.tsx inoremap <buffer> <silent> <BS> <C-R>=EraseTag()<CR>
+  autocmd FileType javascript,typescript,javascript.jsx,typescript.tsx inoremap <buffer> <silent> <CR> <C-R>=CarriageReturn()<CR>
   autocmd FileType html,xml inoremap <buffer> <silent> <BS> <C-R>=EraseTag()<CR>
 augroup END
 
@@ -729,10 +742,8 @@ let g:jsdoc_return = 0
 " ----------------------------------------------------------------------------
 "  UltiSnips
 " ----------------------------------------------------------------------------
-let g:UltiSnipsExpandTrigger = "<C-u>"
 let g:UltiSnipsSnippetsDir = vim_folder."/UltiSnips"
 let g:ulti_expand_or_jump_res = 0
-let g:UltiSnipsJumpForwardTrigger = "<CR>"
 
 " ----------------------------------------------------------------------------
 "  Dispatch
