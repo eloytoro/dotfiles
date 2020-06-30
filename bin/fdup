@@ -1,8 +1,13 @@
 #!/bin/bash
 
 set -e
-path=$1
-shift 1
+rpbin="realpath"
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  rpbin="grealpath"
+fi
+rel=$1
+path=$($rpbin --relative-to $rel $2)
+shift 2
 
 if [ ! -e "$path" ]; then
   path="."
@@ -14,10 +19,10 @@ while true; do
     cmd="$cmd -E ${prev//$path/}"
   fi
   cmd="$cmd --type f '' $path $@"
-  eval $cmd
+  eval "(cd $rel; $cmd)"
   if [ $path == '.' ]; then
     break;
   fi
   prev=$path
-  path=$(grealpath --relative-to $PWD $path/..)
+  path=$($rpbin --relative-to $rel $path/..)
 done

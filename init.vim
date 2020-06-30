@@ -386,6 +386,7 @@ if has('python3') && has('nvim') && executable("node")
 
   " Symbol renaming.
   nmap <leader>rn <Plug>(coc-rename)
+  let g:coc_config_home = "$HOME/dotfiles"
 endif
 
 " ----------------------------------------------------------------------------
@@ -507,20 +508,24 @@ nmap M mL
 "  FZF
 " ----------------------------------------------------------------------------
 if has('nvim')
-    let $FZF_DEFAULT_OPTS .= ' --inline-info'
+    " let $FZF_DEFAULT_OPTS .= ' --inline-info'
 endif
 
 function! CTRLP()
-  if expand('%') =~ 'NERD_tree'
-    exec "normal! \<c-w>w"
-  endif
   let target = expand("%:h")
   if (target == '')
     let target = '.'
   endif
+  let root = systemlist('git -C '.target.' rev-parse --show-toplevel')[0]
+  if v:shell_error
+    let root = $PWD
+  endif
+  if expand('%') =~ 'NERD_tree'
+    exec "normal! \<c-w>w"
+  endif
   if executable("fd")
     call fzf#vim#files('', {
-          \ 'source': 'fdup '.target,
+          \ 'source': 'fdup '.root.' '.target,
           \ 'options': '--no-sort'
           \ })
   else
@@ -588,10 +593,10 @@ endfunction
 
 function! s:fzf_show_branches(handler)
   call fzf#run({
-        \ 'source': 'git for-each-ref --sort=-committerdate refs/{heads,remotes} --format="%(refname:lstrip=-1)" | grep -v HEAD | awk '."'!x[$0]++'",
+        \ 'source': 'git for-each-ref --sort=-committerdate refs/heads --format="%(refname:lstrip=-1)"',
         \ 'sink': a:handler,
         \ 'options': '--ansi --multi --no-sort --tiebreak=index --reverse '.
-        \   '--inline-info -e --prompt "Commit> " --bind=ctrl-s:toggle-sort',
+        \   '--inline-info -e --prompt "Ref> " --bind=ctrl-s:toggle-sort',
         \ 'left': '50'})
 endfunction
 
