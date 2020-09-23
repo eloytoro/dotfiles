@@ -427,7 +427,7 @@ nmap <leader>gl :Glog<CR>
 nmap <leader>gw :Gwrite<CR>
 nmap <leader>ge :Gedit<CR>
 nmap <leader>gE :Gvsplit<CR>
-nmap <leader>gv :GV<CR>
+nmap <leader>gv :GV -n 100<CR>
 nmap <leader>gV :GV!<CR>
 nmap <leader>gg :Ggrep 
 nmap git :Git
