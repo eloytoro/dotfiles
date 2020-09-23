@@ -14,3 +14,4 @@
 [alias]
 	ls = log --oneline
 	last = log -1 HEAD
+	rewrite = 'git reset --soft $(git merge-base master HEAD)'
