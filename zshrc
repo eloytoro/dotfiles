@@ -1,5 +1,7 @@
 source $HOME/dotfiles/rc
 
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
 # Git autocompletion
 autoload -Uz compinit
 compinit

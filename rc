@@ -44,8 +44,6 @@ export EDITOR=nvim
 # make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
-[ -f ~/.fzf.bash ] && source ~/.fzf.bash
-
 export TERM=xterm-256color
 
 # local node_modules

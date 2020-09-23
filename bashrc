@@ -3,6 +3,8 @@ source $HOME/dotfiles/rc
 # See bash(1) for more options
 HISTCONTROL=ignoreboth
 
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
+
 # append to the history file, don't overwrite it
 shopt -s histappend
 
