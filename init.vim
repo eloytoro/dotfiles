@@ -535,6 +535,26 @@ endfunction
 command! CTRLP call CTRLP()
 nnoremap <silent> <C-p> :CTRLP<CR>
 nnoremap <leader>/ :Ag 
+function! AgOn(type, ...)
+  let sel_save = &selection
+  let &selection = "inclusive"
+  let reg_save = @@
+
+  if a:0  " Invoked from Visual mode, use gv command.
+    silent exe "normal! gvy"
+  elseif a:type == 'line'
+    silent exe "normal! '[V']y"
+  else
+    silent exe "normal! `[v`]y"
+  endif
+
+  exec "Ag ".@@
+
+  let &selection = sel_save
+  let @@ = reg_save
+endfunction
+nmap <silent> y/ :set opfunc=AgOn<CR>g@
+vmap <silent> /  :<C-U>call AgOn(visualmode(), 1)<CR>
 
 imap <c-x><c-k> <plug>(fzf-complete-word)
 imap <c-x><c-f> <plug>(fzf-complete-path)
@@ -593,7 +613,7 @@ endfunction
 
 function! s:fzf_show_branches(handler)
   call fzf#run({
-        \ 'source': 'git for-each-ref --sort=-committerdate refs/heads --format="%(refname:lstrip=-1)"',
+        \ 'source': 'git branch --sort=-committerdate -a --format="%(refname:lstrip=2)" | sed "s/^origin\///" | awk '."'!seen[$0]++\'",
         \ 'sink': a:handler,
         \ 'options': '--ansi --multi --no-sort --tiebreak=index --reverse '.
         \   '--inline-info -e --prompt "Ref> " --bind=ctrl-s:toggle-sort',
@@ -1146,9 +1166,10 @@ call s:tmux_map('<leader>t.', '.bottom-right')
 " ----------------------------------------------------------------------------
 " incsearch
 " ----------------------------------------------------------------------------
-map /  <Plug>(incsearch-forward)
-map ?  <Plug>(incsearch-backward)
-map g/ <Plug>(incsearch-stay)
+" nmap /  <Plug>(incsearch-forward)
+" nmap g/ <Plug>(incsearch-stay)
+nmap /  <Plug>(incsearch-stay)
+nmap ?  <Plug>(incsearch-backward)
 
 nmap n <Plug>(incsearch-nohl-n)
 nmap N <Plug>(incsearch-nohl-N)
@@ -1211,6 +1232,7 @@ let g:ale_linters = {
       \ }
 
 let g:ale_set_loclist = 0
+let g:ale_lint_on_enter = 0
 
 silent! if emoji#available() && has('nvim')
   let g:ale_sign_error = emoji#for('fire')
