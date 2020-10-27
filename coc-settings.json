@@ -1,7 +1,6 @@
 {
-  "suggest.autoTrigger": "trigger",
-  "signature.target": "float",
-  "diagnostic.messageTarget":"float",
+  "signature.hideOnTextChange": true,
+  "suggest.autoTrigger": "always",
   "coc.preferences.hoverTarget": "float",
   "python.jediEnabled": false
 }
