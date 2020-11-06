@@ -1,7 +1,5 @@
 source $HOME/dotfiles/rc
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
 # Git autocompletion
 autoload -Uz compinit
 compinit
@@ -17,3 +15,5 @@ zstyle ':vcs_info:git:*' formats ' %F{11}[⎇ %b]%f'
 bindkey -e
 
 PS1='%F{15}%n%f@%F{9}%m%f:%~${vcs_info_msg_0_}'$'\n'"$ "
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
