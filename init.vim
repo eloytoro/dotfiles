@@ -25,12 +25,13 @@ Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-sleuth'
-" Plug 'tpope/vim-dispatch'
+Plug 'tpope/vim-dispatch'
 Plug 'tpope/vim-rhubarb'
 " Plug 'shumphrey/fugitive-gitlab.vim'
 if has('nvim')
   Plug 'airblade/vim-gitgutter'
 endif
+Plug 'vim-test/vim-test'
 " Plug 'mbbill/undotree'
 Plug 'preservim/nerdtree'
 Plug 'haya14busa/incsearch.vim'
@@ -91,16 +92,17 @@ call plug#end()
 syntax enable
 set tgc
 if has("termguicolors")
-    set background=dark
-    silent! colorscheme gruvbox
-    " silent! colorscheme OceanicNext
-    "hi ColorColumn guibg=#111111
+  set termguicolors
+  set background=dark
+  silent! colorscheme gruvbox
+  " silent! colorscheme OceanicNext
+  "hi ColorColumn guibg=#111111
 else
-    let g:seoul256_background = 233
-    silent! colorscheme seoul256
-    hi MatchParen ctermfg=yellow
-    "let g:indentLine_color_term = 248
-    hi ColorColumn ctermbg=234 guibg=#111111
+  let g:seoul256_background = 233
+  silent! colorscheme seoul256
+  hi MatchParen ctermfg=yellow
+  "let g:indentLine_color_term = 248
+  hi ColorColumn ctermbg=234 guibg=#111111
 endif
 let g:jsx_ext_required = 0
 
@@ -115,7 +117,7 @@ function! s:statusline_expr()
   let pos = ' %-12(%l : %c%V%) '
   let pct = ' %P'
 
-  return '[%n] %F %<'.mod.ro.ft.fug.coc.sep.pos.'%*'.pct
+  return '[%n] %f %<'.mod.ro.ft.fug.coc.sep.pos.'%*'.pct
 endfunction
 let &statusline = s:statusline_expr()
 "hi StatusLine ctermfg=232 ctermbg=45 guibg=#00bff4 guifg=#000000
@@ -123,10 +125,10 @@ let &statusline = s:statusline_expr()
 
 " let g:markdown_composer_autostart = 0
 
-for f in split(glob("$HOME/dotfiles/vim/*.vim"), '\n')
-  exe 'source' f
-endfor
-
+source $HOME/dotfiles/vim/sensible.vim
+source $HOME/dotfiles/vim/objects.vim
+source $HOME/dotfiles/vim/fzf.vim
+source $HOME/dotfiles/vim/coc.vim
 
 " ----------------------------------------------------------------------------
 "  Tabs
@@ -196,7 +198,7 @@ map g# <Plug>(incsearch-nohl-g#)
 " ----------------------------------------------------------------------------
 nmap gow <Plug>(easymotion-bd-w)
 nmap gos <Plug>(easymotion-s)
-nmap <CR> <Plug>(easymotion-bd-jk)
+" nmap <CR> <Plug>(easymotion-bd-jk)
 nmap gon <Plug>(easymotion-vim-n)
 nmap goN <Plug>(easymotion-vim-N)
 
@@ -413,3 +415,9 @@ inoremap <silent> <c-\> <C-R>=Shrug()<CR>
 " Replace
 nmap coi :%s/import\(\_.\{-}\)from\s\(.\{-}\);/const\1= require(\2);/gc<CR>
 nmap cor :%s/const\(\_.\{-}\)=\srequire(\(.\{-}\));/import\1from \2;/gc<CR>
+
+let g:test#typescript#runner = 'jest'
+let g:test#typescript#jest#executable = 'yarn test:unit'
+
+let g:test#javascript#runner = 'jest'
+let g:test#javascript#jest#executable = 'yarn test:unit'

@@ -2,6 +2,7 @@
 "  coc.nvim
 " ----------------------------------------------------------------------------
 
+let g:coc_disable_transparent_cursor = 1
 " <TAB>: completion.
 imap <silent><expr> <TAB>
       \ pumvisible() ? "<C-n>" :
@@ -24,8 +25,23 @@ nmap <silent> [d <Plug>(coc-diagnostic-prev)
 nmap <silent> ]d <Plug>(coc-diagnostic-next)
 
 " Formatting selected code.
-xmap <leader>cF  <Plug>(coc-format-selected)
-nmap <leader>cF  <Plug>(coc-format-selected)
+xmap <leader>c=  <Plug>(coc-format-selected)
+nmap <leader>c=  <Plug>(coc-format-selected)
+nmap <leader>cr <Plug>(coc-rename)
+nmap <leader>cr <Plug>(coc-rename)
+nmap <leader>cf  <Plug>(coc-fix-current)
+nmap <leader>ce :CocCommand eslint.executeAutofix<cr>
+" Remap for do codeAction of selected region, ex: `<leader>aap` for current paragraph
+xmap <leader>ca  <Plug>(coc-codeaction-selected)
+nmap <leader>ca  <Plug>(coc-codeaction-selected)
+" Remap for do codeAction of current line
+nmap <leader>cA  <Plug>(coc-codeaction)
+" Fix autofix problem of current line
+nmap <silent><nowait> <leader>cd :<C-u>CocList diagnostics<cr>
+nnoremap <silent><nowait> <leader>cs  :<C-u>CocList -I symbols<cr>
+nnoremap <silent><nowait> <leader>co  :<C-u>CocList outline<cr>
+" Show commands.
+nnoremap <silent><nowait> <leader>cc  :<C-u>CocList commands<cr>
 
 " Use <cr> to confirm completion, `<C-g>u` means break undo chain at current
 " position. Coc only does snippet and additional edit on confirm.
@@ -47,17 +63,6 @@ function! s:show_documentation()
   endif
 endfunction
 
-" Highlight the symbol and its references when holding the cursor.
-autocmd CursorHold * silent call CocActionAsync('highlight')
-" Remap for do codeAction of selected region, ex: `<leader>aap` for current paragraph
-xmap <leader>ca  <Plug>(coc-codeaction-selected)
-nmap <leader>ca  <Plug>(coc-codeaction-selected)
-" Remap for do codeAction of current line
-nmap <leader>cA  <Plug>(coc-codeaction)
-" Fix autofix problem of current line
-nmap <leader>cf  <Plug>(coc-fix-current)
-nmap <silent><nowait> <leader>cd :<C-u>CocList diagnostics<cr>
-nnoremap <silent><nowait> <leader>cs  :<C-u>CocList -I symbols<cr>
 " Create mappings for function text object, requires document symbols feature of languageserver.
 xmap if <Plug>(coc-funcobj-i)
 xmap af <Plug>(coc-funcobj-a)
@@ -65,7 +70,6 @@ omap if <Plug>(coc-funcobj-i)
 omap af <Plug>(coc-funcobj-a)
 nmap <silent> <C-d> <Plug>(coc-range-select)
 xmap <silent> <C-d> <Plug>(coc-range-select)
-nmap <leader>cr <Plug>(coc-rename)
 
 set shortmess+=c
 
@@ -87,13 +91,15 @@ augroup cocau
   autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
   " Update signature help on jump placeholder.
   autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+  " Highlight the symbol and its references when holding the cursor.
+  autocmd CursorHold * silent call CocActionAsync('highlight')
+
+  autocmd BufWrite * silent call CocAction('runCommand', 'eslint.executeAutofix')
 augroup end
 
 let g:coc_config_home = "$HOME/dotfiles"
 
 " Extensions
-" \  'coc-prettier',
-" \  'coc-eslint',
 let g:coc_global_extensions = [
       \  'coc-actions',
       \  'coc-css',
