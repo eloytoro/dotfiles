@@ -59,8 +59,8 @@ Plug 'cakebaker/scss-syntax.vim', { 'for': 'scss' }
 Plug 'rust-lang/rust.vim', { 'for': 'rust' }
 Plug 'othree/html5.vim', { 'for': 'html' }
 Plug 'digitaltoad/vim-jade', { 'for': 'jade' }
-Plug 'leafgarland/typescript-vim'
-Plug 'peitalin/vim-jsx-typescript'
+" Plug 'leafgarland/typescript-vim'
+" Plug 'peitalin/vim-jsx-typescript'
 " Colorschemes
 Plug 'jacoborus/tender'
 "Plug 'frankier/neovim-colors-solarized-truecolor-only'
@@ -81,6 +81,7 @@ Plug 'mhartington/oceanic-next'
 " Plug 'junegunn/vim-emoji'
 " Plug 'posva/vim-vue', { 'for': 'vue' }
 " Plug 'maxmellon/vim-jsx-pretty', { 'for': 'javascript' }
+Plug 'HerringtonDarkholme/yats.vim'
 " Plug 'pangloss/vim-javascript', { 'for': 'javascript' }
 " Plug 'jelera/vim-javascript-syntax', { 'for': 'javascript' }
 
@@ -94,8 +95,8 @@ set tgc
 if has("termguicolors")
   set termguicolors
   set background=dark
-  silent! colorscheme gruvbox
-  " silent! colorscheme OceanicNext
+  " silent! colorscheme gruvbox
+  silent! colorscheme OceanicNext
   "hi ColorColumn guibg=#111111
 else
   let g:seoul256_background = 233

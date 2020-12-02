@@ -2,5 +2,6 @@
   "signature.hideOnTextChange": true,
   "suggest.autoTrigger": "always",
   "coc.preferences.hoverTarget": "float",
-  "python.jediEnabled": false
+  "python.jediEnabled": false,
+  "coc.preferences.jumpCommand": "tab drop"
 }
