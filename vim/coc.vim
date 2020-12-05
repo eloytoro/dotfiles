@@ -20,7 +20,6 @@ nmap <silent> gd <Plug>(coc-definition)
 nmap <silent> gD <Plug>(coc-type-definition)
 nmap <silent> gr <Plug>(coc-references)
 nmap <silent> gi <Plug>(coc-implementation)
-nmap <silent> gcd <Plug>(coc-diagnostic-info)
 nmap <silent> [d <Plug>(coc-diagnostic-prev)
 nmap <silent> ]d <Plug>(coc-diagnostic-next)
 
@@ -32,16 +31,32 @@ nmap <leader>cr <Plug>(coc-rename)
 nmap <leader>cf  <Plug>(coc-fix-current)
 nmap <leader>ce :CocCommand eslint.executeAutofix<cr>
 " Remap for do codeAction of selected region, ex: `<leader>aap` for current paragraph
-xmap <leader>ca  <Plug>(coc-codeaction-selected)
-nmap <leader>ca  <Plug>(coc-codeaction-selected)
+nmap <leader>.  <Plug>(coc-codeaction-selected)
 " Remap for do codeAction of current line
-nmap <leader>cA  <Plug>(coc-codeaction)
+nmap <leader>.  <Plug>(coc-codeaction)
 " Fix autofix problem of current line
 nmap <silent><nowait> <leader>cd :<C-u>CocList diagnostics<cr>
 nnoremap <silent><nowait> <leader>cs  :<C-u>CocList -I symbols<cr>
 nnoremap <silent><nowait> <leader>co  :<C-u>CocList outline<cr>
+nmap <silent> <leader>ci <Plug>(coc-diagnostic-info)
 " Show commands.
 nnoremap <silent><nowait> <leader>cc  :<C-u>CocList commands<cr>
+
+" navigate chunks of current buffer
+nmap [c <Plug>(coc-git-prevchunk)
+nmap ]c <Plug>(coc-git-nextchunk)
+" navigate conflicts of current buffer
+nmap [gc <Plug>(coc-git-prevconflict)
+nmap ]gc <Plug>(coc-git-nextconflict)
+" show chunk diff at current position
+" nmap gs <Plug>(coc-git-chunkinfo)
+" show commit contains current position
+nmap <leader>gh <Plug>(coc-git-commit)
+" create text object for git chunks
+omap ig <Plug>(coc-git-chunk-inner)
+xmap ig <Plug>(coc-git-chunk-inner)
+omap ag <Plug>(coc-git-chunk-outer)
+xmap ag <Plug>(coc-git-chunk-outer)
 
 " Use <cr> to confirm completion, `<C-g>u` means break undo chain at current
 " position. Coc only does snippet and additional edit on confirm.
@@ -83,6 +98,7 @@ endif
 " Make <CR> auto-select the first completion item and notify coc.nvim to
 " format on enter, <cr> could be remapped by other vim plugin
 inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm()
+                              \: coc#jumpable() ? "\<C-r>=coc#rpc#request('snippetNext', [])\<CR>"
                               \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
 augroup cocau
@@ -94,25 +110,24 @@ augroup cocau
   " Highlight the symbol and its references when holding the cursor.
   autocmd CursorHold * silent call CocActionAsync('highlight')
 
-  autocmd BufWrite * silent call CocAction('runCommand', 'eslint.executeAutofix')
+  " autocmd BufWrite * silent call CocAction('runCommand', 'eslint.executeAutofix')
 augroup end
 
 let g:coc_config_home = "$HOME/dotfiles"
 
 " Extensions
 let g:coc_global_extensions = [
-      \  'coc-actions',
       \  'coc-css',
       \  'coc-git',
       \  'coc-highlight',
       \  'coc-html',
       \  'coc-jest',
       \  'coc-json',
-      \  'coc-tsserver',
       \  'coc-yaml',
+      \  'coc-tsserver',
+      \  'coc-prettier',
+      \  'coc-snippets'
       \ ]
-
-nmap <silent> <leader>. :CocCommand actions.open<cr>
 
 " Remap <C-f> and <C-b> for scroll float windows/popups.
 nnoremap <expr><C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-D>"

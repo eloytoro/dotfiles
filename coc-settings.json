@@ -3,5 +3,8 @@
   "suggest.autoTrigger": "always",
   "coc.preferences.hoverTarget": "float",
   "python.jediEnabled": false,
-  "coc.preferences.jumpCommand": "tab drop"
+  "coc.preferences.jumpCommand": "tab drop",
+  "coc.preferences.formatOnSaveFiletypes": ["typescriptreact", "typescript"],
+  "git.showCommitInFloating": true,
+  "snippets.userSnippetsDirectory": "$HOME/dotfiles/snippets"
 }

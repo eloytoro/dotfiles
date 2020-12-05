@@ -2,64 +2,6 @@ global !p
 import re
 import string
 
-def cap(matches):
-	if (matches[1] in ['fs', 'path', 'child_process', 'crypto']):
-		return matches[1]
-	if (matches[1] == 'lodash'):
-		return '_'
-	last = matches[1].split('/')[-1]
-	last = re.sub(r"\.", "", last)
-	if len(last) == 0:
-		return ''
-	return ''.join(map(lambda str: str[0].upper() + str[1:] if len(str) > 0 else str, re.split('\W+', last)))
-endglobal
-
-snippet if "if"
-if (${1:condition}) {
-	${VISUAL}$0
-}
-endsnippet
-
-snippet func "func" i
-function ($1) {
-	${VISUAL}$0
-}
-endsnippet
-
-snippet fn "fn" i
-$1(() => {
-	${VISUAL}$2
-})$0
-endsnippet
-
-snippet gen "gen" i
-function* ${1}(${2}) {
-	${VISUAL}$0
-}
-endsnippet
-
-snippet require
-const ${2:`!p
-snip.rv = cap(t)
-`} = require('${1}');
-endsnippet
-
-snippet import
-import ${2:`!p
-snip.rv = cap(t)
-`} from '${1}';
-endsnippet
-
 snippet log
 console.log('$1: ', ${1:${VISUAL}})
-endsnippet
-
-snippet component
-class ${1} extends React.Component {
-	render() {
-		return (
-			${VISUAL}$0
-		);
-	}
-}
 endsnippet

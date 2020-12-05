@@ -29,9 +29,8 @@ Plug 'tpope/vim-dispatch'
 Plug 'tpope/vim-rhubarb'
 " Plug 'shumphrey/fugitive-gitlab.vim'
 if has('nvim')
-  Plug 'airblade/vim-gitgutter'
+  " Plug 'airblade/vim-gitgutter'
 endif
-Plug 'vim-test/vim-test'
 " Plug 'mbbill/undotree'
 Plug 'preservim/nerdtree'
 Plug 'haya14busa/incsearch.vim'
@@ -162,7 +161,7 @@ nmap <leader>gP :Gpush<CR>
 nmap <leader>gs :Gstatus<CR>gg<c-n>
 nmap <leader>gd :Gdiff<CR>
 nmap <leader>gb :Gblame<CR>
-nmap <leader>gl :Glog<CR>
+nmap <leader>gl :0Gclog!<CR>
 nmap <leader>gw :Gwrite<CR>
 nmap <leader>ge :Gedit<CR>
 nmap <leader>gE :Gvsplit<CR>
@@ -178,7 +177,7 @@ let g:Gitv_OpenPreviewOnLaunch = 1
 " ----------------------------------------------------------------------------
 "  GitGutter
 " ----------------------------------------------------------------------------
-nmap <leader>gh :GitGutterLineHighlightsToggle<CR>
+" nmap <leader>gh :GitGutterLineHighlightsToggle<CR>
 
 " ----------------------------------------------------------------------------
 "  incsearch
