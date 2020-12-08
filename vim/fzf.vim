@@ -61,64 +61,56 @@ omap <leader><tab> <plug>(fzf-maps-o)
 
 set rtp+=~/.fzf
 
-function! s:merge_handler(line)
-    exec "Git merge --no-ff -q".a:line
-endfunction
-
-command! FZFMerge call fzf#run({
-            \ 'source': 'git branch -r --no-merged',
-            \ 'sink': function('s:merge_handler'),
-            \ 'down': 8})
-
 function! s:dir_handler(dir)
     echo a:dir
 endfunction
 
 function! s:get_log_ref(line)
-    return matchstr(a:line, '[0-9a-f]\{7}')
+    return matchstr(a:line, '^[0-9a-f]\+')
 endfunction
 
 function! s:branch_handler(line)
-    exec "!git checkout ".a:line
+    exec "!git checkout ".substitute(a:line, "^..", "", "")
 endfunction
 
 function! s:ref_handler(line)
-    exec "Gtabedit! show ".s:get_log_ref(a:line)
+    exec "Gvdiff ".s:get_log_ref(a:line)
 endfunction
 
 function! s:fzf_show_commits(here, handler)
     let options  = [
                 \ '--color=always',
-                \ '--format="%C(auto)%h%d %s %C(magenta)%an, %cr"',
-                \ '--skip 1'
+                \ '--format="%C(auto)%h%d %s %C(magenta)%an, %cr"'
                 \ ]
 
+    let path = expand("%:P")
     if a:here
-      call add(options, '--follow -- '.expand("%:P"))
+      call add(options, '--follow -- '.path)
     endif
 
     call fzf#run({
-                \ 'source': 'git log '.join(options, ' '),
+                \ 'source': 'git log '.join(options, ' ').' | tail -n +2',
                 \ 'sink': a:handler,
                 \ 'options': '--ansi --multi --no-sort --tiebreak=index '.
-                \   '--inline-info -e --prompt "Commit> " --bind=ctrl-s:toggle-sort',
-                \ 'down': 8})
+                \   '--inline-info -e --prompt "Commit> " --bind=ctrl-s:toggle-sort '.
+                \   '--preview='."'".'git diff $(cut -f 1 -d " " <<< {}):'.path.' '.path." | bat --color=always -p'",
+                \ 'window': {'width': 0.9, 'height': 0.9}})
 endfunction
 
 function! s:fzf_show_branches(handler)
   call fzf#run({
-        \ 'source': 'git branch --sort=-committerdate -a --format="%(refname:lstrip=2)" | sed "s/^origin\///" | awk '."'!seen[$0]++\'",
+        \ 'source': 'git for-each-ref --sort=-committerdate refs/heads/ --format="%(HEAD) %(color:yellow)%(refname:short)%(color:reset)"',
         \ 'sink': a:handler,
         \ 'options': '--ansi --multi --no-sort --tiebreak=index --reverse '.
-        \   '--inline-info -e --prompt "Ref> " --bind=ctrl-s:toggle-sort',
-        \ 'left': '50'})
+        \   '--inline-info -e --prompt "Branch> " --bind=ctrl-s:toggle-sort '.
+        \   '--preview='."'".'git log --oneline --graph --date=short --pretty="format:%C(auto)%cd %h%d %s" $(sed s/^..// <<< {} | cut -d" " -f1) | head -200'."'",
+        \ 'window': {'width': 0.9, 'height': 0.6}})
 endfunction
 
 command! -nargs=0 FZFCheckout call s:fzf_show_branches(function('s:branch_handler'))
 command! -nargs=0 FZFGitLog call s:fzf_show_commits(1, function('s:ref_handler'))
 nmap <silent> <leader>gc :FZFCheckout<CR>
-nmap <silent> <leader>gl :FZFGitLog<CR>
-nmap <silent> <leader>gm :FZFMerge<CR>
+nmap <silent> <leader>gL :FZFGitLog<CR>
 nmap <silent> ycl :.GBrowse!<CR>
 nmap <silent> ycf :GBrowse!<CR>
 

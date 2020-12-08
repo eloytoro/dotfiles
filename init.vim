@@ -27,6 +27,7 @@ Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-sleuth'
 Plug 'tpope/vim-dispatch'
 Plug 'tpope/vim-rhubarb'
+Plug 'tpope/vim-abolish'
 " Plug 'shumphrey/fugitive-gitlab.vim'
 if has('nvim')
   " Plug 'airblade/vim-gitgutter'
@@ -201,6 +202,7 @@ nmap gos <Plug>(easymotion-s)
 " nmap <CR> <Plug>(easymotion-bd-jk)
 nmap gon <Plug>(easymotion-vim-n)
 nmap goN <Plug>(easymotion-vim-N)
+nmap <CR> <Plug>(easymotion-overwin-w)
 
 " ----------------------------------------------------------------------------
 " EasyAlign
@@ -266,18 +268,19 @@ augroup END
 " Easyclip
 " ----------------------------------------------------------------------------
 let g:yoinkIncludeDeleteOperations = 1
-nmap <leader>s <plug>(SubversiveSubstituteRange)
-xmap <leader>s <plug>(SubversiveSubstituteRange)
 nmap s <plug>(SubversiveSubstitute)
 nmap ss <plug>(SubversiveSubstituteLine)
 nmap S <plug>(SubversiveSubstituteToEndOfLine)
+xmap p <plug>(SubversiveSubstitute)
+xmap P <plug>(SubversiveSubstitute)
+xmap s <plug>(SubversiveSubstituteRangeConfirm)
 nmap [y <plug>(YoinkRotateBack)
 nmap ]y <plug>(YoinkRotateForward)
 nmap ]p <plug>(YoinkPostPasteSwapBack)
 nmap [p <plug>(YoinkPostPasteSwapForward)
 nmap <leader>s <plug>(SubversiveSubstituteRange)
-xmap <leader>s <plug>(SubversiveSubstituteRange)
-let g:subversivePromptWithActualCommand = 1
+nmap <leader>s <plug>(SubversiveSubstituteRangeConfirm)
+" let g:subversivePromptWithCurrent = 1
 
 
 nmap p <plug>(YoinkPaste_p)
