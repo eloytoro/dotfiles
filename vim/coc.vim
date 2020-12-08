@@ -17,7 +17,7 @@ endfunction
 inoremap <expr><S-TAB>  pumvisible() ? "\<C-p>" : "\<C-h>"
 " GoTo code navigation.
 nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gD <Plug>(coc-type-definition)
+nmap <silent> gD <Plug>(coc-declaration)
 nmap <silent> gr <Plug>(coc-references)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> [d <Plug>(coc-diagnostic-prev)
@@ -27,7 +27,7 @@ nmap <silent> ]d <Plug>(coc-diagnostic-next)
 xmap <leader>c=  <Plug>(coc-format-selected)
 nmap <leader>c=  <Plug>(coc-format-selected)
 nmap <leader>cr <Plug>(coc-rename)
-nmap <leader>cr <Plug>(coc-rename)
+nmap <leader>cR <Plug>(coc-refactor)
 nmap <leader>cf  <Plug>(coc-fix-current)
 nmap <leader>ce :CocCommand eslint.executeAutofix<cr>
 " Remap for do codeAction of selected region, ex: `<leader>aap` for current paragraph
@@ -35,7 +35,7 @@ nmap <leader>.  <Plug>(coc-codeaction-selected)
 " Remap for do codeAction of current line
 nmap <leader>.  <Plug>(coc-codeaction)
 " Fix autofix problem of current line
-nmap <silent><nowait> <leader>cd :<C-u>CocList diagnostics<cr>
+nmap <silent><nowait> <leader>cd :<C-u>CocList --normal diagnostics<cr>
 nnoremap <silent><nowait> <leader>cs  :<C-u>CocList -I symbols<cr>
 nnoremap <silent><nowait> <leader>co  :<C-u>CocList outline<cr>
 nmap <silent> <leader>ci <Plug>(coc-diagnostic-info)
@@ -109,8 +109,6 @@ augroup cocau
   autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
   " Highlight the symbol and its references when holding the cursor.
   autocmd CursorHold * silent call CocActionAsync('highlight')
-
-  " autocmd BufWrite * silent call CocAction('runCommand', 'eslint.executeAutofix')
 augroup end
 
 let g:coc_config_home = "$HOME/dotfiles"
