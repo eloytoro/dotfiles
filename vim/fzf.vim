@@ -70,7 +70,16 @@ function! s:get_log_ref(line)
 endfunction
 
 function! s:branch_handler(line)
-    exec "!git checkout ".substitute(a:line, "^..", "", "")
+    let sha = substitute(a:line, "^..", "", "")
+    call feedkeys(":Git  ".sha."\<s-left>\<left>", "t")
+endfunction
+
+function! s:checkout_handler(line)
+    exec "Git checkout ".substitute(a:line, "^..", "", "")
+endfunction
+
+function! s:merge_handler(line)
+    exec "Git merge --no-ff ".substitute(a:line, "^..", "", "")
 endfunction
 
 function! s:ref_handler(line)
@@ -80,6 +89,7 @@ endfunction
 function! s:fzf_show_commits(here, handler)
     let options  = [
                 \ '--color=always',
+                \ '--no-merges'
                 \ '--format="%C(auto)%h%d %s %C(magenta)%an, %cr"'
                 \ ]
 
@@ -103,16 +113,22 @@ function! s:fzf_show_branches(handler)
         \ 'sink': a:handler,
         \ 'options': '--ansi --multi --no-sort --tiebreak=index --reverse '.
         \   '--inline-info -e --prompt "Branch> " --bind=ctrl-s:toggle-sort '.
-        \   '--preview='."'".'git log --oneline --graph --date=short --pretty="format:%C(auto)%cd %h%d %s" $(sed s/^..// <<< {} | cut -d" " -f1) | head -200'."'",
+        \   '--preview='."'".'git log --no-merges --oneline --graph --date=short --pretty="format:%C(auto)%cd %h%d %s" $(sed s/^..// <<< {} | cut -d" " -f1) | head -200'."'",
         \ 'window': {'width': 0.9, 'height': 0.6}})
 endfunction
 
-command! -nargs=0 FZFCheckout call s:fzf_show_branches(function('s:branch_handler'))
+command! -nargs=0 FZFCheckout call s:fzf_show_branches(function('s:checkout_handler'))
+command! -nargs=0 FZFMerge call s:fzf_show_branches(function('s:merge_handler'))
+command! -nargs=0 FZFRef call s:fzf_show_branches(function('s:branch_handler'))
 command! -nargs=0 FZFGitLog call s:fzf_show_commits(1, function('s:ref_handler'))
 nmap <silent> <leader>gc :FZFCheckout<CR>
+nmap <silent> <leader>gm :FZFMerge<CR>
 nmap <silent> <leader>gL :FZFGitLog<CR>
+nmap <silent> <leader>gr :FZFRef<CR>
 nmap <silent> ycl :.GBrowse!<CR>
 nmap <silent> ycf :GBrowse!<CR>
+
+cnoremap <expr> <c-x><c-x> "\<C-r>=fzf#run({ 'source': 'git log', 'window': { 'width': 0.9, 'height': 0.6 } })\<CR>"
 
 function! s:get_changes_list()
   redir => result

@@ -5,6 +5,7 @@
   "python.jediEnabled": false,
   "coc.preferences.jumpCommand": "tab drop",
   "coc.preferences.formatOnSaveFiletypes": ["typescriptreact", "typescript"],
+  "coc.preferences.listOfWorkspaceEdit": "none",
   "eslint.autoFixOnSave": true,
   "git.showCommitInFloating": true,
   "snippets.userSnippetsDirectory": "$HOME/dotfiles/snippets"
