@@ -202,7 +202,7 @@ nmap gos <Plug>(easymotion-s)
 " nmap <CR> <Plug>(easymotion-bd-jk)
 nmap gon <Plug>(easymotion-vim-n)
 nmap goN <Plug>(easymotion-vim-N)
-nmap <CR> <Plug>(easymotion-overwin-w)
+" nmap <CR> <Plug>(easymotion-overwin-w)
 
 " ----------------------------------------------------------------------------
 " EasyAlign
@@ -331,16 +331,17 @@ let s:git_status_dictionary = {
             \ "U": "Unmerged",
             \ "X": "Unknown"
             \ }
-function! s:get_diff_files(rev)
+function! s:get_diff_files(rev, reverse)
+  let range = a:reverse ? 'HEAD...'.a:rev : a:rev.'...HEAD'
   let list = map(split(system(
-              \ 'git diff --name-status '.a:rev), '\n'),
+              \ 'git diff --name-status '.range), '\n'),
               \ '{"filename":matchstr(v:val, "\\S\\+$"),"text":s:git_status_dictionary[matchstr(v:val, "^\\w")]}'
               \ )
   call setqflist(list)
   copen
 endfunction
 
-command! -nargs=1 DiffRev call s:get_diff_files(<q-args>)
+command! -nargs=1 -bang DiffRev call s:get_diff_files(<q-args>, <bang>0)
 
 " ----------------------------------------------------------------------------
 " gv.vim / gl.vim

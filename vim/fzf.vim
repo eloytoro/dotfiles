@@ -69,22 +69,19 @@ function! s:get_log_ref(line)
     return matchstr(a:line, '^[0-9a-f]\+')
 endfunction
 
+function! s:checkout_handler(line)
+    exec "Git checkout ".substitute(a:line, "^..", "", "")
+endfunction
+
+function! s:diff_handler(line)
+    exec "Gvdiff ".s:get_log_ref(a:line)
+endfunction
+
 function! s:branch_handler(line)
     let sha = substitute(a:line, "^..", "", "")
     call feedkeys(":Git  ".sha."\<s-left>\<left>", "t")
 endfunction
 
-function! s:checkout_handler(line)
-    exec "Git checkout ".substitute(a:line, "^..", "", "")
-endfunction
-
-function! s:merge_handler(line)
-    exec "Git merge --no-ff ".substitute(a:line, "^..", "", "")
-endfunction
-
-function! s:ref_handler(line)
-    exec "Gvdiff ".s:get_log_ref(a:line)
-endfunction
 
 function! s:fzf_show_commits(here, handler)
     let options  = [
@@ -113,18 +110,17 @@ function! s:fzf_show_branches(handler)
         \ 'sink': a:handler,
         \ 'options': '--ansi --multi --no-sort --tiebreak=index --reverse '.
         \   '--inline-info -e --prompt "Branch> " --bind=ctrl-s:toggle-sort '.
-        \   '--preview='."'".'git log --no-merges --oneline --graph --date=short --pretty="format:%C(auto)%cd %h%d %s" $(sed s/^..// <<< {} | cut -d" " -f1) | head -200'."'",
+        \   '--preview='."'".'git log --no-merges --oneline --graph -n 100 --date=short --pretty="format:%C(auto)%cd %h%d %s" $(sed s/^..// <<< {} | cut -d" " -f1)'."'",
         \ 'window': {'width': 0.9, 'height': 0.6}})
 endfunction
 
+
 command! -nargs=0 FZFCheckout call s:fzf_show_branches(function('s:checkout_handler'))
-command! -nargs=0 FZFMerge call s:fzf_show_branches(function('s:merge_handler'))
-command! -nargs=0 FZFRef call s:fzf_show_branches(function('s:branch_handler'))
 command! -nargs=0 FZFGitLog call s:fzf_show_commits(1, function('s:ref_handler'))
-nmap <silent> <leader>gc :FZFCheckout<CR>
-nmap <silent> <leader>gm :FZFMerge<CR>
-nmap <silent> <leader>gL :FZFGitLog<CR>
+command! -nargs=0 FZFRef call s:fzf_show_branches(function('s:branch_handler'))
 nmap <silent> <leader>gr :FZFRef<CR>
+nmap <silent> <leader>gc :FZFCheckout<CR>
+nmap <silent> <leader>gL :FZFGitLog<CR>
 nmap <silent> ycl :.GBrowse!<CR>
 nmap <silent> ycf :GBrowse!<CR>
 
