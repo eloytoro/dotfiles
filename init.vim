@@ -78,7 +78,7 @@ Plug 'arcticicestudio/nord-vim'
 Plug 'mhartington/oceanic-next'
 " Plug 'sts10/vim-pink-moon'
 " Plug 'rakr/vim-two-firewatch'
-" Plug 'junegunn/vim-emoji'
+Plug 'junegunn/vim-emoji'
 " Plug 'posva/vim-vue', { 'for': 'vue' }
 " Plug 'maxmellon/vim-jsx-pretty', { 'for': 'javascript' }
 Plug 'HerringtonDarkholme/yats.vim'

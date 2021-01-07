@@ -124,7 +124,8 @@ let g:coc_global_extensions = [
       \  'coc-yaml',
       \  'coc-tsserver',
       \  'coc-prettier',
-      \  'coc-snippets'
+      \  'coc-snippets',
+      \  'coc-emoji'
       \ ]
 
 " Remap <C-f> and <C-b> for scroll float windows/popups.
