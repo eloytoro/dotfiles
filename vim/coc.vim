@@ -25,7 +25,7 @@ nmap <silent> ]d <Plug>(coc-diagnostic-next)
 
 " Formatting selected code.
 xmap <leader>c=  <Plug>(coc-format-selected)
-nmap <leader>c=  <Plug>(coc-format-selected)
+nmap <leader>c=  <Plug>(coc-format)
 nmap <leader>cr <Plug>(coc-rename)
 nmap <leader>cR <Plug>(coc-refactor)
 nmap <leader>cf  <Plug>(coc-fix-current)
@@ -114,18 +114,19 @@ augroup end
 let g:coc_config_home = "$HOME/dotfiles"
 
 " Extensions
+" \  'coc-prettier',
 let g:coc_global_extensions = [
-      \  'coc-css',
-      \  'coc-git',
-      \  'coc-highlight',
-      \  'coc-html',
       \  'coc-jest',
-      \  'coc-json',
       \  'coc-yaml',
-      \  'coc-tsserver',
-      \  'coc-prettier',
       \  'coc-snippets',
-      \  'coc-emoji'
+      \  'coc-emoji',
+      \  'coc-json',
+      \  'coc-highlight',
+      \  'coc-git',
+      \  'coc-eslint',
+      \  'coc-css',
+      \  'coc-html',
+      \  'coc-tsserver'
       \ ]
 
 " Remap <C-f> and <C-b> for scroll float windows/popups.

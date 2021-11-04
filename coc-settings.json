@@ -1,12 +1,13 @@
 {
   "signature.hideOnTextChange": true,
   "suggest.autoTrigger": "always",
-  "coc.preferences.hoverTarget": "float",
-  "python.jediEnabled": false,
+  "hover.target":"float",
   "coc.preferences.jumpCommand": "tab drop",
-  "coc.preferences.formatOnSaveFiletypes": ["typescriptreact", "typescript"],
   "coc.preferences.listOfWorkspaceEdit": "none",
   "coc.source.emoji.filetypes": ["markdown", "gitcommit"],
+  "typescript.format.enabled": false,
+  "tsserver.enableJavascript": true,
+  "eslint.packageManager": "yarn",
   "eslint.autoFixOnSave": true,
   "git.showCommitInFloating": true,
   "snippets.userSnippetsDirectory": "$HOME/dotfiles/snippets"

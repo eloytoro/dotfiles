@@ -20,12 +20,16 @@ function! CTRLP()
   if executable("fd")
     call fzf#vim#files('', {
           \ 'source': 'fdup '.root.' '.target,
-          \ 'options': '--no-sort'
+          \ 'options': '--no-sort --keep-right --hscroll-off=50'
           \ })
   else
     Files
   endif
 endfunction
+command! -nargs=? -complete=dir AF
+  \ call fzf#run(fzf#wrap(fzf#vim#with_preview({
+  \   'source': 'fd --type f --hidden --follow --exclude .git --no-ignore . '.expand(<q-args>)
+  \ })))
 command! CTRLP call CTRLP()
 nnoremap <silent> <C-p> :CTRLP<CR>
 nnoremap <leader>/ :Ag 
@@ -47,8 +51,8 @@ function! AgOn(type, ...)
   let &selection = sel_save
   let @@ = reg_save
 endfunction
-nmap <silent> y/ :set opfunc=AgOn<CR>g@
-vmap <silent> /  :<C-U>call AgOn(visualmode(), 1)<CR>
+nmap <silent> y? :set opfunc=AgOn<CR>g@
+vmap <silent> ?  :<C-U>call AgOn(visualmode(), 1)<CR>
 
 imap <c-x><c-k> <plug>(fzf-complete-word)
 imap <c-x><c-f> <plug>(fzf-complete-path)

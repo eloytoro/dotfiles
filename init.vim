@@ -38,7 +38,8 @@ Plug 'haya14busa/incsearch.vim'
 Plug 'svermeulen/vim-cutlass'
 Plug 'svermeulen/vim-yoink'
 Plug 'svermeulen/vim-subversive'
-Plug 'easymotion/vim-easymotion'
+" Plug 'easymotion/vim-easymotion'
+Plug 'phaazon/hop.nvim'
 Plug 'Raimondi/delimitMate'
 Plug 'junegunn/vim-easy-align'
 Plug 'junegunn/gv.vim'
@@ -80,9 +81,10 @@ Plug 'mhartington/oceanic-next'
 " Plug 'rakr/vim-two-firewatch'
 Plug 'junegunn/vim-emoji'
 " Plug 'posva/vim-vue', { 'for': 'vue' }
-" Plug 'maxmellon/vim-jsx-pretty', { 'for': 'javascript' }
-Plug 'HerringtonDarkholme/yats.vim'
-" Plug 'pangloss/vim-javascript', { 'for': 'javascript' }
+Plug 'yuezk/vim-js', { 'for': 'javascriptreact' }
+Plug 'maxmellon/vim-jsx-pretty', { 'for': 'javascriptreact' }
+Plug 'HerringtonDarkholme/yats.vim', { 'for': 'typescriptreact' }
+" Plug 'pangloss/vim-javascript', { 'for': 'javascriptreact' }
 " Plug 'jelera/vim-javascript-syntax', { 'for': 'javascript' }
 
 call plug#end()
@@ -95,8 +97,8 @@ set tgc
 if has("termguicolors")
   set termguicolors
   set background=dark
-  " silent! colorscheme gruvbox
-  silent! colorscheme OceanicNext
+  silent! colorscheme hybrid
+  " silent! colorscheme OceanicNext
   "hi ColorColumn guibg=#111111
 else
   let g:seoul256_background = 233
@@ -105,6 +107,11 @@ else
   "let g:indentLine_color_term = 248
   hi ColorColumn ctermbg=234 guibg=#111111
 endif
+
+lua << EOF
+require'hop'.setup()
+EOF
+
 let g:jsx_ext_required = 0
 
 function! s:statusline_expr()
@@ -157,11 +164,11 @@ cnoremap        <M-f> <S-Right>
 " ----------------------------------------------------------------------------
 " Git
 " ----------------------------------------------------------------------------
-nmap <leader>gp :Gpull<CR>
-nmap <leader>gP :Gpush<CR>
-nmap <leader>gs :Gstatus<CR>gg<c-n>
+nmap <leader>gp :Git pull<CR>
+nmap <leader>gP :Git push<CR>
+nmap <leader>gs :Git<CR>gg)
 nmap <leader>gd :Gdiff<CR>
-nmap <leader>gb :Gblame<CR>
+nmap <leader>gb :Git blame<CR>
 nmap <leader>gl :0Gclog!<CR>
 nmap <leader>gw :Gwrite<CR>
 nmap <leader>ge :Gedit<CR>
@@ -169,6 +176,9 @@ nmap <leader>gE :Gvsplit<CR>
 nmap <leader>gv :GV -n 100<CR>
 nmap <leader>gV :GV!<CR>
 nmap <leader>gg :Ggrep 
+nmap <leader>gg :Ggrep 
+nmap <leader>gCt :execute "Git checkout --theirs ".expand('%:p')<CR>
+nmap <leader>gCo :execute "Git checkout --ours ".expand('%:p')<CR>
 nmap git :Git
 nmap [r :Git rebase --abort<CR>
 nmap ]r :Git rebase --continue<CR>
@@ -197,11 +207,13 @@ map g# <Plug>(incsearch-nohl-g#)
 " ----------------------------------------------------------------------------
 "  Easymotion
 " ----------------------------------------------------------------------------
-nmap gow <Plug>(easymotion-bd-w)
-nmap gos <Plug>(easymotion-s)
+nmap <silent> gw :HopWord<CR>
+nmap <silent> gs :HopChar2<CR>
+nmap <silent> g<CR> :HopLineStart<CR>
+" nmap gos <Plug>(easymotion-s)
 " nmap <CR> <Plug>(easymotion-bd-jk)
-nmap gon <Plug>(easymotion-vim-n)
-nmap goN <Plug>(easymotion-vim-N)
+" nmap gon <Plug>(easymotion-vim-n)
+" nmap goN <Plug>(easymotion-vim-N)
 " nmap <CR> <Plug>(easymotion-overwin-w)
 
 " ----------------------------------------------------------------------------

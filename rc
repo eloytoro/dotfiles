@@ -148,7 +148,21 @@ gr() {
 }
 
 gc() {
-  gb | xargs git checkout
+  if [ $# -eq 0 ]
+  then
+    gb | xargs git checkout
+  else
+    git checkout $1
+  fi
+}
+
+gp() {
+  if [ $# -eq 0 ]
+  then
+    gb | xargs -I % git fetch origin %:%
+  else
+    git fetch origin $1:$1
+  fi
 }
 
 opl() {
