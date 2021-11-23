@@ -10,5 +10,6 @@
   "eslint.packageManager": "yarn",
   "eslint.autoFixOnSave": true,
   "git.showCommitInFloating": true,
-  "snippets.userSnippetsDirectory": "$HOME/dotfiles/snippets"
+  "snippets.userSnippetsDirectory": "$HOME/dotfiles/snippets",
+  "rust-client.channel": "nightly"
 }

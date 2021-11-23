@@ -32,8 +32,11 @@ Plug 'tpope/vim-abolish'
 if has('nvim')
   " Plug 'airblade/vim-gitgutter'
 endif
+Plug 'nvim-lua/plenary.nvim'
+Plug 'lewis6991/gitsigns.nvim'
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 " Plug 'mbbill/undotree'
-Plug 'preservim/nerdtree'
+" Plug 'preservim/nerdtree'
 Plug 'haya14busa/incsearch.vim'
 Plug 'svermeulen/vim-cutlass'
 Plug 'svermeulen/vim-yoink'
@@ -53,7 +56,24 @@ endif
 " Plug 'justinmk/vim-gtfo'
 " Plug 'junegunn/goyo.vim'
 " Plug 'junegunn/limelight.vim'
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
+" Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'kyazdani42/nvim-web-devicons' " for file icons
+Plug 'folke/trouble.nvim'
+Plug 'nvim-telescope/telescope.nvim'
+Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
+Plug 'norcalli/nvim-colorizer.lua'
+Plug 'kyazdani42/nvim-tree.lua'
+Plug 'rcarriga/nvim-notify'
+Plug 'neovim/nvim-lspconfig'
+Plug 'hrsh7th/cmp-buffer'
+Plug 'hrsh7th/cmp-path'
+Plug 'hrsh7th/cmp-cmdline'
+Plug 'hrsh7th/nvim-cmp'
+Plug 'hrsh7th/cmp-nvim-lsp'
+Plug 'saadparwaiz1/cmp_luasnip'
+Plug 'nvim-lua/lsp-status.nvim'
+Plug 'L3MON4D3/LuaSnip'
+Plug 'mhartington/formatter.nvim'
 " Language specific
 Plug 'cakebaker/scss-syntax.vim', { 'for': 'scss' }
 " Plug 'othree/yajs.vim'
@@ -77,15 +97,14 @@ Plug 'w0ng/vim-hybrid'
 Plug 'Nequo/vim-allomancer'
 Plug 'arcticicestudio/nord-vim'
 Plug 'mhartington/oceanic-next'
+Plug 'sainnhe/everforest'
 " Plug 'sts10/vim-pink-moon'
 " Plug 'rakr/vim-two-firewatch'
 Plug 'junegunn/vim-emoji'
 " Plug 'posva/vim-vue', { 'for': 'vue' }
-Plug 'yuezk/vim-js', { 'for': 'javascriptreact' }
-Plug 'maxmellon/vim-jsx-pretty', { 'for': 'javascriptreact' }
-Plug 'HerringtonDarkholme/yats.vim', { 'for': 'typescriptreact' }
-" Plug 'pangloss/vim-javascript', { 'for': 'javascriptreact' }
-" Plug 'jelera/vim-javascript-syntax', { 'for': 'javascript' }
+" Plug 'yuezk/vim-js', { 'for': 'javascriptreact' }
+" Plug 'maxmellon/vim-jsx-pretty', { 'for': 'javascriptreact' }
+" Plug 'HerringtonDarkholme/yats.vim', { 'for': 'typescriptreact' }
 
 call plug#end()
 
@@ -108,8 +127,77 @@ else
   hi ColorColumn ctermbg=234 guibg=#111111
 endif
 
+let g:nvim_tree_icons = {
+    \ 'git': {
+    \   'unstaged': "M",
+    \   'staged': "+",
+    \   'untracked': "U",
+    \   },
+    \ }
+
+set rtp+=
+
 lua << EOF
-require'hop'.setup()
+require('hop').setup()
+require('trouble').setup()
+require('gitsigns').setup()
+local prettier = {
+  -- prettier
+  function()
+    return {
+      exe = "prettier",
+      args = {"--stdin-filepath", vim.fn.fnameescape(vim.api.nvim_buf_get_name(0))},
+      stdin = true
+    }
+  end
+}
+require('formatter').setup({
+  filetype = {
+    javascript = prettier,
+    typescript = prettier,
+    typescriptreact = prettier,
+  }
+})
+require('nvim-tree').setup({
+  update_to_buf_dir = {
+    auto_open = false,
+    auto_close = true,
+  },
+  tab_open = false,
+  update_focused_file = {
+    enable = true,
+  },
+})
+require('nvim-treesitter.configs').setup({
+  highlight = {
+    enable = true,              -- false will disable the whole extension
+  },
+
+  indent = {
+    enable = false,
+  },
+
+  textobjects = {
+    enable = true
+  },
+
+  incremental_selection = {
+    enable = true,
+    keymaps = {
+      init_selection = "gnn",
+      node_incremental = "grn",
+      scope_incremental = "grc",
+      node_decremental = "grm",
+    },
+  },
+})
+require('colorizer').setup {}
+
+require('config.telescope')
+require('config.lsp')
+require('config.statusline')
+-- Set completeopt to have a better completion experience
+vim.o.completeopt = 'menu,menuone,noselect'
 EOF
 
 let g:jsx_ext_required = 0
@@ -119,24 +207,25 @@ function! s:statusline_expr()
   let ro  = "%{&readonly ? '[RO] ' : ''}"
   let ft  = "%{len(&filetype) ? '['.&filetype.'] ' : ''}"
   let fug = "%{exists('g:loaded_fugitive') ? fugitive#statusline().' ' : ''}"
-  let coc_status = "%{coc#status()}%{get(b:,'coc_current_function','')}"
-  let coc = l:coc_status != '' ? '[Coc('.coc_status.')]' : ''
+  " let coc_status = "%{coc#status()}%{get(b:,'coc_current_function','')}"
+  " let coc = l:coc_status != '' ? '[Coc('.coc_status.')]' : ''
   let sep = ' %= '
   let pos = ' %-12(%l : %c%V%) '
   let pct = ' %P'
 
-  return '[%n] %f %<'.mod.ro.ft.fug.coc.sep.pos.'%*'.pct
+  return '[%n] %f %<'.mod.ro.ft.fug.sep.pos.'%*'.pct
+  " return '[%n] %f %<'.mod.ro.ft.fug.coc.sep.pos.'%*'.pct
 endfunction
-let &statusline = s:statusline_expr()
+" let &statusline = s:statusline_expr()
 "hi StatusLine ctermfg=232 ctermbg=45 guibg=#00bff4 guifg=#000000
 "hi StatusLineNC ctermfg=232 ctermbg=237 guibg=#777777 guifg=#000000
 
 " let g:markdown_composer_autostart = 0
 
-source $HOME/dotfiles/vim/sensible.vim
-source $HOME/dotfiles/vim/objects.vim
-source $HOME/dotfiles/vim/fzf.vim
-source $HOME/dotfiles/vim/coc.vim
+source $HOME/dotfiles/nvim/vim/sensible.vim
+source $HOME/dotfiles/nvim/vim/objects.vim
+source $HOME/dotfiles/nvim/vim/fzf.vim
+" source $HOME/dotfiles/nvim/vim/coc.vim
 
 " ----------------------------------------------------------------------------
 "  Tabs
@@ -185,6 +274,11 @@ nmap ]r :Git rebase --continue<CR>
 let g:Gitv_OpenHorizontal = 1
 let g:Gitv_OpenPreviewOnLaunch = 1
 
+nnoremap <leader>ff <cmd>lua require('telescope.builtin').find_files()<cr>
+nnoremap <leader>fg <cmd>lua require('telescope.builtin').live_grep()<cr>
+nnoremap <leader>fb <cmd>lua require('telescope.builtin').buffers()<cr>
+nnoremap <leader>fh <cmd>lua require('telescope.builtin').help_tags()<cr>
+
 " ----------------------------------------------------------------------------
 "  GitGutter
 " ----------------------------------------------------------------------------
@@ -203,6 +297,11 @@ map *  <Plug>(incsearch-nohl-*)
 map #  <Plug>(incsearch-nohl-#)
 map g* <Plug>(incsearch-nohl-g*)
 map g# <Plug>(incsearch-nohl-g#)
+
+augroup FormatAutogroup
+  autocmd!
+  autocmd BufWritePost *.js,*.rs,*.ts,*.tsx,*.jsx FormatWrite
+augroup END
 
 " ----------------------------------------------------------------------------
 "  Easymotion
@@ -232,8 +331,8 @@ function! NERDTreeFindOrToggle()
     :NERDTreeFind
   endif
 endfunction
-map <silent> <leader>n :call NERDTreeFindOrToggle()<CR>
-map <silent> <leader>o :NERDTreeFind<CR>
+" map <silent> <leader>n :call NERDTreeFindOrToggle()<CR>
+" map <silent> <leader>o :NERDTreeFind<CR>
 
 function! NERDTreeFindUpdate()
   let s:path = expand("%:p")
@@ -243,38 +342,23 @@ function! NERDTreeFindUpdate()
   endif
 endfunction
 
-" call NERDTreeAddKeyMap({
-"       \ 'key': '<CR>',
-"       \ 'callback': 'NERDTreeMenu',
-"       \ 'quickhelpText': 'echo full path of current node'
-"       \ })
-
-" let NERDTreeMapMenu = '<CR>'
-
-augroup nerd
-  autocmd!
-  autocmd BufEnter * if bufname('#') =~# "^NERD_tree_" && winnr('$') > 1 | b# | endif
-  autocmd BufEnter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
-  " autocmd FileType nerdtree unmap <buffer> mm
-  autocmd BufReadPost * call NERDTreeFindUpdate()
-  " autocmd VimEnter * silent! autocmd! FileExplorer
-  autocmd BufEnter,BufNew *
-        \  if isdirectory(expand('<amatch>'))
-        \|   call plug#load('nerdtree')
-        \|   execute 'autocmd! nerd'
-        \| endif
-augroup END
-" let NERDTreeIgnore = ['^node_modules$[[dir]]']
-
-" function! StartScreen()
-"   if !argc() && (line2byte('$') == -1)
-"     :Calendar
-"   endif
-" endfunction
-" augroup init
-"     autocmd!
-"     autocmd VimEnter * call StartScreen()
+" augroup nerd
+"   autocmd!
+"   autocmd BufEnter * if bufname('#') =~# "^NERD_tree_" && winnr('$') > 1 | b# | endif
+"   autocmd BufEnter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+"   " autocmd FileType nerdtree unmap <buffer> mm
+"   autocmd BufReadPost * call NERDTreeFindUpdate()
+"   " autocmd VimEnter * silent! autocmd! FileExplorer
+"   autocmd BufEnter,BufNew *
+"         \  if isdirectory(expand('<amatch>'))
+"         \|   call plug#load('nerdtree')
+"         \|   execute 'autocmd! nerd'
+"         \| endif
 " augroup END
+
+map <silent> <leader>o :NvimTreeFindFile<CR>
+map <silent> <leader>n :NvimTreeFindFileToggle<CR>
+
 
 " ----------------------------------------------------------------------------
 " Easyclip
