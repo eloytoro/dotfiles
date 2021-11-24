@@ -97,7 +97,7 @@ Plug 'w0ng/vim-hybrid'
 Plug 'Nequo/vim-allomancer'
 Plug 'arcticicestudio/nord-vim'
 Plug 'mhartington/oceanic-next'
-Plug 'sainnhe/everforest'
+" Plug 'sainnhe/everforest'
 " Plug 'sts10/vim-pink-moon'
 " Plug 'rakr/vim-two-firewatch'
 Plug 'junegunn/vim-emoji'
@@ -116,8 +116,9 @@ set tgc
 if has("termguicolors")
   set termguicolors
   set background=dark
-  silent! colorscheme hybrid
-  " silent! colorscheme OceanicNext
+  " let g:everforest_background = 'hard'
+  " silent! colorscheme hybrid
+  silent! colorscheme allomancer
   "hi ColorColumn guibg=#111111
 else
   let g:seoul256_background = 233
@@ -156,6 +157,16 @@ require('formatter').setup({
     javascript = prettier,
     typescript = prettier,
     typescriptreact = prettier,
+    python = {
+      -- Configuration for psf/black
+      function()
+        return {
+          exe = "black", -- this should be available on your $PATH
+          args = { '-' },
+          stdin = true,
+        }
+      end
+    }
   }
 })
 require('nvim-tree').setup({

@@ -112,7 +112,7 @@ local function lsp_status()
 end
 
 local function get_file_name(modified)
-  local max_width = vim.fn.winwidth(vim.g.statusline_winid) * 0.25
+  local max_width = vim.fn.winwidth(vim.g.statusline_winid) * 0.40
   local file_name = vim.fn.fnamemodify(vim.fn.bufname(vim.fn.winbufnr(vim.g.statusline_winid)), ':.')
   local width = vim.fn.strwidth(file_name)
 
@@ -120,8 +120,16 @@ local function get_file_name(modified)
     file_name = '[scratch]'
   else
     -- If the file name is too big, we just write its tail part
-    if width > max_width then
-      file_name = vim.fn.fnamemodify(file_name, ':t')
+    while width > max_width do
+      local prev_file_name = file_name
+      file_name = string.gsub(file_name, '^[^/]+/', '')
+      if file_name == prev_file_name then
+        break
+      elseif file_name == '' then
+        file_name = prev_file_name
+        break
+      end
+      width = vim.fn.strwidth(file_name)
     end
 
     local devicons = require'nvim-web-devicons'

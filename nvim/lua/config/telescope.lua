@@ -17,6 +17,7 @@ telescope.setup {
     selection_strategy = "reset",
     sorting_strategy = "descending",
     color_devicons = true,
+    path_display = "smart",
     use_less = true,
     set_env = { ['COLORTERM'] = 'truecolor' }, -- default = nil,
     file_previewer = require'telescope.previewers'.vim_buffer_cat.new,

@@ -251,6 +251,7 @@ lsp.tsserver.setup {
   end,
 }
 
+-- eslint
 local eslint = {
   lintCommand = "eslint_d -f unix --stdin --stdin-filename ${INPUT}",
   lintStdin = true,
@@ -289,4 +290,9 @@ lsp.efm.setup {
   }
 }
 
-require('config/lsp-location')
+-- python
+lsp.pylsp.setup{
+  on_attach = lsp_attach { format = false }
+}
+
+require('config/location-handler')

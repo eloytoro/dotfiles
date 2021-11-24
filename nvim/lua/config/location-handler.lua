@@ -12,7 +12,6 @@ local function handle_location(location)
   local name = string.gsub(uri, "file://", "")
   local bufnr = vim.fn.bufnr(name)
   local winid = vim.fn.win_findbuf(bufnr)
-  print(#winid, winid[1], bufnr)
   if #winid > 0 then
     vim.fn.win_gotoid(winid[1])
   else
