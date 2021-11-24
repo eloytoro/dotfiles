@@ -141,7 +141,14 @@ set rtp+=
 lua << EOF
 require('hop').setup()
 require('trouble').setup()
-require('gitsigns').setup()
+require('gitsigns').setup({
+  on_attach = function(bufnr)
+    if vim.api.nvim_buf_get_name(bufnr):match('fugitive') then
+      -- Don't attach to specific buffers whose name matches a pattern
+      return false
+    end
+  end
+})
 local prettier = {
   -- prettier
   function()
