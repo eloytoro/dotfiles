@@ -126,9 +126,9 @@ nmap gh <C-w>h
 nmap gj <C-w>j
 nmap gk <C-w>k
 nmap gl <C-w>l
-" nmap <down> :res -2<CR>
-" nmap <up> :res +2<CR>
-" nmap <right> 2<C-W>>
-" nmap <left> 2<C-W><
+nmap <down> :res +4<CR>
+nmap <up> :res -4<CR>
+nmap <right> 4<C-W>>
+nmap <left> 4<C-W><
 nmap <C-w>- :sp<CR>
 nmap <C-w>\ :vsp<CR>

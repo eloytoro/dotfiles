@@ -35,6 +35,8 @@ endif
 Plug 'nvim-lua/plenary.nvim'
 Plug 'lewis6991/gitsigns.nvim'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+Plug 'windwp/nvim-ts-autotag'
+" Plug 'romgrk/nvim-treesitter-context'
 " Plug 'mbbill/undotree'
 " Plug 'preservim/nerdtree'
 Plug 'haya14busa/incsearch.vim'
@@ -43,7 +45,8 @@ Plug 'svermeulen/vim-yoink'
 Plug 'svermeulen/vim-subversive'
 " Plug 'easymotion/vim-easymotion'
 Plug 'phaazon/hop.nvim'
-Plug 'Raimondi/delimitMate'
+" Plug 'Raimondi/delimitMate'
+Plug 'windwp/nvim-autopairs'
 Plug 'junegunn/vim-easy-align'
 Plug 'junegunn/gv.vim'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
@@ -65,6 +68,10 @@ Plug 'norcalli/nvim-colorizer.lua'
 Plug 'kyazdani42/nvim-tree.lua'
 Plug 'rcarriga/nvim-notify'
 Plug 'neovim/nvim-lspconfig'
+" Plug 'ray-x/lsp_signature.nvim'
+Plug 'jose-elias-alvarez/nvim-lsp-ts-utils'
+Plug 'jose-elias-alvarez/null-ls.nvim'
+Plug 'nvim-lua/popup.nvim'
 Plug 'hrsh7th/cmp-buffer'
 Plug 'hrsh7th/cmp-path'
 Plug 'hrsh7th/cmp-cmdline'
@@ -72,12 +79,14 @@ Plug 'hrsh7th/nvim-cmp'
 Plug 'hrsh7th/cmp-nvim-lsp'
 Plug 'saadparwaiz1/cmp_luasnip'
 Plug 'nvim-lua/lsp-status.nvim'
+Plug 'folke/zen-mode.nvim'
 Plug 'L3MON4D3/LuaSnip'
-Plug 'mhartington/formatter.nvim'
+Plug 'simrat39/rust-tools.nvim'
+" Plug 'mhartington/formatter.nvim'
 " Language specific
 Plug 'cakebaker/scss-syntax.vim', { 'for': 'scss' }
 " Plug 'othree/yajs.vim'
-Plug 'rust-lang/rust.vim', { 'for': 'rust' }
+" Plug 'rust-lang/rust.vim', { 'for': 'rust' }
 Plug 'othree/html5.vim', { 'for': 'html' }
 Plug 'digitaltoad/vim-jade', { 'for': 'jade' }
 " Plug 'leafgarland/typescript-vim'
@@ -117,8 +126,8 @@ if has("termguicolors")
   set termguicolors
   set background=dark
   " let g:everforest_background = 'hard'
-  " silent! colorscheme hybrid
   silent! colorscheme allomancer
+  " silent! colorscheme nord
   "hi ColorColumn guibg=#111111
 else
   let g:seoul256_background = 233
@@ -136,17 +145,44 @@ let g:nvim_tree_icons = {
     \   },
     \ }
 
-set rtp+=
-
 lua << EOF
 require('hop').setup()
+require('zen-mode').setup()
 require('trouble').setup()
+require('nvim-autopairs').setup{}
 require('gitsigns').setup({
   on_attach = function(bufnr)
     if vim.api.nvim_buf_get_name(bufnr):match('fugitive') then
       -- Don't attach to specific buffers whose name matches a pattern
       return false
     end
+    local gs = package.loaded.gitsigns
+
+    local function map(mode, l, r, opts)
+      opts = opts or {}
+      opts.buffer = bufnr
+      vim.keymap.set(mode, l, r, opts)
+    end
+
+    -- Navigation
+    map('n', ']c', "&diff ? ']c' : '<cmd>Gitsigns next_hunk<CR>'", {expr=true})
+    map('n', '[c', "&diff ? '[c' : '<cmd>Gitsigns prev_hunk<CR>'", {expr=true})
+
+    -- Actions
+    map({'n', 'v'}, '<leader>hs', ':Gitsigns stage_hunk<CR>')
+    map({'n', 'v'}, '<leader>hr', ':Gitsigns reset_hunk<CR>')
+    map('n', '<leader>hS', gs.stage_buffer)
+    map('n', '<leader>hu', gs.undo_stage_hunk)
+    map('n', '<leader>hR', gs.reset_buffer)
+    map('n', '<leader>hp', gs.preview_hunk)
+    map('n', '<leader>hb', function() gs.blame_line{full=true} end)
+    map('n', '<leader>tb', gs.toggle_current_line_blame)
+    map('n', '<leader>hd', gs.diffthis)
+    map('n', '<leader>hD', function() gs.diffthis('~') end)
+    map('n', '<leader>td', gs.toggle_deleted)
+
+    -- Text object
+    map({'o', 'x'}, 'ih', ':<C-U>Gitsigns select_hunk<CR>')
   end
 })
 local prettier = {
@@ -159,23 +195,23 @@ local prettier = {
     }
   end
 }
-require('formatter').setup({
-  filetype = {
-    javascript = prettier,
-    typescript = prettier,
-    typescriptreact = prettier,
-    python = {
-      -- Configuration for psf/black
-      function()
-        return {
-          exe = "black", -- this should be available on your $PATH
-          args = { '-' },
-          stdin = true,
-        }
-      end
-    }
-  }
-})
+-- require('formatter').setup({
+--   filetype = {
+--     javascript = prettier,
+--     typescript = prettier,
+--     typescriptreact = prettier,
+--     python = {
+--       -- Configuration for psf/black
+--       function()
+--         return {
+--           exe = "black", -- this should be available on your $PATH
+--           args = { '-' },
+--           stdin = true,
+--         }
+--       end
+--     }
+--   }
+-- })
 require('nvim-tree').setup({
   update_to_buf_dir = {
     auto_open = false,
@@ -192,11 +228,16 @@ require('nvim-treesitter.configs').setup({
   },
 
   indent = {
-    enable = false,
+    enable = true,
   },
 
   textobjects = {
     enable = true
+  },
+
+  -- from windwp/nvim-ts-autotag
+  autotag = {
+    enable = true,
   },
 
   incremental_selection = {
@@ -209,6 +250,7 @@ require('nvim-treesitter.configs').setup({
     },
   },
 })
+-- require('treesitter-context').setup {}
 require('colorizer').setup {}
 
 require('config.telescope')
@@ -318,7 +360,7 @@ map g# <Plug>(incsearch-nohl-g#)
 
 augroup FormatAutogroup
   autocmd!
-  autocmd BufWritePost *.js,*.rs,*.ts,*.tsx,*.jsx FormatWrite
+  " autocmd BufWritePost *.js,*.rs,*.ts,*.tsx,*.jsx FormatWrite
 augroup END
 
 " ----------------------------------------------------------------------------

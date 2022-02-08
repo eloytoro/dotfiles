@@ -1,4 +1,7 @@
 local user_home = os.getenv("HOME") or "/tmp"
+local dev_path = string.format("%s/dev", user_home)
+local helpers = require('config/helpers')
+local local_config = helpers.read_local_editor_config()
 
 local lsp_status = require('lsp-status')
 lsp_status.register_progress()
@@ -65,8 +68,9 @@ local lsp_attach = function(args)
     vim.api.nvim_buf_set_keymap(bufnr, 'n', 'K', '<cmd>lua vim.lsp.buf.hover()<cr>', {})
     vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>clr', '<cmd>lua vim.lsp.stop_client(vim.lsp.get_active_clients())<cr>', {})
     vim.api.nvim_buf_set_keymap(bufnr, 'n', '<space>.', '<cmd>Telescope lsp_code_actions theme=get_dropdown previewer=false<cr>', {})
+    vim.api.nvim_buf_set_keymap(bufnr, 'n', '<space><c-.>', '<cmd>lua vim.lsp.buf.code_action()<CR>', {})
     vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gd', '<cmd>lua vim.lsp.buf.definition()<cr>', {})
-    vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gr', '<cmd>Telescope lsp_references theme=get_dropdown <cr>', {})
+    vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gr', '<cmd>lua require"telescope.builtin".lsp_references()<cr>', {})
     vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>ch', '<cmd>lua vim.lsp.buf.signature_help()<cr>', {})
     vim.api.nvim_buf_set_keymap(bufnr, 'n', ']d', "<cmd>lua vim.lsp.diagnostic.goto_next()<cr>", {})
     vim.api.nvim_buf_set_keymap(bufnr, 'n', '[d', "<cmd>lua vim.lsp.diagnostic.goto_prev()<cr>", {})
@@ -104,7 +108,7 @@ cmp.setup {
     ['<C-e>'] = cmp.mapping.close(),
     ['<CR>'] = cmp.mapping.confirm {
       behavior = cmp.ConfirmBehavior.Replace,
-      select = true,
+      select = false,
     },
     ['<Tab>'] = function(fallback)
       if cmp.visible() then
@@ -141,6 +145,11 @@ require('cmp_nvim_lsp').setup {}
 -- lua
 lsp.sumneko_lua.setup {
   flags = lsp_flags,
+  cmd = {
+    string.format("%s/lua-language-server/macOS/lua-language-server", dev_path),
+    "-E",
+    string.format("%s/lua-language-server/macOS/main.lua", dev_path)
+  },
   settings = {
     Lua = {
       runtime = {
@@ -167,76 +176,39 @@ lsp.sumneko_lua.setup {
 }
 
 -- rust
-lsp.rust_analyzer.setup{
-  capabilities = capabilities,
-  settings = {
-    ["rust-analyzer"] = {
-      assist = {
-        importGroup = true,
-        importMergeBehaviour = "full",
-        importPrefix = "by_crate",
-      },
-
-      callInfo = {
-        full = true,
-      };
-
-      cargo = {
-        allFeatures = true,
-        autoreload = true,
-        loadOutDirsFromCheck = true,
-      },
-
-      checkOnSave = {
-        enable = true,
-        allFeatures = true,
-      },
-
-      completion = {
-        addCallArgumentSnippets = true,
-        addCallParenthesis = true,
-        postfix = {
-          enable = true,
+require('rust-tools').setup({
+    tools = { -- rust-tools options
+        autoSetHints = true,
+        hover_with_actions = true,
+        inlay_hints = {
+          enable = false,
+          show_parameter_hints = false,
+          parameter_hints_prefix = "",
+          other_hints_prefix = "",
         },
-        autoimport = {
-          enable = true,
-        },
-      },
+    },
 
-      diagnostics = {
-        enable = true,
-        enableExperimental = true,
-      },
-
-      hoverActions = {
-        enable = true,
-        debug = true,
-        gotoTypeDef = true,
-        implementations = true,
-        run = true,
-        linksInHover = true,
-      },
-
-      lens = {
-        enable = true,
-        debug = true,
-        implementations = true,
-        run = true,
-        methodReferences = true,
-        references = true,
-      },
-
-      notifications = {
-        cargoTomlNotFound = true,
-      },
-
-      procMacro = {
-        enable = true,
-      },
-    }
-  },
-  on_attach = lsp_attach { format = false },
-}
+    -- all the opts to send to nvim-lspconfig
+    -- these override the defaults set by rust-tools.nvim
+    -- see https://github.com/neovim/nvim-lspconfig/blob/master/CONFIG.md#rust_analyzer
+    server = {
+        -- on_attach is a callback called when the language server attachs to the buffer
+        on_attach = lsp_attach { format = true },
+        settings = {
+            -- to enable rust-analyzer settings visit:
+            -- https://github.com/rust-analyzer/rust-analyzer/blob/master/docs/user/generated_config.adoc
+            ["rust-analyzer"] = {
+                -- enable clippy on save
+                checkOnSave = {
+                    command = "clippy"
+                },
+                -- cargo = {
+                --   allFeatures = true
+                -- }
+            }
+        }
+    },
+})
 
 -- typescript
 lsp.tsserver.setup {
@@ -244,6 +216,22 @@ lsp.tsserver.setup {
     if client.config.flags then
       client.config.flags.allow_incremental_sync = true
     end
+    client.resolved_capabilities.document_formatting = false
+    client.resolved_capabilities.document_range_formatting = false
+    -- vim.api.nvim_buf_set_keymap(bufnr, "n", "gs", ":TSLspOrganize<CR>")
+    -- vim.api.nvim_buf_set_keymap(bufnr, "n", "gi", ":TSLspRenameFile<CR>")
+    -- vim.api.nvim_buf_set_keymap(bufnr, "n", "go", ":TSLspImportAll<CR>")
+    -- require "lsp_signature".on_attach({
+    --   hint_prefix = "💡"
+    -- }, bufnr)
+    local ts_utils = require("nvim-lsp-ts-utils")
+    ts_utils.setup {
+      update_imports_on_move = true,
+      require_confirmation_on_move = false,
+    }
+    ts_utils.setup_client(client)
+    vim.api.nvim_buf_set_keymap(bufnr, "n", "<leader>=", ":TSLspOrganize<CR>", { silent = true })
+
     lsp_attach({ format = false })(client, bufnr)
   end,
   root_dir = function(fname)
@@ -251,48 +239,46 @@ lsp.tsserver.setup {
   end,
 }
 
--- eslint
-local eslint = {
-  lintCommand = "eslint_d -f unix --stdin --stdin-filename ${INPUT}",
-  lintStdin = true,
-  lintFormats = {"%f:%l:%c: %m"},
-  lintIgnoreExitCode = true,
-  formatCommand = "eslint_d --fix-to-stdout --stdin --stdin-filename=${INPUT}",
-  formatStdin = true
+--[[
+local null_ls = require("null-ls")
+local null_ls_source_prettier_cfg = {
+  prefer_local = ".yarn/sdks/prettier/bin"
 }
-
-lsp.efm.setup {
-  init_options = {documentFormatting = true},
-  filetypes = {"javascript", "typescript"},
-  on_attach = function(client)
-    client.resolved_capabilities.document_formatting = true
-    client.resolved_capabilities.goto_definition = false
-  end,
-  root_dir = function(fname)
-    return lsp.util.root_pattern("tsconfig.json")(fname) or
-    lsp.util.root_pattern(".eslintrc.js", ".git")(fname);
-  end,
-  settings = {
-    rootMarkers = {".eslintrc.js", ".git/"},
-    languages = {
-      javascript = {eslint},
-      typescript = {eslint},
-      typescriptreact = {eslint}
-    }
+null_ls.config({
+  sources = {
+    null_ls.builtins.formatting.prettier.with(null_ls_source_prettier_cfg) -- prettier, eslint, eslint_d, or prettierd
   },
-  filetypes = {
-    "javascript",
-    "javascriptreact",
-    "javascript.jsx",
-    "typescript",
-    "typescript.tsx",
-    "typescriptreact"
-  }
-}
+})
+
+lsp["null-ls"].setup({
+  on_attach = lsp_attach{ format = true }
+})
+]]--
 
 -- python
 lsp.pylsp.setup{
   on_attach = lsp_attach { format = false }
+}
+
+lsp.eslint.setup {
+  -- settings = local_config.eslint,
+  settings = {
+    nodePath = ".yarn/sdks",
+    packageManager = "yarn",
+    codeActionOnSave = {
+      enable = true,
+      mode = "all"
+    },
+  },
+  on_attach = function(client, bufnr)
+    vim.api.nvim_exec([[
+      augroup lsp_eslint_fix_all
+        autocmd! * <buffer>
+        autocmd BufWritePre <buffer> EslintFixAll
+      augroup END
+    ]], false)
+    lsp_attach({ format = false })(client, bufnr)
+  end
 }
 
 require('config/location-handler')

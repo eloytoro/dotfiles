@@ -14,6 +14,7 @@ local function handle_location(location)
   local winid = vim.fn.win_findbuf(bufnr)
   if #winid > 0 then
     vim.fn.win_gotoid(winid[1])
+    util.jump_to_location(location)
   else
     api.nvim_command('tabnew')
     local buf = api.nvim_get_current_buf()
