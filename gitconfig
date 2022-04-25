@@ -11,7 +11,16 @@
 	autoStash = true
 [clean]
 	requireForce = false
+[fetch]
+  prune = true
+[remote "origin"]
+	tagopt = --no-tags
 [alias]
 	ls = log --oneline
 	last = log -1 HEAD
 	rewrite = 'git reset --soft $(git merge-base master HEAD)'
+	stash-staged = 'git stash -- $(git diff --staged --name-only)'
+	review = "!f() { \
+    git fetch -n origin $1:$1; \
+    git checkout $1; \
+  }; f"

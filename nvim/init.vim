@@ -110,6 +110,7 @@ Plug 'mhartington/oceanic-next'
 " Plug 'sts10/vim-pink-moon'
 " Plug 'rakr/vim-two-firewatch'
 Plug 'junegunn/vim-emoji'
+Plug 'nvim-telescope/telescope-symbols.nvim'
 " Plug 'posva/vim-vue', { 'for': 'vue' }
 " Plug 'yuezk/vim-js', { 'for': 'javascriptreact' }
 " Plug 'maxmellon/vim-jsx-pretty', { 'for': 'javascriptreact' }
@@ -338,6 +339,7 @@ nnoremap <leader>ff <cmd>lua require('telescope.builtin').find_files()<cr>
 nnoremap <leader>fg <cmd>lua require('telescope.builtin').live_grep()<cr>
 nnoremap <leader>fb <cmd>lua require('telescope.builtin').buffers()<cr>
 nnoremap <leader>fh <cmd>lua require('telescope.builtin').help_tags()<cr>
+inoremap <C-x><C-s> <cmd>lua require'telescope.builtin'.symbols(require('telescope.themes').get_cursor())<CR>
 
 " ----------------------------------------------------------------------------
 "  GitGutter
@@ -559,6 +561,7 @@ function! s:PasteRelative()
 endfunction
 
 nnoremap <silent> yP "=<sid>PasteRelative()<C-M>p
+nnoremap <silent> ycd :let @+ = expand("%")<CR>
 
 " ----------------------------------------------------------------------------
 "  ¯\_(ツ)_/¯
