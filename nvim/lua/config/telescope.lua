@@ -1,5 +1,6 @@
-local actions = require('telescope.actions')
 local telescope = require('telescope');
+local actions = require('telescope.actions')
+local themes = require('telescope.themes')
 telescope.setup {
   defaults = {
     vimgrep_arguments = {
@@ -49,4 +50,14 @@ telescope.setup {
     }
   }
 }
+
+telescope.setup {
+  extensions = {
+    ["ui-select"] = {
+      themes.get_cursor()
+    }
+  }
+}
+
 telescope.load_extension('fzf')
+telescope.load_extension("ui-select")

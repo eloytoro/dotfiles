@@ -64,6 +64,7 @@ Plug 'kyazdani42/nvim-web-devicons' " for file icons
 Plug 'folke/trouble.nvim'
 Plug 'nvim-telescope/telescope.nvim'
 Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
+Plug 'nvim-telescope/telescope-ui-select.nvim'
 Plug 'norcalli/nvim-colorizer.lua'
 Plug 'kyazdani42/nvim-tree.lua'
 Plug 'rcarriga/nvim-notify'
@@ -148,6 +149,7 @@ let g:nvim_tree_icons = {
 
 lua << EOF
 require('hop').setup()
+require("notify").setup()
 require('zen-mode').setup()
 require('trouble').setup()
 require('nvim-autopairs').setup{}
@@ -214,11 +216,6 @@ local prettier = {
 --   }
 -- })
 require('nvim-tree').setup({
-  update_to_buf_dir = {
-    auto_open = false,
-    auto_close = true,
-  },
-  tab_open = false,
   update_focused_file = {
     enable = true,
   },
