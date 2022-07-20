@@ -45,3 +45,8 @@
       git show $merge; \
     fi \
   }; f"
+  up = "!f() { \
+    if ! git push -u $@ > /dev/null 2>&1; then \
+      terminal-notifier -title 'git' -message 'failed to push'; \
+    fi \
+  }; f &"
