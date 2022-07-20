@@ -23,8 +23,8 @@ set clipboard=unnamedplus
 nnoremap <Tab> :Tabnext<CR>
 nnoremap <S-Tab> :Tabprevious<CR>
 
-source ~/dotfiles/vim/objects.vim
-source ~/dotfiles/vim/sensible.vim
+source ~/dotfiles/nvim/vim/objects.vim
+source ~/dotfiles/nvim/vim/sensible.vim
 
 " ----------------------------------------------------------------------------
 "   VSCode

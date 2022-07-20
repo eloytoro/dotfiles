@@ -3,17 +3,44 @@ local dev_path = string.format("%s/dev", user_home)
 local helpers = require('config/helpers')
 local local_config = helpers.read_local_editor_config()
 
-local lsp_status = require('lsp-status')
-lsp_status.register_progress()
-lsp_status.config {
-  current_function = true,
-  status_symbol = '%#StatusLineLinNbr#LSP',
-  indicator_errors = '%#StatusLineLSPErrors#',
-  indicator_warnings = '%#StatusLineLSPWarnings#',
-  indicator_info = '%#StatusLineLSPInfo#',
-  indicator_hints = '%#StatusLineLSPHints#',
-  indicator_ok = '%#StatusLineLSPOk#',
+-- local lsp_status = require('lsp-status')
+-- lsp_status.register_progress()
+
+local signs = {
+  { name = "DiagnosticSignError", text = "" },
+  { name = "DiagnosticSignWarn", text = "" },
+  { name = "DiagnosticSignHint", text = "" },
+  { name = "DiagnosticSignInfo", text = "" },
 }
+
+for _, sign in ipairs(signs) do
+  vim.fn.sign_define(sign.name, { texthl = sign.name, text = sign.text, numhl = "" })
+end
+
+vim.diagnostic.config {
+  virtual_text = {
+    source = "always",
+    prefix = "» ",
+    spacing = 6,
+  },
+  float = {
+    header = false,
+    source = "always",
+  },
+  signs = true,
+  underline = true,
+  update_in_insert = false,
+}
+
+-- lsp_status.config {
+--   current_function = true,
+--   status_symbol = '%#StatusLineLinNbr#LSP',
+--   indicator_errors = '%#StatusLineLSPErrors#',
+--   indicator_warnings = '%#StatusLineLSPWarnings#',
+--   indicator_info = '%#StatusLineLSPInfo#',
+--   indicator_hints = '%#StatusLineLSPHints#',
+--   indicator_ok = '%#StatusLineLSPOk#',
+-- }
 
 vim.cmd [[
   hi StatusLineLinNbr guibg=#23272e guifg=#51afef
@@ -34,7 +61,7 @@ capabilities.textDocument.completion.completionItem.resolveSupport = {
     'additionalTextEdits',
   }
 }
-vim.tbl_extend('keep', capabilities, lsp_status.capabilities)
+-- vim.tbl_extend('keep', capabilities, lsp_status.capabilities)
 
 
 local lsp_attach = function(args)
@@ -59,7 +86,7 @@ local lsp_attach = function(args)
       ]], false)
     end
 
-    lsp_status.on_attach(client)
+    -- lsp_status.on_attach(client)
 
     local themes = require("telescope.themes")
     local builtin = require("telescope.builtin")
@@ -187,40 +214,145 @@ lsp.sumneko_lua.setup {
   on_attach = lsp_attach { format = false },
 }
 
--- rust
-require('rust-tools').setup({
-    tools = { -- rust-tools options
-        autoSetHints = true,
-        hover_with_actions = true,
-        inlay_hints = {
-          enable = false,
-          show_parameter_hints = false,
-          parameter_hints_prefix = "",
-          other_hints_prefix = "",
-        },
-    },
+lsp.rust_analyzer.setup({
+  capabilities = capabilities,
+  settings = {
+    ["rust-analyzer"] = {
+      assist = {
+        importGroup = true,
+        importGranularity = "crate",
+        importPrefix = "crate",
+      },
 
-    -- all the opts to send to nvim-lspconfig
-    -- these override the defaults set by rust-tools.nvim
-    -- see https://github.com/neovim/nvim-lspconfig/blob/master/CONFIG.md#rust_analyzer
-    server = {
-        -- on_attach is a callback called when the language server attachs to the buffer
-        on_attach = lsp_attach { format = true },
-        settings = {
-            -- to enable rust-analyzer settings visit:
-            -- https://github.com/rust-analyzer/rust-analyzer/blob/master/docs/user/generated_config.adoc
-            ["rust-analyzer"] = {
-                -- enable clippy on save
-                checkOnSave = {
-                    command = "clippy"
-                },
-                -- cargo = {
-                --   allFeatures = true
-                -- }
-            }
-        }
+      callInfo = {
+        full = true,
+      };
+
+      cargo = {
+        allFeatures = true,
+        autoreload = true,
+        loadOutDirsFromCheck = true,
+      },
+
+      checkOnSave = {
+        enable = true,
+        allFeatures = true,
+      },
+
+      completion = {
+        addCallArgumentSnippets = true,
+        addCallParenthesis = true,
+        postfix = {
+          enable = true,
+        },
+        autoimport = {
+          enable = true,
+        },
+      },
+
+      diagnostics = {
+        enable = true,
+        enableExperimental = true,
+      },
+
+      hoverActions = {
+        enable = true,
+        debug = true,
+        gotoTypeDef = true,
+        implementations = true,
+        run = true,
+        linksInHover = true,
+      },
+
+      lens = {
+        enable = true,
+        debug = true,
+        implementations = true,
+        run = true,
+        methodReferences = true,
+        references = true,
+      },
+
+      notifications = {
+        cargoTomlNotFound = true,
+      },
+
+      procMacro = {
+        enable = true,
+      },
     },
+  },
+  on_attach = function(client, bufnr)
+    vim.api.nvim_buf_set_keymap(bufnr, 'n', '<localleader>bb', '<cmd>belowright 10sp | term cargo build<cr>', {})
+    vim.api.nvim_buf_set_keymap(bufnr, 'n', '<localleader>bc', '<cmd>belowright 10sp | term cargo check<cr>', {})
+    vim.api.nvim_buf_set_keymap(bufnr, 'n', '<localleader>br', '<cmd>belowright 10sp | term cargo build --release<cr>', {})
+    vim.api.nvim_buf_set_keymap(bufnr, 'n', '<localleader>db', '<cmd>belowright 10sp | term rustup doc --book<cr>', {})
+    vim.api.nvim_buf_set_keymap(bufnr, 'n', '<localleader>dd', '<cmd>belowright 10sp | term cargo doc --open<cr>', {})
+    vim.api.nvim_buf_set_keymap(bufnr, 'n', '<localleader>ds', '<cmd>belowright 10sp | term rustup doc --std<cr>', {})
+    vim.api.nvim_buf_set_keymap(bufnr, 'n', '<localleader>rd', '<cmd>belowright 10sp | term cargo run<cr>', {})
+    vim.api.nvim_buf_set_keymap(bufnr, 'n', '<localleader>rr', '<cmd>belowright 10sp | term cargo run --release<cr>', {})
+
+    vim.g.which_key_local_map = {
+      b = {
+        name = '+build',
+        b = 'build',
+        c = 'check',
+        r = 'build (release)',
+      },
+      d = {
+        name = '+documentation',
+        b = 'open the book',
+        d = 'document everything',
+        s = 'standard library documentation',
+      },
+      r = {
+        name = '+run',
+        d = 'debug run',
+        r = 'release run',
+      },
+    }
+
+    return lsp_attach()(client, bufnr)
+  end
 })
+
+-- require('rust-tools').setup({
+--   tools = { -- rust-tools options
+--     autoSetHints = true,
+--     hover_with_actions = true,
+--     inlay_hints = {
+--       enable = true,
+--       show_parameter_hints = true,
+--       parameter_hints_prefix = "",
+--       other_hints_prefix = "",
+--     },
+--   },
+
+--   -- all the opts to send to nvim-lspconfig
+--   -- these override the defaults set by rust-tools.nvim
+--   -- see https://github.com/neovim/nvim-lspconfig/blob/master/CONFIG.md#rust_analyzer
+--   server = {
+--     -- on_attach is a callback called when the language server attachs to the buffer
+--     on_attach = lsp_attach { format = true },
+--     settings = {
+--       -- to enable rust-analyzer settings visit:
+--       -- https://github.com/rust-analyzer/rust-analyzer/blob/master/docs/user/generated_config.adoc
+--       ["rust-analyzer"] = {
+--         -- enable clippy on save
+--         checkOnSave = {
+--           command = "clippy"
+--         },
+--         cargo = {
+--           allFeatures = true,
+--           loadOutDirsFromCheck = true
+--         },
+--         procMacro = {
+--           enable = true
+--         },
+--       }
+--     }
+--   },
+-- })
 
 -- typescript
 lsp.tsserver.setup {

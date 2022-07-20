@@ -65,6 +65,7 @@ Plug 'folke/trouble.nvim'
 Plug 'nvim-telescope/telescope.nvim'
 Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
 Plug 'nvim-telescope/telescope-ui-select.nvim'
+Plug 'j-hui/fidget.nvim'
 Plug 'norcalli/nvim-colorizer.lua'
 Plug 'kyazdani42/nvim-tree.lua'
 Plug 'rcarriga/nvim-notify'
@@ -79,7 +80,7 @@ Plug 'hrsh7th/cmp-cmdline'
 Plug 'hrsh7th/nvim-cmp'
 Plug 'hrsh7th/cmp-nvim-lsp'
 Plug 'saadparwaiz1/cmp_luasnip'
-Plug 'nvim-lua/lsp-status.nvim'
+" Plug 'nvim-lua/lsp-status.nvim'
 Plug 'folke/zen-mode.nvim'
 Plug 'L3MON4D3/LuaSnip'
 Plug 'simrat39/rust-tools.nvim'
@@ -139,20 +140,13 @@ else
   hi ColorColumn ctermbg=234 guibg=#111111
 endif
 
-let g:nvim_tree_icons = {
-    \ 'git': {
-    \   'unstaged': "M",
-    \   'staged': "+",
-    \   'untracked': "U",
-    \   },
-    \ }
-
 lua << EOF
 require('hop').setup()
 require("notify").setup()
 require('zen-mode').setup()
 require('trouble').setup()
 require('nvim-autopairs').setup{}
+require("fidget").setup{}
 require('gitsigns').setup({
   on_attach = function(bufnr)
     if vim.api.nvim_buf_get_name(bufnr):match('fugitive') then
@@ -215,11 +209,24 @@ local prettier = {
 --     }
 --   }
 -- })
+
 require('nvim-tree').setup({
   update_focused_file = {
     enable = true,
   },
+  renderer = {
+    icons = {
+      glyphs = {
+        git = {
+          unstaged = "M",
+          staged = "+",
+          untracked = "U",
+        }
+      }
+    }
+  }
 })
+
 require('nvim-treesitter.configs').setup({
   highlight = {
     enable = true,              -- false will disable the whole extension

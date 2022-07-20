@@ -19,8 +19,29 @@
 	ls = log --oneline
 	last = log -1 HEAD
 	rewrite = 'git reset --soft $(git merge-base master HEAD)'
-	stash-staged = 'git stash -- $(git diff --staged --name-only)'
+	stash-staged = "!f() { \
+    git stash -- $(git diff --staged --name-only); \
+  }; f"
+	update = "!f() { \
+    branch=$(git remote show origin | grep 'HEAD branch' | sed 's/.*: //'); \
+    git fetch -n origin ${branch}; \
+    git merge --no-ff origin/${branch}; \
+  }; f"
 	review = "!f() { \
     git fetch -n origin $1:$1; \
     git checkout $1; \
+  }; f"
+	ff = "!f() { \
+    git fetch -n origin $1:$1; \
+  }; f"
+  find-merge = "!f() { \
+    commit=$1; \
+    branch=${2:-HEAD}; \
+    (git rev-list $commit..$branch --ancestry-path | cat -n; git rev-list $commit..$branch --first-parent | cat -n) | sort -k2 -s | uniq -f1 -d | sort -n | tail -1 | cut -f2; \
+  }; f"
+  show-merge = "!f() { \
+    merge=$(git find-merge $1 $2); \
+    if [ -n \"$merge\" ]; then \
+      git show $merge; \
+    fi \
   }; f"

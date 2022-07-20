@@ -103,13 +103,13 @@ local function vcs_status()
   )
 end
 
-local function lsp_status()
-  if #vim.lsp.buf_get_clients() > 0 then
-    return require('lsp-status').status()
-  end
+-- local function lsp_status()
+--   if #vim.lsp.buf_get_clients() > 0 then
+--     return require('lsp-status').status()
+--   end
 
-  return ''
-end
+--   return ''
+-- end
 
 local function get_file_name(modified)
   local max_width = vim.fn.winwidth(vim.g.statusline_winid) * 0.40
@@ -320,7 +320,8 @@ local function make_active_status_line()
     get_file_name(vim.bo.mod)
   )
   status_line = status_line .. '%#StatusLineLinNbr# %v%#StatusLineBg2b#:%#StatusLineColNbr#%l%< %#StatusLineBg2b#(%p%% %LL)'
-  status_line = status_line .. string.format('%%=%%#StatusLineBg# %s %s ', lsp_status(), vcs_status())
+  -- status_line = status_line .. string.format('%%=%%#StatusLineBg# %s %s ', lsp_status(), vcs_status())
+  status_line = status_line .. string.format('%%=%%#StatusLineBg# %s ', vcs_status())
 
   return status_line
 end
