@@ -24,7 +24,7 @@
   }; f"
 	update = "!f() { \
     branch=$(git remote show origin | grep 'HEAD branch' | sed 's/.*: //'); \
-    git fetch -n origin ${branch}; \
+    git fetch -n origin ${branch}:${branch}; \
     git merge --no-ff origin/${branch}; \
   }; f"
 	review = "!f() { \
@@ -48,5 +48,7 @@
   up = "!f() { \
     if ! git push -u $@ > /dev/null 2>&1; then \
       terminal-notifier -title 'git' -message 'failed to push'; \
+    else \
+      terminal-notifier -title 'git' -message 'pushed' -open \"$(gh repo view --json url -q .url)/compare/$(git branch --show-current)?expand=1\"; \
     fi \
   }; f &"

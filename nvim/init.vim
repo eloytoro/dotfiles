@@ -33,15 +33,20 @@ if has('nvim')
   " Plug 'airblade/vim-gitgutter'
 endif
 Plug 'nvim-lua/plenary.nvim'
+Plug 'MunifTanjim/nui.nvim'
 Plug 'lewis6991/gitsigns.nvim'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'windwp/nvim-ts-autotag'
 " Plug 'romgrk/nvim-treesitter-context'
 " Plug 'mbbill/undotree'
 " Plug 'preservim/nerdtree'
+" Plug 'kyazdani42/nvim-tree.lua'
+Plug 'nvim-neo-tree/neo-tree.nvim'
+Plug 's1n7ax/nvim-window-picker'
 Plug 'haya14busa/incsearch.vim'
 Plug 'svermeulen/vim-cutlass'
 Plug 'svermeulen/vim-yoink'
+Plug 'vim-test/vim-test'
 Plug 'svermeulen/vim-subversive'
 " Plug 'easymotion/vim-easymotion'
 Plug 'phaazon/hop.nvim'
@@ -67,9 +72,9 @@ Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
 Plug 'nvim-telescope/telescope-ui-select.nvim'
 Plug 'j-hui/fidget.nvim'
 Plug 'norcalli/nvim-colorizer.lua'
-Plug 'kyazdani42/nvim-tree.lua'
 Plug 'rcarriga/nvim-notify'
 Plug 'neovim/nvim-lspconfig'
+Plug 'ms-jpq/coq_nvim'
 " Plug 'ray-x/lsp_signature.nvim'
 Plug 'jose-elias-alvarez/nvim-lsp-ts-utils'
 Plug 'jose-elias-alvarez/null-ls.nvim'
@@ -86,7 +91,7 @@ Plug 'L3MON4D3/LuaSnip'
 Plug 'simrat39/rust-tools.nvim'
 " Plug 'mhartington/formatter.nvim'
 " Language specific
-Plug 'cakebaker/scss-syntax.vim', { 'for': 'scss' }
+" Plug 'cakebaker/scss-syntax.vim', { 'for': 'scss' }
 " Plug 'othree/yajs.vim'
 " Plug 'rust-lang/rust.vim', { 'for': 'rust' }
 Plug 'othree/html5.vim', { 'for': 'html' }
@@ -146,6 +151,26 @@ require("notify").setup()
 require('zen-mode').setup()
 require('trouble').setup()
 require('nvim-autopairs').setup{}
+require'window-picker'.setup({
+  autoselect_one = false,
+  include_current = false,
+  filter_rules = {
+    -- filter using buffer options
+    bo = {
+      -- if the file type is one of following, the window will be ignored
+      filetype = { 'neo-tree', "neo-tree-popup", "notify", "quickfix" },
+
+      -- if the buffer type is one of following, the window will be ignored
+      buftype = { 'terminal' },
+    },
+  },
+  other_win_hl_color = '#e35e4f',
+})
+require("neo-tree").setup({
+  source_selector = {
+      show_scrolled_off_parent_node = true,
+  }
+})
 require("fidget").setup{}
 require('gitsigns').setup({
   on_attach = function(bufnr)
@@ -210,22 +235,22 @@ local prettier = {
 --   }
 -- })
 
-require('nvim-tree').setup({
-  update_focused_file = {
-    enable = true,
-  },
-  renderer = {
-    icons = {
-      glyphs = {
-        git = {
-          unstaged = "M",
-          staged = "+",
-          untracked = "U",
-        }
-      }
-    }
-  }
-})
+-- require('nvim-tree').setup({
+--   update_focused_file = {
+--     enable = true,
+--   },
+--   renderer = {
+--     icons = {
+--       glyphs = {
+--         git = {
+--           unstaged = "M",
+--           staged = "+",
+--           untracked = "U",
+--         }
+--       }
+--     }
+--   }
+-- })
 
 require('nvim-treesitter.configs').setup({
   highlight = {
@@ -422,8 +447,10 @@ endfunction
 "         \| endif
 " augroup END
 
-map <silent> <leader>o :NvimTreeFindFile<CR>
-map <silent> <leader>n :NvimTreeFindFileToggle<CR>
+nnoremap <silent> <leader>n :Neotree toggle reveal<CR>
+nnoremap <silent> <leader>o :Neotree focus reveal<CR>
+nnoremap <silent> <leader>d :Neotree float reveal_file=<cfile><cr>
+nnoremap <silent> <leader>s :Neotree float git_status<cr>
 
 
 " ----------------------------------------------------------------------------

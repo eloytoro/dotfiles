@@ -61,13 +61,15 @@ capabilities.textDocument.completion.completionItem.resolveSupport = {
     'additionalTextEdits',
   }
 }
+local coq = require "coq"
+
 -- vim.tbl_extend('keep', capabilities, lsp_status.capabilities)
 
 
 local lsp_attach = function(args)
   return function(client, bufnr)
     -- Set autocommands conditional on server_capabilities
-    if client.resolved_capabilities.document_highlight then
+    if client.server_capabilities.document_highlight then
       vim.api.nvim_exec([[
         augroup lsp_document_highlight
           autocmd! * <buffer>
@@ -360,8 +362,8 @@ lsp.tsserver.setup {
     if client.config.flags then
       client.config.flags.allow_incremental_sync = true
     end
-    client.resolved_capabilities.document_formatting = false
-    client.resolved_capabilities.document_range_formatting = false
+    client.server_capabilities.document_formatting = false
+    client.server_capabilities.document_range_formatting = false
     -- vim.api.nvim_buf_set_keymap(bufnr, "n", "gs", ":TSLspOrganize<CR>")
     -- vim.api.nvim_buf_set_keymap(bufnr, "n", "gi", ":TSLspRenameFile<CR>")
     -- vim.api.nvim_buf_set_keymap(bufnr, "n", "go", ":TSLspImportAll<CR>")
@@ -382,6 +384,7 @@ lsp.tsserver.setup {
     return lsp.util.root_pattern("tsconfig.json")(fname);
   end,
 }
+lsp.tsserver.setup(coq.lsp_ensure_capabilities({}))
 
 --[[
 local null_ls = require("null-ls")
