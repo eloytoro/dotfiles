@@ -52,3 +52,6 @@
       terminal-notifier -title 'git' -message 'pushed' -open \"$(gh repo view --json url -q .url)/compare/$(git branch --show-current)?expand=1\"; \
     fi \
   }; f &"
+[oh-my-zsh]
+	hide-status = 1
+	hide-dirty = 1

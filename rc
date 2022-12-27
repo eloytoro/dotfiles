@@ -155,6 +155,15 @@ gc() {
   fi
 }
 
+gm() {
+  if [ $# -eq 0 ]
+  then
+    gb | xargs git merge --no-ff
+  else
+    git merge --no-ff $1
+  fi
+}
+
 gp() {
   if [ $# -eq 0 ]
   then

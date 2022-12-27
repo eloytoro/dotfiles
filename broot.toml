@@ -1,0 +1,34 @@
+[[verbs]]
+key = "ctrl-k"
+execution = ":line_up"
+[[verbs]]
+key = "ctrl-j"
+execution = ":line_down"
+[[verbs]]
+key = "ctrl-l"
+execution = ":panel_right"
+[[verbs]]
+key = "ctrl-h"
+execution = ":panel_left"
+
+[[verbs]]
+key = "ctrl-b"
+execution = ":page_up"
+[[verbs]]
+key = "ctrl-f"
+execution = ":page_down"
+
+[[verbs]]
+key = "ctrl-space"
+execution = ":toggle_stage"
+
+[[verbs]]
+invocation = "terminal"
+key = "enter"
+execution = ":print_path"
+apply_to = "file"
+
+[[verbs]]
+invocation = "up"
+key = "ctrl-["
+execution = ":focus {root}/.."

@@ -53,7 +53,7 @@ vim.cmd [[
 
 local lsp = require'lspconfig'
 local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities.textDocument.completion.completionItem.snippetSupport = true
+-- capabilities.textDocument.completion.completionItem.snippetSupport = true
 capabilities.textDocument.completion.completionItem.resolveSupport = {
   properties = {
     'documentation',
@@ -61,7 +61,6 @@ capabilities.textDocument.completion.completionItem.resolveSupport = {
     'additionalTextEdits',
   }
 }
-local coq = require "coq"
 
 -- vim.tbl_extend('keep', capabilities, lsp_status.capabilities)
 
@@ -125,7 +124,7 @@ local lsp_attach = function(args)
   end
 end
 
-local luasnip = require 'luasnip'
+-- local luasnip = require 'luasnip'
 
 local is_empty_before = function()
     local col = vim.fn.col('.') - 1
@@ -135,11 +134,11 @@ end
 -- nvim-cmp setup
 local cmp = require 'cmp'
 cmp.setup {
-  snippet = {
-    expand = function(args)
-      require('luasnip').lsp_expand(args.body)
-    end,
-  },
+  -- snippet = {
+  --   expand = function(args)
+  --     require('luasnip').lsp_expand(args.body)
+  --   end,
+  -- },
   mapping = {
     ['<C-s>'] = cmp.mapping.select_prev_item(),
     ['<C-t>'] = cmp.mapping.select_next_item(),
@@ -154,8 +153,8 @@ cmp.setup {
     ['<Tab>'] = function(fallback)
       if cmp.visible() then
         cmp.select_next_item()
-      elseif luasnip.expand_or_jumpable() then
-        vim.fn.feedkeys(vim.api.nvim_replace_termcodes('<Plug>luasnip-expand-or-jump', true, true, true), '')
+      -- elseif luasnip.expand_or_jumpable() then
+      --   vim.fn.feedkeys(vim.api.nvim_replace_termcodes('<Plug>luasnip-expand-or-jump', true, true, true), '')
       elseif not is_empty_before() then
         cmp.complete()
       else
@@ -165,8 +164,8 @@ cmp.setup {
     ['<S-Tab>'] = function(fallback)
       if cmp.visible() then
         cmp.select_prev_item()
-      elseif luasnip.jumpable(-1) then
-        vim.fn.feedkeys(vim.api.nvim_replace_termcodes('<Plug>luasnip-jump-prev', true, true, true), '')
+      -- elseif luasnip.jumpable(-1) then
+      --   vim.fn.feedkeys(vim.api.nvim_replace_termcodes('<Plug>luasnip-jump-prev', true, true, true), '')
       elseif not is_empty_before() then
         cmp.complete()
       else
@@ -177,44 +176,44 @@ cmp.setup {
   sources = {
     { name = 'crates' },
     { name = 'nvim_lsp' },
-    { name = 'luasnip' },
+    -- { name = 'luasnip' },
   },
 }
 require('cmp_nvim_lsp').setup {}
 
 
 -- lua
-lsp.sumneko_lua.setup {
-  flags = lsp_flags,
-  cmd = {
-    string.format("%s/lua-language-server/macOS/lua-language-server", dev_path),
-    "-E",
-    string.format("%s/lua-language-server/macOS/main.lua", dev_path)
-  },
-  settings = {
-    Lua = {
-      runtime = {
-        version = 'LuaJIT',
-        path = vim.split(package.path, ';'),
-      },
+-- lsp.sumneko_lua.setup {
+--   flags = lsp_flags,
+--   cmd = {
+--     string.format("%s/lua-language-server/macOS/lua-language-server", dev_path),
+--     "-E",
+--     string.format("%s/lua-language-server/macOS/main.lua", dev_path)
+--   },
+--   settings = {
+--     Lua = {
+--       runtime = {
+--         version = 'LuaJIT',
+--         path = vim.split(package.path, ';'),
+--       },
 
-      diagnostics = {
-        enable = true,
-        globals = { "vim" },
-      },
+--       diagnostics = {
+--         enable = true,
+--         globals = { "vim" },
+--       },
 
-      workspace = {
-        -- Make the server aware of Neovim runtime files
-        library = {
-          [vim.fn.expand('$VIMRUNTIME/lua')] = true,
-          [vim.fn.expand('$VIMRUNTIME/lua/vim/lsp')] = true,
-        },
-      },
-    },
-  },
+--       workspace = {
+--         -- Make the server aware of Neovim runtime files
+--         library = {
+--           [vim.fn.expand('$VIMRUNTIME/lua')] = true,
+--           [vim.fn.expand('$VIMRUNTIME/lua/vim/lsp')] = true,
+--         },
+--       },
+--     },
+--   },
 
-  on_attach = lsp_attach { format = false },
-}
+--   on_attach = lsp_attach { format = false },
+-- }
 
 lsp.rust_analyzer.setup({
   capabilities = capabilities,
@@ -357,34 +356,34 @@ lsp.rust_analyzer.setup({
 -- })
 
 -- typescript
-lsp.tsserver.setup {
-  on_attach = function(client, bufnr)
-    if client.config.flags then
-      client.config.flags.allow_incremental_sync = true
-    end
-    client.server_capabilities.document_formatting = false
-    client.server_capabilities.document_range_formatting = false
-    -- vim.api.nvim_buf_set_keymap(bufnr, "n", "gs", ":TSLspOrganize<CR>")
-    -- vim.api.nvim_buf_set_keymap(bufnr, "n", "gi", ":TSLspRenameFile<CR>")
-    -- vim.api.nvim_buf_set_keymap(bufnr, "n", "go", ":TSLspImportAll<CR>")
-    -- require "lsp_signature".on_attach({
-    --   hint_prefix = "💡"
-    -- }, bufnr)
-    local ts_utils = require("nvim-lsp-ts-utils")
-    ts_utils.setup {
-      update_imports_on_move = true,
-      require_confirmation_on_move = false,
-    }
-    ts_utils.setup_client(client)
-    vim.api.nvim_buf_set_keymap(bufnr, "n", "<leader>=", ":TSLspOrganize<CR>", { silent = true })
+require("typescript").setup({
+    disable_commands = false, -- prevent the plugin from creating Vim commands
+    debug = false, -- enable debug logging for commands
+    go_to_source_definition = {
+        fallback = true, -- fall back to standard LSP definition on failure
+    },
+    server = { -- pass options to lspconfig's setup method
+      cmd = { "/opt/homebrew/bin/npx", "typescript-language-server", "--stdio" },
+      on_attach = function(client, bufnr)
+        -- if client.config.flags then
+        --   client.config.flags.allow_incremental_sync = true
+        -- end
+        client.server_capabilities.document_formatting = false
+        client.server_capabilities.document_range_formatting = false
+        -- vim.api.nvim_buf_set_keymap(bufnr, "n", "gs", ":TSLspOrganize<CR>")
+        -- vim.api.nvim_buf_set_keymap(bufnr, "n", "gi", ":TSLspRenameFile<CR>")
+        -- vim.api.nvim_buf_set_keymap(bufnr, "n", "go", ":TSLspImportAll<CR>")
+        -- require "lsp_signature".on_attach({
+        --   hint_prefix = "💡"
+        -- }, bufnr)
 
-    lsp_attach({ format = false })(client, bufnr)
-  end,
-  root_dir = function(fname)
-    return lsp.util.root_pattern("tsconfig.json")(fname);
-  end,
-}
-lsp.tsserver.setup(coq.lsp_ensure_capabilities({}))
+        lsp_attach({ format = false })(client, bufnr)
+      end,
+      root_dir = function(fname)
+        return lsp.util.root_pattern("tsconfig.json")(fname);
+      end,
+    },
+})
 
 --[[
 local null_ls = require("null-ls")

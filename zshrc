@@ -16,4 +16,4 @@ bindkey -e
 
 PS1='%F{15}%n%f@%F{9}%m%f:%~${vcs_info_msg_0_}'$'\n'"$ "
 
-bindkey -v
+# bindkey -v

@@ -1,0 +1,10 @@
+{
+	verbs: [
+		{
+			invocation: terminal
+			key: enter
+			execution: ":print_path"
+			apply_to: file
+		}
+	]
+}

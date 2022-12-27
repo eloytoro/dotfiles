@@ -37,12 +37,13 @@ Plug 'MunifTanjim/nui.nvim'
 Plug 'lewis6991/gitsigns.nvim'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'windwp/nvim-ts-autotag'
+Plug 'windwp/nvim-autopairs'
 " Plug 'romgrk/nvim-treesitter-context'
 " Plug 'mbbill/undotree'
 " Plug 'preservim/nerdtree'
-" Plug 'kyazdani42/nvim-tree.lua'
-Plug 'nvim-neo-tree/neo-tree.nvim'
-Plug 's1n7ax/nvim-window-picker'
+Plug 'kyazdani42/nvim-tree.lua'
+" Plug 'nvim-neo-tree/neo-tree.nvim'
+" Plug 's1n7ax/nvim-window-picker'
 Plug 'haya14busa/incsearch.vim'
 Plug 'svermeulen/vim-cutlass'
 Plug 'svermeulen/vim-yoink'
@@ -51,7 +52,6 @@ Plug 'svermeulen/vim-subversive'
 " Plug 'easymotion/vim-easymotion'
 Plug 'phaazon/hop.nvim'
 " Plug 'Raimondi/delimitMate'
-Plug 'windwp/nvim-autopairs'
 Plug 'junegunn/vim-easy-align'
 Plug 'junegunn/gv.vim'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
@@ -70,32 +70,33 @@ Plug 'folke/trouble.nvim'
 Plug 'nvim-telescope/telescope.nvim'
 Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
 Plug 'nvim-telescope/telescope-ui-select.nvim'
-Plug 'j-hui/fidget.nvim'
+" Plug 'lstwn/broot.vim'
+" Plug 'j-hui/fidget.nvim'
 Plug 'norcalli/nvim-colorizer.lua'
 Plug 'rcarriga/nvim-notify'
 Plug 'neovim/nvim-lspconfig'
-Plug 'ms-jpq/coq_nvim'
+" Plug 'ms-jpq/coq_nvim'
 " Plug 'ray-x/lsp_signature.nvim'
-Plug 'jose-elias-alvarez/nvim-lsp-ts-utils'
-Plug 'jose-elias-alvarez/null-ls.nvim'
+Plug 'jose-elias-alvarez/typescript.nvim'
 Plug 'nvim-lua/popup.nvim'
 Plug 'hrsh7th/cmp-buffer'
 Plug 'hrsh7th/cmp-path'
 Plug 'hrsh7th/cmp-cmdline'
 Plug 'hrsh7th/nvim-cmp'
 Plug 'hrsh7th/cmp-nvim-lsp'
-Plug 'saadparwaiz1/cmp_luasnip'
+Plug 'voldikss/vim-floaterm'
+" Plug 'saadparwaiz1/cmp_luasnip'
 " Plug 'nvim-lua/lsp-status.nvim'
-Plug 'folke/zen-mode.nvim'
-Plug 'L3MON4D3/LuaSnip'
-Plug 'simrat39/rust-tools.nvim'
+" Plug 'folke/zen-mode.nvim'
+" Plug 'L3MON4D3/LuaSnip'
+" Plug 'simrat39/rust-tools.nvim'
 " Plug 'mhartington/formatter.nvim'
 " Language specific
 " Plug 'cakebaker/scss-syntax.vim', { 'for': 'scss' }
 " Plug 'othree/yajs.vim'
 " Plug 'rust-lang/rust.vim', { 'for': 'rust' }
 Plug 'othree/html5.vim', { 'for': 'html' }
-Plug 'digitaltoad/vim-jade', { 'for': 'jade' }
+" Plug 'digitaltoad/vim-jade', { 'for': 'jade' }
 " Plug 'leafgarland/typescript-vim'
 " Plug 'peitalin/vim-jsx-typescript'
 " Colorschemes
@@ -106,6 +107,7 @@ Plug 'jacoborus/tender'
 Plug 'junegunn/seoul256.vim'
 Plug 'tomasr/molokai'
 Plug 'morhetz/gruvbox'
+Plug 'folke/tokyonight.nvim'
 Plug 'tyrannicaltoucan/vim-deep-space'
 Plug 'AlessandroYorba/Despacio'
 " Plug 'cocopon/iceberg.vim'
@@ -134,8 +136,9 @@ if has("termguicolors")
   set termguicolors
   set background=dark
   " let g:everforest_background = 'hard'
-  silent! colorscheme allomancer
-  " silent! colorscheme nord
+  " silent! colorscheme allomancer
+  " silent! colorscheme hybrid
+  silent! colorscheme tokyonight-moon
   "hi ColorColumn guibg=#111111
 else
   let g:seoul256_background = 233
@@ -147,31 +150,31 @@ endif
 
 lua << EOF
 require('hop').setup()
-require("notify").setup()
-require('zen-mode').setup()
+require("tokyonight").setup({})
+require("notify").setup({
+  top_down = false
+})
 require('trouble').setup()
 require('nvim-autopairs').setup{}
-require'window-picker'.setup({
-  autoselect_one = false,
-  include_current = false,
-  filter_rules = {
-    -- filter using buffer options
-    bo = {
-      -- if the file type is one of following, the window will be ignored
-      filetype = { 'neo-tree', "neo-tree-popup", "notify", "quickfix" },
-
-      -- if the buffer type is one of following, the window will be ignored
-      buftype = { 'terminal' },
+-- OR setup with some options
+require("nvim-tree").setup({
+  sort_by = "case_sensitive",
+  view = {
+    adaptive_size = true,
+    mappings = {
+      list = {
+        { key = "u", action = "dir_up" },
+      },
     },
   },
-  other_win_hl_color = '#e35e4f',
+  renderer = {
+    group_empty = true,
+  },
+  filters = {
+    dotfiles = true,
+  },
 })
-require("neo-tree").setup({
-  source_selector = {
-      show_scrolled_off_parent_node = true,
-  }
-})
-require("fidget").setup{}
+-- require("fidget").setup{}
 require('gitsigns').setup({
   on_attach = function(bufnr)
     if vim.api.nvim_buf_get_name(bufnr):match('fugitive') then
@@ -284,7 +287,9 @@ require('nvim-treesitter.configs').setup({
 require('colorizer').setup {}
 
 require('config.telescope')
-require('config.lsp')
+if not vim.g.vscode then
+  require('config.lsp')
+end
 require('config.statusline')
 -- Set completeopt to have a better completion experience
 vim.o.completeopt = 'menu,menuone,noselect'
@@ -315,6 +320,7 @@ endfunction
 source $HOME/dotfiles/nvim/vim/sensible.vim
 source $HOME/dotfiles/nvim/vim/objects.vim
 source $HOME/dotfiles/nvim/vim/fzf.vim
+source $HOME/dotfiles/nvim/vim/broot.vim
 " source $HOME/dotfiles/nvim/vim/coc.vim
 
 " ----------------------------------------------------------------------------
@@ -354,8 +360,6 @@ nmap <leader>ge :Gedit<CR>
 nmap <leader>gE :Gvsplit<CR>
 nmap <leader>gv :GV -n 100<CR>
 nmap <leader>gV :GV!<CR>
-nmap <leader>gg :Ggrep 
-nmap <leader>gg :Ggrep 
 nmap <leader>gCt :execute "Git checkout --theirs ".expand('%:p')<CR>
 nmap <leader>gCo :execute "Git checkout --ours ".expand('%:p')<CR>
 nmap git :Git
@@ -369,6 +373,15 @@ nnoremap <leader>fg <cmd>lua require('telescope.builtin').live_grep()<cr>
 nnoremap <leader>fb <cmd>lua require('telescope.builtin').buffers()<cr>
 nnoremap <leader>fh <cmd>lua require('telescope.builtin').help_tags()<cr>
 inoremap <C-x><C-s> <cmd>lua require'telescope.builtin'.symbols(require('telescope.themes').get_cursor())<CR>
+
+" ----------------------------------------------------------------------------
+" Floaterm
+" ----------------------------------------------------------------------------
+" nmap ! :FloatermNew 
+" tmap <silent> ]] <ESC>:FloatermNext<CR>
+" tmap <silent> [[ <ESC>:FloatermPrev<CR>
+" nmap <silent> <c-z> :FloatermToggle<CR>
+" tmap <silent> <c-z> <ESC>:FloatermToggle<CR>
 
 " ----------------------------------------------------------------------------
 "  GitGutter
@@ -400,11 +413,7 @@ augroup END
 nmap <silent> gw :HopWord<CR>
 nmap <silent> gs :HopChar2<CR>
 nmap <silent> g<CR> :HopLineStart<CR>
-" nmap gos <Plug>(easymotion-s)
-" nmap <CR> <Plug>(easymotion-bd-jk)
-" nmap gon <Plug>(easymotion-vim-n)
-" nmap goN <Plug>(easymotion-vim-N)
-" nmap <CR> <Plug>(easymotion-overwin-w)
+nmap <silent> g/ :HopPattern
 
 " ----------------------------------------------------------------------------
 " EasyAlign
@@ -412,46 +421,10 @@ nmap <silent> g<CR> :HopLineStart<CR>
 vmap <Enter> <Plug>(EasyAlign)
 
 " ----------------------------------------------------------------------------
-" NERDTree
+" NvimTree
 " ----------------------------------------------------------------------------
-function! NERDTreeFindOrToggle()
-  let s:empty = @% == "" || filereadable(@%) == 0 || line('$') == 1 && col('$') == 1
-  if s:empty || exists("b:fugitive_type") || exists("t:NERDTreeBufName") && bufwinnr(t:NERDTreeBufName) != -1
-    :NERDTreeToggle
-  else
-    :NERDTreeFind
-  endif
-endfunction
-" map <silent> <leader>n :call NERDTreeFindOrToggle()<CR>
-" map <silent> <leader>o :NERDTreeFind<CR>
-
-function! NERDTreeFindUpdate()
-  let s:path = expand("%:p")
-  if exists("t:NERDTreeBufName") && bufwinnr(t:NERDTreeBufName) != -1 && s:path =~ getcwd() && !exists("b:fugitive_type") && s:path !~ ".git$"
-    :NERDTreeFind
-    exec "normal! \<c-w>p"
-  endif
-endfunction
-
-" augroup nerd
-"   autocmd!
-"   autocmd BufEnter * if bufname('#') =~# "^NERD_tree_" && winnr('$') > 1 | b# | endif
-"   autocmd BufEnter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
-"   " autocmd FileType nerdtree unmap <buffer> mm
-"   autocmd BufReadPost * call NERDTreeFindUpdate()
-"   " autocmd VimEnter * silent! autocmd! FileExplorer
-"   autocmd BufEnter,BufNew *
-"         \  if isdirectory(expand('<amatch>'))
-"         \|   call plug#load('nerdtree')
-"         \|   execute 'autocmd! nerd'
-"         \| endif
-" augroup END
-
-nnoremap <silent> <leader>n :Neotree toggle reveal<CR>
-nnoremap <silent> <leader>o :Neotree focus reveal<CR>
-nnoremap <silent> <leader>d :Neotree float reveal_file=<cfile><cr>
-nnoremap <silent> <leader>s :Neotree float git_status<cr>
-
+nnoremap <silent> <leader>n :NvimTreeFindFileToggle<CR>
+nnoremap <silent> <leader>o :NvimTreeFindFile<CR>
 
 " ----------------------------------------------------------------------------
 " Easyclip
@@ -581,10 +554,7 @@ endfunction
 nnoremap <silent> yp :call <sid>YankPosition()<CR>
 
 function! s:PasteRelative()
-  if executable("perl")
-    " yes im using perl, shoot me
-    return "'".system("perl -MFile::Spec -MFile::Basename -e 'print File::Spec->abs2rel(shift, dirname(shift))' ".@r." ".@%)."'"
-  elseif
+  if executable("node")
     " yes im using node, shoot me
     return "'".system("node -e \"(p => process.stdout.write(p.relative(p.dirname('".@%."'), '".@r."')))(require('path'))\"")."'"
   endif
