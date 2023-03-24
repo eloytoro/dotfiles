@@ -84,10 +84,13 @@ Plug 'hrsh7th/cmp-path'
 Plug 'hrsh7th/cmp-cmdline'
 Plug 'hrsh7th/nvim-cmp'
 Plug 'hrsh7th/cmp-nvim-lsp'
+Plug 'folke/neodev.nvim'
 Plug 'voldikss/vim-floaterm'
+Plug 'folke/zen-mode.nvim'
+Plug 'folke/twilight.nvim'
+Plug 'andythigpen/nvim-coverage'
 " Plug 'saadparwaiz1/cmp_luasnip'
 " Plug 'nvim-lua/lsp-status.nvim'
-" Plug 'folke/zen-mode.nvim'
 " Plug 'L3MON4D3/LuaSnip'
 " Plug 'simrat39/rust-tools.nvim'
 " Plug 'mhartington/formatter.nvim'
@@ -150,6 +153,20 @@ endif
 
 lua << EOF
 require('hop').setup()
+require("zen-mode").setup({
+  window = {
+    width = 80
+  }
+})
+require("twilight").setup{
+  context = 4
+}
+require("coverage").setup({
+  signs = {
+    covered = { priority = 100 }, -- use a higher value than diagnostics or gitsigns
+    uncovered = { priority = 100 },
+  },
+})
 require("tokyonight").setup({})
 require("notify").setup({
   top_down = false

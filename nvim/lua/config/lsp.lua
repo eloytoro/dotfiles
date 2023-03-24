@@ -51,7 +51,21 @@ vim.cmd [[
   hi StatusLineLSPHints guibg=#23272e guifg=#c678dd
 ]]
 
+require("neodev").setup({})
+
+
 local lsp = require'lspconfig'
+
+lsp.lua_ls.setup({
+  settings = {
+    Lua = {
+      completion = {
+        callSnippet = "Replace"
+      }
+    }
+  }
+})
+
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 -- capabilities.textDocument.completion.completionItem.snippetSupport = true
 capabilities.textDocument.completion.completionItem.resolveSupport = {
@@ -426,5 +440,7 @@ lsp.eslint.setup {
     lsp_attach({ format = false })(client, bufnr)
   end
 }
+
+lsp.gopls.setup{}
 
 require('config/location-handler')
