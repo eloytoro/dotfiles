@@ -1,0 +1,38 @@
+command_timeout = 1000
+format = "$username$hostname$directory$git_branch$git_commit$git_status$git_state$fill$kubernetes$line_break$character"
+add_newline = false
+
+[character]
+success_symbol = "[\\$](white)"
+error_symbol = "[!](bold red)"
+
+[username]
+format = "[$user](bold white)"
+show_always = false
+
+[hostname]
+format = "@[$hostname](bold red):"
+ssh_only = true
+
+[directory]
+style = "bright-blue"
+truncation_length = 0
+truncate_to_repo = false
+
+[kubernetes]
+disabled = false
+style = "cyan"
+format = '[$symbol$context( \($namespace\))]($style)'
+
+[fill]
+symbol = " "
+
+[git_branch]
+format = '[\[$symbol$branch(:$remote_branch)\]]($style)'
+symbol = ''
+style = 'bright-yellow'
+
+[git_status]
+format = '[$modified]($style)'
+modified = '*'
+style = 'bright-yellow'

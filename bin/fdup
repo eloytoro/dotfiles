@@ -1,4 +1,5 @@
 #!/bin/bash
+# Usage: fdup [root dir] [target dir]
 
 set -e
 rpbin="realpath"
@@ -6,20 +7,23 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   rpbin="grealpath"
 fi
 rel=$1
+# format the path of the target dir to be relative to the root dir (in case it was absolute)
 path=$($rpbin --relative-to $rel $2)
 shift 2
 
 if [ ! -e "$path" ]; then
+  # if the path doesn't exist for some reason use the pwd as default
   path="."
 fi
 
 while true; do
   cmd="fd"
   if [ -n "$prev" ]; then
+    # add flag to exclude dirs that were searched in already
     cmd="$cmd -E ${prev//$path/}"
   fi
-  cmd="$cmd --type f '' $path $@"
-  eval "(cd $rel; $cmd)"
+  # add flags to search only for files within the target path
+  eval "$cmd --type f '' $path $@"
   if [ $path == '.' ]; then
     break;
   fi

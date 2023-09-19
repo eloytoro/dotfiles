@@ -1,3 +1,5 @@
+syntax_theme = "EightiesDark"
+
 [[verbs]]
 key = "ctrl-k"
 execution = ":line_up"
@@ -25,10 +27,18 @@ execution = ":toggle_stage"
 [[verbs]]
 invocation = "terminal"
 key = "enter"
-execution = ":print_path"
+external = "nvrmux send {file}"
 apply_to = "file"
+leave_broot = false
 
 [[verbs]]
 invocation = "up"
 key = "ctrl-["
 execution = ":focus {root}/.."
+
+[ext-colors]
+png = "rgb(255, 128, 75)"
+rs = "yellow"
+toml = "ansi(105)"
+ts = "rgb(0, 122, 205)"
+tsx = "rgb(0, 122, 205)"

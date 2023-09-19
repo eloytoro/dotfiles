@@ -1,0 +1,19 @@
+#!/bin/sh
+
+ddtarget() {
+  ddr list | tail -n +2 | fzf --ansi --multi --reverse --tac | cut -d' ' -f1
+}
+
+ddrelease() {
+  ddr release $(ddtarget)
+}
+
+# workspaces proxy $WORKSPACE
+dogwebpb() {
+  # copy the protobuf file to the workspace's dogweb repo
+  scp $DATADOG_ROOT/dogweb/lib/ddgrpc/src/dd_pb/proto/errors/errors_api.proto workspace-$WORKSPACE:/home/bits/dd/dogweb/lib/ddgrpc/src/dd_pb/proto/errors/errors_api.proto
+  # run rake protobuf in the workspace
+  ssh workspace-$WORKSPACE ". /etc/profile && . /home/bits/.profile && cd /home/bits/dd/dogweb && rake protobuf"
+  # copy the generated protobuf files from the workspace into the local dogweb
+  scp -r workspace-$WORKSPACE:/home/bits/dd/dogweb/lib/ddgrpc/src/dd_pb/errors $DATADOG_ROOT/dogweb/lib/ddgrpc/src/dd_pb
+}

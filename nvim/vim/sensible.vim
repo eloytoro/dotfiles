@@ -21,7 +21,7 @@ set tabstop=2
 set conceallevel=0
 set autoread
 set nosol
-set hidden
+set nohidden
 set ignorecase smartcase
 set nobackup
 set nowritebackup

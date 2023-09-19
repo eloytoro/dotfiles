@@ -11,6 +11,7 @@ if empty(glob(vim_folder.'/autoload/plug.vim'))
 endif
 
 call plug#begin(vim_folder.'/plug')
+set rtp+=~/dotfiles/nvim
 
 
 " ----------------------------------------------------------------------------
@@ -38,6 +39,8 @@ Plug 'lewis6991/gitsigns.nvim'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'windwp/nvim-ts-autotag'
 Plug 'windwp/nvim-autopairs'
+Plug 'kevinhwang91/nvim-bqf'
+Plug 'ThePrimeagen/harpoon'
 " Plug 'romgrk/nvim-treesitter-context'
 " Plug 'mbbill/undotree'
 " Plug 'preservim/nerdtree'
@@ -47,8 +50,8 @@ Plug 'kyazdani42/nvim-tree.lua'
 Plug 'haya14busa/incsearch.vim'
 Plug 'svermeulen/vim-cutlass'
 Plug 'svermeulen/vim-yoink'
-Plug 'vim-test/vim-test'
 Plug 'svermeulen/vim-subversive'
+Plug 'vim-test/vim-test'
 " Plug 'easymotion/vim-easymotion'
 Plug 'phaazon/hop.nvim'
 " Plug 'Raimondi/delimitMate'
@@ -56,6 +59,7 @@ Plug 'junegunn/vim-easy-align'
 Plug 'junegunn/gv.vim'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
+Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 Plug 'junegunn/vim-after-object'
 if exists('##TextYankPost')
   Plug 'machakann/vim-highlightedyank'
@@ -173,16 +177,10 @@ require("notify").setup({
 })
 require('trouble').setup()
 require('nvim-autopairs').setup{}
--- OR setup with some options
 require("nvim-tree").setup({
   sort_by = "case_sensitive",
   view = {
     adaptive_size = true,
-    mappings = {
-      list = {
-        { key = "u", action = "dir_up" },
-      },
-    },
   },
   renderer = {
     group_empty = true,
@@ -191,6 +189,7 @@ require("nvim-tree").setup({
     dotfiles = true,
   },
 })
+
 -- require("fidget").setup{}
 require('gitsigns').setup({
   on_attach = function(bufnr)
@@ -207,8 +206,8 @@ require('gitsigns').setup({
     end
 
     -- Navigation
-    map('n', ']c', "&diff ? ']c' : '<cmd>Gitsigns next_hunk<CR>'", {expr=true})
-    map('n', '[c', "&diff ? '[c' : '<cmd>Gitsigns prev_hunk<CR>'", {expr=true})
+    map('n', ']c', gs.next_hunk)
+    map('n', '[c', gs.prev_hunk)
 
     -- Actions
     map({'n', 'v'}, '<leader>hs', ':Gitsigns stage_hunk<CR>')
@@ -273,6 +272,7 @@ local prettier = {
 -- })
 
 require('nvim-treesitter.configs').setup({
+  ensure_installed = "all",
   highlight = {
     enable = true,              -- false will disable the whole extension
   },
@@ -308,6 +308,8 @@ if not vim.g.vscode then
   require('config.lsp')
 end
 require('config.statusline')
+require("harpoon").setup({})
+require("telescope").load_extension('harpoon')
 -- Set completeopt to have a better completion experience
 vim.o.completeopt = 'menu,menuone,noselect'
 EOF
@@ -337,7 +339,6 @@ endfunction
 source $HOME/dotfiles/nvim/vim/sensible.vim
 source $HOME/dotfiles/nvim/vim/objects.vim
 source $HOME/dotfiles/nvim/vim/fzf.vim
-source $HOME/dotfiles/nvim/vim/broot.vim
 " source $HOME/dotfiles/nvim/vim/coc.vim
 
 " ----------------------------------------------------------------------------

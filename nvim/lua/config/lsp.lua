@@ -55,17 +55,6 @@ require("neodev").setup({})
 
 
 local lsp = require'lspconfig'
-
-lsp.lua_ls.setup({
-  settings = {
-    Lua = {
-      completion = {
-        callSnippet = "Replace"
-      }
-    }
-  }
-})
-
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 -- capabilities.textDocument.completion.completionItem.snippetSupport = true
 capabilities.textDocument.completion.completionItem.resolveSupport = {
@@ -96,7 +85,7 @@ local lsp_attach = function(args)
       vim.api.nvim_exec([[
         augroup lsp_formatting_sync
           autocmd! * <buffer>
-          autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync()
+          autocmd BufWritePre <buffer> lua vim.lsp.buf.format({ async = false })
         augroup END
       ]], false)
     end
@@ -229,7 +218,19 @@ require('cmp_nvim_lsp').setup {}
 --   on_attach = lsp_attach { format = false },
 -- }
 
+lsp.lua_ls.setup({
+  settings = {
+    Lua = {
+      completion = {
+        callSnippet = "Replace"
+      }
+    }
+  },
+  on_attach = lsp_attach { format = false },
+})
+
 lsp.rust_analyzer.setup({
+  cmd = {"rustup", "run", "nightly", "rust-analyzer"},
   capabilities = capabilities,
   settings = {
     ["rust-analyzer"] = {
@@ -441,6 +442,8 @@ lsp.eslint.setup {
   end
 }
 
-lsp.gopls.setup{}
+lsp.gopls.setup{
+  on_attach = lsp_attach({ format = true })
+}
 
 require('config/location-handler')
