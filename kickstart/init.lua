@@ -81,7 +81,9 @@ require('lazy').setup({
   },
   -- 'kevinhwang91/nvim-bqf',
   'tpope/vim-surround',
+  'tpope/vim-repeat',
   'folke/neoconf.nvim',
+  'haya14busa/is.vim',
 
   -- Git related plugins
   {
@@ -100,6 +102,9 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>gV', ':GV!<CR>', { silent = true })
       vim.keymap.set('n', '<leader>gCt', ':execute "Git checkout --theirs ".expand(\'%:p\')<CR>', { silent = true })
       vim.keymap.set('n', '<leader>gCo', ':execute "Git checkout --ours ".expand(\'%:p\')<CR>', { silent = true })
+      vim.keymap.set('n', ']r', ':Git rebase --continue<CR>', { silent = true })
+      vim.keymap.set('n', '[r', ':Git rebase --edit-todo<CR>', { silent = true })
+
       vim.keymap.set('n', 'git', ':Git')
     end
   },
@@ -156,11 +161,14 @@ require('lazy').setup({
     config = function()
       local filename = {
         'filename',
-        path = 2,
-        fmt = function (path)
-          return table.concat({vim.fs.basename(vim.fs.dirname(path)),
-            vim.fs.basename(path)}, package.config:sub(1, 1))
-        end
+        path = 1,
+        symbols = {
+          modified = "P"
+        }
+        -- fmt = function (path)
+        --   return table.concat({vim.fs.basename(vim.fs.dirname(path)),
+        --     vim.fs.basename(path)}, package.config:sub(1, 1))
+        -- end
       }
       require('lualine').setup{
         options = {
@@ -168,22 +176,22 @@ require('lazy').setup({
           -- theme = 'tokyonight',
           component_separators = '|',
           section_separators = '',
-          sections = {
-            lualine_a = {'mode'},
-            lualine_b = {'branch', 'diff', 'diagnostics'},
-            lualine_c = {filename},
-            lualine_x = {'encoding', 'filetype'},
-            lualine_y = {},
-            lualine_z = {'location'}
-          },
-          inactive_sections = {
-            lualine_a = {},
-            lualine_b = {},
-            lualine_c = {filename},
-            lualine_x = {'location'},
-            lualine_y = {},
-            lualine_z = {}
-          },
+        },
+        sections = {
+          lualine_a = {'mode'},
+          lualine_b = {'branch', 'diff', 'diagnostics'},
+          lualine_c = {filename},
+          lualine_x = {'encoding', 'filetype'},
+          lualine_y = {},
+          lualine_z = {'location'}
+        },
+        inactive_sections = {
+          lualine_a = {},
+          lualine_b = {},
+          lualine_c = {filename},
+          lualine_x = {'location'},
+          lualine_y = {},
+          lualine_z = {}
         },
         extensions = {'fugitive', 'nvim-tree'},
       }
@@ -195,11 +203,27 @@ require('lazy').setup({
     'lukas-reineke/indent-blankline.nvim',
     -- Enable `lukas-reineke/indent-blankline.nvim`
     -- See `:help indent_blankline.txt`
-    opts = {
-      char = '┊',
-      show_trailing_blankline_indent = false,
-    },
+    main = "ibl",
   },
+  -- {
+  --   "ray-x/go.nvim",
+  --   dependencies = {  -- optional packages
+  --     "ray-x/guihua.lua",
+  --     "neovim/nvim-lspconfig",
+  --     "nvim-treesitter/nvim-treesitter",
+  --   },
+  --   config = function()
+  --     require("go").setup({
+  --      lsp_inlay_hints = {
+  --         only_current_line = true,
+  --         only_current_line_autocmd = "CursorHold",
+  --       }
+  --     })
+  --   end,
+  --   event = {"CmdlineEnter"},
+  --   ft = {"go", 'gomod'},
+  --   build = ':lua require("go.install").update_all_sync()' -- if you need to install/update all binaries
+  -- },
 
   -- "gc" to comment visual regions/lines
   { 'numToStr/Comment.nvim', opts = {} },
@@ -215,4 +239,4 @@ require('lazy').setup({
 
 
 -- The line beneath this is called `modeline`. See `:help modeline`
--- vim: ts=2 sts=2 sw=2 et
+  -- vim: ts=2 sts=2 sw=2 et

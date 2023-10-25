@@ -90,6 +90,10 @@ return {
           ]], false)
         end
 
+        if client.server_capabilities.inlayHintProvider then
+          vim.lsp.inlay_hint(bufnr, true)
+        end
+
         -- lsp_status.on_attach(client)
 
         local themes = require("telescope.themes")
@@ -355,7 +359,26 @@ return {
     }
 
     lsp.gopls.setup{
-      on_attach = lsp_attach({ format = true })
+      on_attach = lsp_attach({ format = true }),
+      settings = {
+        gopls = {
+          experimentalPostfixCompletions = true,
+          analyses = {
+            unusedparams = true,
+            shadow = true,
+          },
+          staticcheck = true,
+          hints = {
+            -- assignVariableTypes = true,
+            compositeLiteralFields = true,
+            compositeLiteralTypes = true,
+            constantValues = true,
+            functionTypeParameters = true,
+            parameterNames = true,
+            rangeVariableTypes = true,
+          },
+        },
+      }
     }
   end
 }

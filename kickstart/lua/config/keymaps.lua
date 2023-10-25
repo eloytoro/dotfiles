@@ -80,3 +80,17 @@ vim.keymap.set('n', '<right>', '4<C-W>>')
 vim.keymap.set('n', '<left>', '4<C-W><')
 vim.keymap.set('n', '<C-w>-', ':sp<CR>')
 vim.keymap.set('n', '<C-w>\\', ':vsp<CR>')
+
+vim.keymap.set('n', 'ygr', function()
+  local root = vim.fn.trim(vim.fn.system {
+    'git', '-C', vim.fn.getcwd(), 'rev-parse', '--show-toplevel'
+  })
+  vim.fn.setreg('"', root)
+  vim.cmd.echo('"Yanked '..root..'"')
+end, { silent = true })
+
+vim.keymap.set('n', 'ycd', function()
+  local cwd = vim.fn.getcwd()
+  vim.fn.setreg('"', cwd)
+  vim.cmd.echo('"Yanked '..cwd..'"')
+end, { silent = true })

@@ -381,7 +381,7 @@ nmap <leader>gV :GV!<CR>
 nmap <leader>gCt :execute "Git checkout --theirs ".expand('%:p')<CR>
 nmap <leader>gCo :execute "Git checkout --ours ".expand('%:p')<CR>
 nmap git :Git
-nmap [r :Git rebase --abort<CR>
+nmap [r :Git rebase --edit-todo<CR>
 nmap ]r :Git rebase --continue<CR>
 let g:Gitv_OpenHorizontal = 1
 let g:Gitv_OpenPreviewOnLaunch = 1

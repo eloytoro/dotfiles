@@ -1,33 +1,6 @@
 " ----------------------------------------------------------------------------
 "  FZF
 " ----------------------------------------------------------------------------
-if has('nvim')
-    " let $FZF_DEFAULT_OPTS .= ' --inline-info'
-endif
-let target = expand("%:h")
-if (target == '')
-  let target = '.'
-endif
-let root = systemlist('git -C '.target.' rev-parse --show-toplevel')[0]
-if v:shell_error
-  let root = $PWD
-endif
-
-command! -nargs=? -complete=dir AF
-  \ call fzf#run(fzf#wrap(fzf#vim#with_preview({
-  \   'source': 'fd --type f --hidden --follow --exclude .git --no-ignore . '.expand(<q-args>)
-  \ })))
-
-if executable("fd")
-  command! CTRLP call fzf#vim#files('', {
-        \ 'source': 'fdup '.root.' '.target,
-        \ 'options': '--no-sort --keep-right --hscroll-off=50'
-        \ })
-else
-  command! CTRLP Files
-endif
-nnoremap <silent> <C-p> :CTRLP<CR>
-nnoremap <leader>/ :Ag 
 function! AgOn(type, ...)
   let sel_save = &selection
   let &selection = "inclusive"
@@ -158,4 +131,3 @@ nmap <silent> <leader>g; :FZFChanges<CR>
 let g:fzf_files_options = '-e --preview "bat --color=always -p {} 2> /dev/null"'
 " let g:fzf_preview_window = 'right:80%'
 let g:fzf_buffers_jump = 1
-

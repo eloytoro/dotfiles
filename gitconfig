@@ -13,6 +13,8 @@
 	requireForce = false
 [fetch]
   prune = true
+[merge]
+  ff = no
 [remote "origin"]
 	tagopt = --no-tags
 [alias]

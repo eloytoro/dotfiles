@@ -8,11 +8,3 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   group = highlight_group,
   pattern = '*',
 })
-
-vim.cmd[[
-augroup vimrc-incsearch-highlight
-  autocmd!
-  autocmd CmdlineEnter [/\?] :set hlsearch
-  autocmd CursorMoved * :set nohlsearch
-augroup END
-]]
