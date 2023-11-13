@@ -380,5 +380,7 @@ return {
         },
       }
     }
+
+    lsp.astro.setup{}
   end
 }
