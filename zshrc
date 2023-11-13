@@ -14,6 +14,6 @@ zstyle ':vcs_info:git:*' formats ' %F{11}[⎇ %b]%f'
 # Emacs style bindings
 bindkey -e
 
-PS1='%F{15}%n%f@%F{9}%m%f:%~${vcs_info_msg_0_}'$'\n'"$ "
+# PS1='%F{15}%n%f@%F{9}%m%f:%~${vcs_info_msg_0_}'$'\n'"$ "
 
 # bindkey -v

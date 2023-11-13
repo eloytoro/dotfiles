@@ -17,3 +17,5 @@ dogwebpb() {
   # copy the generated protobuf files from the workspace into the local dogweb
   scp -r workspace-$WORKSPACE:/home/bits/dd/dogweb/lib/ddgrpc/src/dd_pb/errors $DATADOG_ROOT/dogweb/lib/ddgrpc/src/dd_pb
 }
+
+alias k="kubectl"

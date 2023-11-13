@@ -85,12 +85,18 @@ vim.keymap.set('n', 'ygr', function()
   local root = vim.fn.trim(vim.fn.system {
     'git', '-C', vim.fn.getcwd(), 'rev-parse', '--show-toplevel'
   })
-  vim.fn.setreg('"', root)
+  vim.fn.setreg('+', root)
   vim.cmd.echo('"Yanked '..root..'"')
 end, { silent = true })
 
 vim.keymap.set('n', 'ycd', function()
-  local cwd = vim.fn.getcwd()
-  vim.fn.setreg('"', cwd)
+  local cwd = vim.fn.expand("%:h")
+  vim.fn.setreg('+', cwd)
+  vim.cmd.echo('"Yanked '..cwd..'"')
+end, { silent = true })
+
+vim.keymap.set('n', 'ycf', function()
+  local cwd = vim.fn.expand("%")
+  vim.fn.setreg('+', cwd)
   vim.cmd.echo('"Yanked '..cwd..'"')
 end, { silent = true })

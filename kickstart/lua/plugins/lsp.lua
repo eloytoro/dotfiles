@@ -116,7 +116,13 @@ return {
           })
         end, opts)
         vim.keymap.set('n', 'gr', function()
-          builtin.lsp_references({ layout_strategy = "vertical", layout_config = { width = 0.9 } })
+          builtin.lsp_references(themes.get_dropdown({
+            trim_text = true,
+            fname_width = 80,
+            layout_config = {
+              width = 0.9
+            }
+          }))
         end, opts)
         vim.keymap.set('n', '<leader>ch', vim.lsp.buf.signature_help, opts)
         vim.keymap.set('n', ']d', vim.diagnostic.goto_next, opts)

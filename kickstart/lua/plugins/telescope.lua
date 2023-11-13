@@ -41,6 +41,7 @@ return {
     telescope.setup {
       defaults = {
         borders = false,
+        path_display = { "smart" },
         mappings = {
           i = {
             ['<C-u>'] = false,

@@ -233,6 +233,19 @@ require('lazy').setup({
   'kyazdani42/nvim-web-devicons', -- file icons
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
   { 'folke/which-key.nvim', opts = {} }, -- Useful plugin to show you pending keybinds.
+  {
+    "ray-x/go.nvim",
+    dependencies = {  -- optional packages
+      "ray-x/guihua.lua",
+      "neovim/nvim-lspconfig",
+      "nvim-treesitter/nvim-treesitter",
+    },
+    config = function()
+      require("go").setup()
+    end,
+    event = {"CmdlineEnter"},
+    ft = {"go", 'gomod'},
+  },
 
   { import = 'plugins' },
 }, {})
