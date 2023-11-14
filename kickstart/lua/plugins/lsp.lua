@@ -59,6 +59,14 @@ return {
     local lsp = require'lspconfig'
     local capabilities = vim.lsp.protocol.make_client_capabilities()
 
+    vim.api.nvim_create_user_command('LspServerCapabilities', function()
+      vim.print(vim.lsp.get_clients()[1].server_capabilities)
+    end, {})
+
+    vim.api.nvim_create_user_command('LspClientCapabilities', function()
+      vim.print(vim.lsp.get_clients()[1].server_capabilities)
+    end, {})
+
     capabilities.textDocument.completion.completionItem.snippetSupport = true
     capabilities.textDocument.completion.completionItem.resolveSupport = {
       properties = {
@@ -71,7 +79,7 @@ return {
     local lsp_attach = function(args)
       return function(client, bufnr)
         -- Set autocommands conditional on server_capabilities
-        if client.server_capabilities.document_highlight then
+        if client.server_capabilities.documentHighlightProvider then
           vim.api.nvim_exec([[
             augroup lsp_document_highlight
               autocmd! * <buffer>
@@ -90,7 +98,7 @@ return {
           ]], false)
         end
 
-        if client.server_capabilities.inlayHintProvider then
+        if args ~= nil and args.inlay and client.server_capabilities.inlayHintProvider then
           vim.lsp.inlay_hint(bufnr, true)
         end
 
@@ -365,7 +373,7 @@ return {
     }
 
     lsp.gopls.setup{
-      on_attach = lsp_attach({ format = true }),
+      on_attach = lsp_attach({ format = true, inlay = true }),
       settings = {
         gopls = {
           experimentalPostfixCompletions = true,

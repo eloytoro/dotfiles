@@ -16,4 +16,4 @@ if [ ! -e ~/.git-completion.bash ]; then
   curl https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash -o ~/.git-completion.bash
 fi
 
-brew install coreutils fd bat git neovim tmux
+brew install coreutils fd bat tmux yazi diff-so-fancy

@@ -84,6 +84,18 @@ require('lazy').setup({
   'tpope/vim-repeat',
   'folke/neoconf.nvim',
   'haya14busa/is.vim',
+  {
+    'voldikss/vim-floaterm',
+    config = function()
+      vim.keymap.set('n', '<leader>f', ':FloatermNew --wintype=split --opener=edit yazi<CR>')
+      vim.keymap.set('n', '<leader>r', function()
+        local root = vim.fn.trim(vim.fn.system {
+          'git', '-C', vim.fn.getcwd(), 'rev-parse', '--show-toplevel'
+        })
+        vim.cmd(':FloatermNew --wintype=split --opener=edit yazi '..root)
+      end)
+    end
+  },
 
   -- Git related plugins
   {

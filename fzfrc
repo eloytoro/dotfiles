@@ -1,0 +1,173 @@
+#!/bin/sh
+
+if [ -x "$(command -v fd)" ]; then
+  export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+else
+  export FZF_DEFAULT_COMMAND='find * -type f'
+fi
+
+if [ -x "$(command -v zoxide)" ]; then
+  export FZF_ALT_C_OPTS="--preview 'tree -C {}'"
+fi
+
+[ -n "$NVIM_LISTEN_ADDRESS" ] && export FZF_DEFAULT_OPTS='--no-height'
+if [ -x ~/.config/nvim/plug/fzf.vim/bin/preview.rb ]; then
+  export FZF_CTRL_T_OPTS="--preview '~/.config/nvim/plug/fzf.vim/bin/preview.rb {} | head -200'"
+fi
+
+_fzf_recent_branches() {
+  git reflog | egrep -io "moving from ([^[:space:]]+)" | awk '{ print $3 }' | awk ' !x[$0]++' | fzf
+}
+
+# GIT heart FZF
+# -------------
+
+fzf-down() {
+  fzf --height 50% "$@" --border
+}
+
+is_in_git_repo() {
+  git rev-parse HEAD > /dev/null 2>&1
+}
+
+gf() {
+  is_in_git_repo || return
+  git -c color.status=always status --short |
+  fzf-down -m --ansi --nth 2..,.. \
+    --preview '(git diff --color=always -- {-1} | sed 1,4d; cat {-1}) | head -500' |
+  cut -c4- | sed 's/.* -> //'
+}
+
+gb() {
+  is_in_git_repo || return
+  git for-each-ref --sort=committerdate refs/heads/ --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset)' |
+  fzf-down --ansi --multi --reverse --tac --preview-window right:60% \
+    --preview 'git log --oneline --graph --date=short --pretty="format:%C(auto)%cd %s" $(sed s/^..// <<< {} | cut -d" " -f1) | head -200' |
+  sed 's/^..//' | cut -d' ' -f1
+}
+
+gt() {
+  is_in_git_repo || return
+  git tag --sort -version:refname |
+  fzf-down --multi --preview-window right:70% \
+    --preview 'git show --color=always {} | head -200'
+}
+
+gv() {
+  is_in_git_repo || return
+  git log --date=short --format="%C(green)%C(bold)%cd %C(auto)%h%d %s (%an)" $@ --graph --color=always |
+  fzf-down --ansi --no-sort --reverse --multi --bind 'ctrl-s:toggle-sort' \
+    --header 'Press CTRL-S to toggle sort' \
+    --preview 'grep -o "[a-f0-9]\{7,\}" <<< {} | xargs git show --color=always | head -200' |
+  grep -o "[a-f0-9]\{7,\}"
+}
+
+gr() {
+  is_in_git_repo || return
+  git remote -v | awk '{print $1 "\t" $2}' | uniq |
+  fzf-down --tac \
+    --preview 'git log --oneline --graph --date=short --pretty="format:%C(auto)%cd %h%d %s" {1} | head -200' |
+  cut -d$'\t' -f1
+}
+
+gc() {
+  if [ $# -eq 0 ]
+  then
+    gb | xargs git checkout
+  else
+    git checkout $1
+  fi
+}
+
+gm() {
+  if [ $# -eq 0 ]
+  then
+    gb | xargs git merge --no-ff
+  else
+    git merge --no-ff $1
+  fi
+}
+
+gp() {
+  if [ $# -eq 0 ]
+  then
+    gb | xargs -I % git fetch origin %:%
+  else
+    git fetch origin $1:$1
+  fi
+}
+
+opl() {
+  if [[ -z "$OP_SESSION_torofaria" ]]; then
+    eval $(op signin)
+  fi
+  op list items |
+  jq '[.[] | [.overview.title, .uuid] | join(": ")] | join("\n")' -r |
+  fzf-down --ansi --multi --tac --preview-window right:40% \
+    --preview 'op get item $(sed "s/^.*:[[:space:]]//" <<< {}) | jq "{ title: .overview.title, fields: .details.fields | map(.designation) }" -C' |
+  sed "s/^.*:[[:space:]]//" |
+  xargs -I {} op get item {} |
+  jq ".details.fields | map(select(.designation == \"password\")) | .[0].value" -r
+}
+
+# fkill - kill processes - list only the ones you can kill. Modified the earlier script.
+fkill() {
+    local pid 
+    if [ "$UID" != "0" ]; then
+        pid=$(ps -f -u $UID | sed 1d | fzf -m | awk '{print $2}')
+    else
+        pid=$(ps -ef | sed 1d | fzf -m | awk '{print $2}')
+    fi  
+
+    if [ "x$pid" != "x" ]
+    then
+        echo $pid | xargs kill -${1:-9}
+    fi  
+}
+
+# fshow - git commit browser
+fshow() {
+  git log --graph --color=always \
+      --format="%C(auto)%h%d %s %C(black)%C(bold)%cr" "$@" |
+  fzf --ansi --no-sort --reverse --tiebreak=index --bind=ctrl-s:toggle-sort \
+      --bind "ctrl-m:execute:
+                (grep -o '[a-f0-9]\{7\}' | head -1 |
+                xargs -I % sh -c 'git show --color=always % | less -R') << 'FZF-EOF'
+                {}
+FZF-EOF"
+}
+
+alias glNoGraph='git log --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr% C(auto)%an" "$@"'
+_gitLogLineToHash="echo {} | grep -o '[a-f0-9]\{7\}' | head -1"
+_viewGitLogLine="$_gitLogLineToHash | xargs -I % sh -c 'git show --color=always % | diff-so-fancy'"
+
+# fcoc_preview - checkout git commit with previews
+fcoc_preview() {
+  local commit
+  commit=$( glNoGraph |
+    fzf --no-sort --reverse --tiebreak=index --no-multi \
+        --ansi --preview="$_viewGitLogLine" ) &&
+  git checkout $(echo "$commit" | sed "s/ .*//")
+}
+
+# fshow_preview - git commit browser with previews
+fshow_preview() {
+    glNoGraph |
+        fzf --no-sort --reverse --tiebreak=index --no-multi \
+            --ansi --preview="$_viewGitLogLine" \
+                --header "enter to view, alt-y to copy hash" \
+                --bind "enter:execute:$_viewGitLogLine   | less -R" \
+                --bind "alt-y:execute:$_gitLogLineToHash | xclip"
+}
+
+kpod() {
+  kubectl get pods |
+  fzf --ansi --multi --reverse --tac --preview-window right:60% \
+    --preview 'kubectl describe pod $(cut -d" " -f1 <<< {}) | bat -l=yaml -p --color=always' | cut -d' ' -f1
+}
+
+fdepl() {
+  kubectl get deployments |
+  fzf --ansi --multi --reverse --tac --preview-window right:60% \
+    --preview 'kubectl describe deployment $(cut -d" " -f1 <<< {}) | bat -l=yaml -p --color=always' | cut -d' ' -f1
+}

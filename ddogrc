@@ -1,0 +1,9 @@
+#!/bin/sh
+
+ddtarget() {
+  ddr list | tail -n +2 | fzf --ansi --multi --reverse --tac | cut -d' ' -f1
+}
+
+ddrelease() {
+  ddr release $(ddtarget)
+}
