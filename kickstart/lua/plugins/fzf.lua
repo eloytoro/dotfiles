@@ -1,3 +1,5 @@
+local helpers = require('helpers')
+
 return {
   'junegunn/fzf.vim',
   dependencies = {
@@ -18,27 +20,59 @@ return {
         target = '.'
       end
       local rev_parse = vim.system({'git', '-C', target, 'rev-parse', '--show-toplevel'}):wait()
-      local root = rev_parse.stdout:match "^%s*(.-)%s*$"
-
-      local telescope_files = function()
-        builtin.find_files({
-          find_command = {'fdup', root, target},
-        })
-      end
+      local root = vim.fn.trim(rev_parse.stdout)
 
       local function find_files()
+        local width = vim.fn.winwidth(0) - 1
+        local fzf_options = {
+          '--no-sort', '--keep-right', '--no-hscroll', '--border=none',
+          '--preview', 'bat --color=always --style="header,grid" --terminal-width='..width..' {} 2> /dev/null',
+          '--preview-window', 'up,50%,border-bottom,~3,+3',
+        }
         if vim.fn.executable('fd') and rev_parse.code == 0 then
           vim.fn.call('fzf#vim#files', {'', {
             source = 'fdup ' .. root .. ' ' .. target,
-            options = '--no-sort --keep-right --hscroll-off=1000'
+            options = fzf_options,
+            border = 'none',
+            style = 'plain',
+
+            window = {
+              width = 1,
+              height = 0.8,
+              border = 'none',
+              yoffset = 1,
+            },
           }})
         else
-          vim.fn.call('fzf#vim#files', {''})
+          vim.fn.call('fzf#vim#files', {'', {
+            options = opts
+          }})
         end
+
       end
 
       vim.keymap.set('n', '<C-p>', find_files, { buffer = env.buf })
       -- vim.keymap.set('n', '<C-p>', telescope_files, { buffer = env.buf })
+
+      vim.api.nvim_create_user_command('AgEx', function (opts)
+        local width = vim.fn.winwidth(0) - 1
+        local fzf_options = {
+          '-d:', '--no-sort', '--keep-right', '--border=none',
+          '--preview', 'bat --color=always --highlight-line={2}  --terminal-width='..width..' {1}',
+          '--preview-window', 'up,50%,border-bottom,wrap,~3,+{2}+3/2',
+        }
+        vim.fn.call('fzf#vim#ag', {opts.args, {
+          options = fzf_options,
+          border = 'none',
+          style = 'plain',
+          window = {
+            width = 1,
+            height = 0.8,
+            border = 'none',
+            yoffset = 1,
+          },
+        }})
+      end, {bang = false, nargs=1})
     end
 
     local fzf_group = vim.api.nvim_create_augroup('FZFSetup', { clear = true })
@@ -47,9 +81,9 @@ return {
       group = fzf_group,
       pattern = '*',
     })
-    vim.keymap.set('n', '<leader>/', ':Ag ')
-    vim.g.fzf_files_options = '-e --preview "bat --color=always -p {} 2> /dev/null"'
+    vim.keymap.set('n', '<leader>/', ':AgEx ')
     vim.g.fzf_buffers_jump = true
+
     vim.cmd.source('~/dotfiles/nvim/vim/fzf.vim')
   end
 }

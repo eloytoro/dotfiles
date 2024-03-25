@@ -19,4 +19,9 @@ function M.assign(...)
   return res
 end
 
+function M.is_empty_before()
+  local col = vim.fn.col('.') - 1
+  return col == 0 or string.match(string.sub(vim.fn.getline('.'), 0, col), '^%s*$')
+end
+
 return M

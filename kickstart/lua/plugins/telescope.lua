@@ -4,17 +4,9 @@ return {
   branch = '0.1.x',
   dependencies = {
     'nvim-lua/plenary.nvim',
-    -- Fuzzy Finder Algorithm which requires local dependencies to be built.
-    -- Only load if `make` is available. Make sure you have the system
-    -- requirements installed.
     {
       'nvim-telescope/telescope-fzf-native.nvim',
-      -- NOTE: If you are having trouble with this installation,
-      --       refer to the README for telescope-fzf-native for more instructions.
-      build = 'make',
-      cond = function()
-        return vim.fn.executable 'make' == 1
-      end,
+      build = 'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build'
     },
     'nvim-telescope/telescope-symbols.nvim',
     'nvim-telescope/telescope-ui-select.nvim',
@@ -39,21 +31,41 @@ return {
       end
     end
     telescope.setup {
+      fzf = {
+        fuzzy = true,                    -- false will only do exact matching
+        override_generic_sorter = true,  -- override the generic sorter
+        override_file_sorter = true,     -- override the file sorter
+        case_mode = "smart_case",        -- or "ignore_case" or "respect_case"
+        -- the default case_mode is "smart_case"
+      },
       defaults = {
         borders = false,
         path_display = { "smart" },
         cache_picker = {
           num_pickers = 5,
         },
+        layout_strategy = "vertical",
+        -- pickers = {
+        --   find_files = {
+        --   }
+        -- },
         mappings = {
           i = {
             ['<C-u>'] = false,
             ['<C-d>'] = false,
             ['<C-j>'] = actions.move_selection_next,
             ['<C-k>'] = actions.move_selection_previous,
+            ['<C-S-j>'] = function (bufnr)
+              actions.toggle_selection(bufnr)
+              actions.move_selection_next(bufnr)
+            end,
+            ['<C-S-k>'] = function (bufnr)
+              actions.toggle_selection(bufnr)
+              actions.move_selection_previous(bufnr)
+            end,
             ['<C-f>'] = actions.preview_scrolling_up,
             ['<C-b>'] = actions.preview_scrolling_down,
-            ['<S-TAB>'] = actions.toggle_selection,
+            ['<S-TAB>'] = actions.select_all,
             ['<TAB>'] = actions.toggle_selection,
             ['<ESC>'] = actions.close,
             ['<CR>'] = open_or_qflist,

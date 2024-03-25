@@ -7,3 +7,15 @@ ddtarget() {
 ddrelease() {
   ddr release $(ddtarget)
 }
+
+ddstaging() {
+  ddr release --dry-run --env staging $1 && ddr conductor release --env staging $1
+}
+
+ddhead() {
+  ddr release --env staging --release-from-head --skip-checks $1
+}
+
+export DOCKER_API_VERSION=1.42
+
+alias ssh-gh="ssh-add --apple-use-keychain ~/.ssh/id_ed25519_github_auth"

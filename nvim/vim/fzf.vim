@@ -14,7 +14,7 @@ function! AgOn(type, ...)
     silent exe "normal! `[v`]y"
   endif
 
-  exec "Ag ".@@
+  exec "AgEx ".@@
 
   let &selection = sel_save
   let @@ = reg_save

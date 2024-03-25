@@ -27,6 +27,17 @@ alias gitv='git log --graph --format="%C(auto)%h%d %s %C(black)%C(bold)%an, %cr"
 alias gitme='git log --author="$(git config user.name)"'
 alias opentorrent='peerflix --vlc -n -d --list '
 alias k="kubectl"
+alias groot="git rev-parse --show-toplevel"
+cdup() {
+  fdup --relative-to $(git rev-parse --show-toplevel)
+}
+alias ghmerge="gh pr comment -b \"/merge\""
+alias ghstaging="gh pr comment -b \"/to-staging\""
+alias ghcreate="gh pr create --web"
+alias ghview="gh pr view --web"
+ghintegrate() {
+  gh pr comment -b "/integrate -dfs $1"
+}
 
 export EDITOR=nvim
 #

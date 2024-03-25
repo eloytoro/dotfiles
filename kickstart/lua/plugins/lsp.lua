@@ -1,3 +1,5 @@
+local helpers = require 'helpers'
+
 return {
   -- LSP Configuration & Plugins
   'neovim/nvim-lspconfig',
@@ -53,11 +55,15 @@ return {
       hi StatusLineLSPHints guibg=#23272e guifg=#c678dd
     ]]
 
-    require("neodev").setup()
+    local neodev = require 'neodev'
+    local lsp = require 'lspconfig'
+    local mason_lspconfig = require 'mason-lspconfig'
 
-
-    local lsp = require'lspconfig'
+    neodev.setup()
     local capabilities = vim.lsp.protocol.make_client_capabilities()
+    capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
+
+    mason_lspconfig.setup {}
 
     vim.api.nvim_create_user_command('LspServerCapabilities', function()
       vim.print(vim.lsp.get_clients()[1].server_capabilities)
@@ -76,85 +82,89 @@ return {
       }
     }
 
-    local lsp_attach = function(args)
-      return function(client, bufnr)
-        -- Set autocommands conditional on server_capabilities
-        if client.server_capabilities.documentHighlightProvider then
-          vim.api.nvim_exec([[
-            augroup lsp_document_highlight
-              autocmd! * <buffer>
-              autocmd CursorHold <buffer> lua vim.lsp.buf.document_highlight()
-              autocmd CursorMoved <buffer> lua vim.lsp.buf.clear_references()
-            augroup END
-          ]], false)
+    local function format_on_save(client, bufnr)
+      vim.api.nvim_exec([[
+        augroup lsp_formatting_sync
+          autocmd! * <buffer>
+          autocmd BufWritePre <buffer> lua vim.lsp.buf.format({ async = false })
+        augroup END
+      ]], false)
+    end
+
+    local function inlay_hints (client, bufnr)
+        if client.server_capabilities.inlayHintProvider then
+          vim.lsp.inlay_hint.enable(bufnr, true)
         end
+    end
 
-        if args == nil or args.format == nil or args.format then
-          vim.api.nvim_exec([[
-            augroup lsp_formatting_sync
-              autocmd! * <buffer>
-              autocmd BufWritePre <buffer> lua vim.lsp.buf.format({ async = false })
-            augroup END
-          ]], false)
-        end
-
-        if args ~= nil and args.inlay and client.server_capabilities.inlayHintProvider then
-          vim.lsp.inlay_hint(bufnr, true)
-        end
-
-        -- lsp_status.on_attach(client)
-
-        local themes = require("telescope.themes")
-        local builtin = require("telescope.builtin")
-        local opts = { buffer = bufnr }
-
-        -- make omnifunc go via LSP’s completion directly
-        vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
-
-        -- keybindings
-        vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
-        vim.keymap.set('n', '<leader>clr', function()
-          vim.lsp.stop_client(vim.lsp.get_active_clients())
-        end, opts)
-        vim.keymap.set('n', '<space>.', vim.lsp.buf.code_action, opts)
-        vim.keymap.set('n', '<space><c-.>', vim.lsp.buf.code_action, opts)
-        vim.keymap.set('n', 'gd', function()
-          builtin.lsp_definitions({
-            jump_type = 'never'
-          })
-        end, opts)
-        vim.keymap.set('n', 'gr', function()
-          builtin.lsp_references(themes.get_dropdown({
-            trim_text = true,
-            fname_width = 80,
-            layout_config = {
-              width = 0.9
-            }
-          }))
-        end, opts)
-        vim.keymap.set('n', '<leader>ch', vim.lsp.buf.signature_help, opts)
-        vim.keymap.set('n', ']d', vim.diagnostic.goto_next, opts)
-        vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, opts)
-        vim.keymap.set('n', '<leader>lr', vim.lsp.buf.rename, opts)
-        vim.keymap.set('n', '<leader>ls', function()
-          builtin.lsp_workspace_symbols(themes.get_dropdown())
-        end, opts)
-        vim.keymap.set('n', '<leader>ct', builtin.lsp_type_definitions, opts)
-        vim.keymap.set('n', '<leader>d', builtin.diagnostics, opts)
-        vim.keymap.set('x', '<leader>ca', vim.lsp.buf.code_action, opts)
-        vim.keymap.set('i', '<C-a>', function()
-          builtin.lsp_code_actions(themes.get_cursor())
-        end, opts)
-        vim.keymap.set('i', '<C-h>', vim.lsp.buf.signature_help, opts)
+    local function on_attach(client, bufnr)
+      -- Set autocommands conditional on server_capabilities
+      if client.server_capabilities.documentHighlightProvider then
+        vim.api.nvim_exec([[
+          augroup lsp_document_highlight
+            autocmd! * <buffer>
+            autocmd CursorHold <buffer> lua vim.lsp.buf.document_highlight()
+            autocmd CursorMoved <buffer> lua vim.lsp.buf.clear_references()
+          augroup END
+        ]], false)
       end
+
+      -- lsp_status.on_attach(client)
+
+      local themes = require("telescope.themes")
+      local builtin = require("telescope.builtin")
+      local opts = { buffer = bufnr }
+
+      -- make omnifunc go via LSP’s completion directly
+      vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
+
+      -- keybindings
+      vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
+      vim.keymap.set('n', '<leader>clr', function()
+        vim.lsp.stop_client(vim.lsp.get_active_clients())
+      end, opts)
+      vim.keymap.set('n', '<space>.', vim.lsp.buf.code_action, opts)
+      vim.keymap.set('n', '<space><c-.>', vim.lsp.buf.code_action, opts)
+      vim.keymap.set('n', 'gd', function()
+        builtin.lsp_definitions({
+          jump_type = 'never'
+        })
+      end, opts)
+      vim.keymap.set('n', 'gr', function()
+        builtin.lsp_references(themes.get_dropdown({
+          trim_text = true,
+          fname_width = 80,
+          layout_config = {
+            width = 0.9
+          }
+        }))
+      end, opts)
+      vim.keymap.set('n', '<leader>ch', vim.lsp.buf.signature_help, opts)
+      vim.keymap.set('n', ']d', vim.diagnostic.goto_next, opts)
+      vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, opts)
+      vim.keymap.set('n', '<leader>lr', vim.lsp.buf.rename, opts)
+      vim.keymap.set('n', '<leader>ls', function()
+        builtin.lsp_workspace_symbols(themes.get_dropdown())
+      end, opts)
+      vim.keymap.set('n', '<leader>ct', builtin.lsp_type_definitions, opts)
+      vim.keymap.set('n', '<leader>d', builtin.diagnostics, opts)
+      vim.keymap.set('x', '<leader>ca', vim.lsp.buf.code_action, opts)
+      vim.keymap.set('i', '<C-a>', function()
+        builtin.lsp_code_actions(themes.get_cursor())
+      end, opts)
+      vim.keymap.set('i', '<C-h>', vim.lsp.buf.signature_help, opts)
     end
 
-    -- local luasnip = require 'luasnip'
+    local defaultOpts = {
+      capabilities,
+      on_attach,
+    }
 
-    local is_empty_before = function()
-        local col = vim.fn.col('.') - 1
-        return col == 0 or string.match(string.sub(vim.fn.getline('.'), 0, col), '^%s*$')
-    end
+    mason_lspconfig.setup_handlers {
+      function(server_name)
+        require('lspconfig')[server_name].setup(defaultOpts)
+      end,
+    }
 
     -- nvim-cmp setup
     local cmp = require 'cmp'
@@ -173,7 +183,7 @@ return {
         ['<Tab>'] = function(fallback)
           if cmp.visible() then
             cmp.select_next_item()
-          elseif not is_empty_before() then
+          elseif not helpers.is_empty_before() then
             cmp.complete()
           else
             fallback()
@@ -196,6 +206,7 @@ return {
     }
 
     lsp.lua_ls.setup({
+      capabilities,
       settings = {
         Lua = {
           completion = {
@@ -203,7 +214,7 @@ return {
           }
         }
       },
-      on_attach = lsp_attach { format = false },
+      on_attach,
     })
 
     lsp.rust_analyzer.setup({
@@ -310,49 +321,17 @@ return {
           },
         }
 
-        return lsp_attach()(client, bufnr)
+        format_on_save(client, bufnr)
+        return on_attach(client, bufnr)
       end
     })
 
-    lsp.tsserver.setup{
-      on_attach = lsp_attach { format = false }
-    }
-    -- require("typescript").setup({
-    --     disable_commands = false, -- prevent the plugin from creating Vim commands
-    --     debug = false, -- enable debug logging for commands
-    --     go_to_source_definition = {
-    --         fallback = true, -- fall back to standard LSP definition on failure
-    --     },
-    --     server = { -- pass options to lspconfig's setup method
-    --       cmd = { "/opt/homebrew/bin/npx", "typescript-language-server", "--stdio" },
-    --       on_attach = function(client, bufnr)
-    --         -- if client.config.flags then
-    --         --   client.config.flags.allow_incremental_sync = true
-    --         -- end
-    --         client.server_capabilities.document_formatting = false
-    --         client.server_capabilities.document_range_formatting = false
-    --         -- vim.api.nvim_buf_set_keymap(bufnr, "n", "gs", ":TSLspOrganize<CR>")
-    --         -- vim.api.nvim_buf_set_keymap(bufnr, "n", "gi", ":TSLspRenameFile<CR>")
-    --         -- vim.api.nvim_buf_set_keymap(bufnr, "n", "go", ":TSLspImportAll<CR>")
-    --         -- require "lsp_signature".on_attach({
-    --         --   hint_prefix = "💡"
-    --         -- }, bufnr)
-    --
-    --         lsp_attach({ format = false })(client, bufnr)
-    --       end,
-    --       root_dir = function(fname)
-    --         return lsp.util.root_pattern("tsconfig.json")(fname);
-    --       end,
-    --     },
-    -- })
-
-    -- python
-    lsp.pylsp.setup{
-      on_attach = lsp_attach { format = false }
-    }
+    lsp.astro.setup(defaultOpts)
+    lsp.tsserver.setup(defaultOpts)
+    lsp.pylsp.setup(defaultOpts)
 
     lsp.eslint.setup {
-      -- settings = local_config.eslint,
+      capabilities,
       settings = {
         nodePath = ".yarn/sdks",
         packageManager = "yarn",
@@ -368,14 +347,28 @@ return {
             autocmd BufWritePre <buffer> EslintFixAll
           augroup END
         ]], false)
-        lsp_attach({ format = false })(client, bufnr)
+        on_attach(client, bufnr)
       end
     }
 
-    lsp.gopls.setup{
-      on_attach = lsp_attach({ format = true, inlay = true }),
+    lsp.gopls.setup {
+      capabilities,
+      on_attach = function(client, bufnr)
+        format_on_save(client, bufnr)
+        inlay_hints(client, bufnr)
+        on_attach(client, bufnr)
+      end,
       settings = {
         gopls = {
+          -- env = {
+          --   GOPACKAGESDRIVER = './tools/gopackagesdriver.sh'
+          -- },
+          -- directoryFilters = {
+          --   "-bazel-bin",
+          --   "-bazel-out",
+          --   "-bazel-testlogs",
+          --   "-bazel-mypkg",
+          -- },
           experimentalPostfixCompletions = true,
           analyses = {
             unusedparams = true,
@@ -394,7 +387,5 @@ return {
         },
       }
     }
-
-    lsp.astro.setup{}
   end
 }

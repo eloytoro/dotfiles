@@ -5,12 +5,13 @@
 
 vim.opt.rtp:prepend('~/dotfiles/kickstart')
 
-require('config.settings')
-require('config.keymaps')
-require('config.autocmd')
-require('config.location_handler')
+require 'config.settings'
+require 'config.keymaps'
+require 'config.autocmd'
+require 'config.location_handler'
 
-vim.cmd.source('~/dotfiles/nvim/vim/objects.vim')
+vim.cmd.source('~/dotfiles/kickstart/vim/objects.vim')
+vim.cmd.source('~/dotfiles/kickstart/vim/git.vim')
 
 
 -- Install package manager
@@ -87,16 +88,59 @@ require('lazy').setup({
   {
     'voldikss/vim-floaterm',
     config = function()
-      vim.keymap.set('n', '<leader>f', ':FloatermNew --wintype=split --opener=edit yazi<CR>')
+      vim.keymap.set('n', '<leader>f', function()
+        local args = {'--wintype=split', '--opener=tabe', 'yazi'}
+        local current_file = vim.api.nvim_buf_get_name(0)
+        if (current_file ~= "") then
+          table.insert(args, current_file)
+        end
+        vim.api.nvim_cmd({
+          cmd = 'FloatermNew',
+          args = args
+        }, {})
+      end)
+      vim.keymap.set('n', '<leader>t', ':FloatermNew --wintype=split --opener=tabe yazi<CR>')
       vim.keymap.set('n', '<leader>r', function()
         local root = vim.fn.trim(vim.fn.system {
           'git', '-C', vim.fn.getcwd(), 'rev-parse', '--show-toplevel'
         })
-        vim.cmd(':FloatermNew --wintype=split --opener=edit yazi '..root)
+        vim.cmd(':FloatermNew --wintype=split --opener=tabe yazi '..root)
       end)
     end
   },
-
+  {
+    'nvim-treesitter/nvim-treesitter-textobjects',
+    dependencies = {
+      'nvim-treesitter/nvim-treesitter'
+    }
+  },
+  {
+    'nvim-treesitter/nvim-treesitter-context',
+    opts = {
+      multiline_threshold = 1, -- Maximum number of lines to show for a single context
+    },
+    dependencies = {
+      'nvim-treesitter/nvim-treesitter'
+    }
+  },
+  {
+    'norcalli/nvim-colorizer.lua', -- css colors
+    dependencies = {
+      'nvim-treesitter/nvim-treesitter'
+    }
+  },
+  {
+    'windwp/nvim-ts-autotag',
+    dependencies = {
+      'nvim-treesitter/nvim-treesitter'
+    }
+  },
+  {
+    'nvim-pack/nvim-spectre',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+    }
+  },
   -- Git related plugins
   {
     'tpope/vim-fugitive',
@@ -121,8 +165,8 @@ require('lazy').setup({
     end
   },
   'tpope/vim-rhubarb',
+  'rcarriga/nvim-notify',
   'junegunn/gv.vim',
-
   {
     -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
@@ -217,25 +261,6 @@ require('lazy').setup({
     -- See `:help indent_blankline.txt`
     main = "ibl",
   },
-  -- {
-  --   "ray-x/go.nvim",
-  --   dependencies = {  -- optional packages
-  --     "ray-x/guihua.lua",
-  --     "neovim/nvim-lspconfig",
-  --     "nvim-treesitter/nvim-treesitter",
-  --   },
-  --   config = function()
-  --     require("go").setup({
-  --      lsp_inlay_hints = {
-  --         only_current_line = true,
-  --         only_current_line_autocmd = "CursorHold",
-  --       }
-  --     })
-  --   end,
-  --   event = {"CmdlineEnter"},
-  --   ft = {"go", 'gomod'},
-  --   build = ':lua require("go.install").update_all_sync()' -- if you need to install/update all binaries
-  -- },
 
   -- "gc" to comment visual regions/lines
   { 'numToStr/Comment.nvim', opts = {} },

@@ -48,7 +48,7 @@ while true; do
   cmd="fd"
   if [ -n "$prev" ]; then
     # add flag to exclude dirs that were searched in already
-    cmd="$cmd -E ${prev//$path/}"
+    cmd="$cmd --base-directory $rel -E ${prev//$path/}"
   fi
   # add flags to search only for files within the target path
   eval "$cmd --type f '' $path $@"

@@ -13,7 +13,6 @@ local function concat(...)
 end
 
 config.leader = { key = '\\', mods = 'CTRL', timeout_milliseconds = 1000 }
-config.window_decorations = "NONE"
 
 config.inactive_pane_hsb = {
   saturation = 0.9,
@@ -27,7 +26,8 @@ config.window_padding = {
   bottom = 0,
 }
 
-config.font_size = 14
+config.font_size = 16
+config.font = wezterm.font('Monaspace Neon', { weight = 'Medium' })
 
 local tmux_keys = {
   {
@@ -197,6 +197,28 @@ config.keys = concat(
   }
 )
 
+local key_tables = wezterm.gui.default_key_tables()
+
+table.insert(
+  key_tables.copy_mode,
+  {
+    key = 'g',
+    mods = 'NONE',
+    action = action.ActivateKeyTable {
+      name = 'copy_mode_g',
+      timeout_milliseconds = 1000,
+    }
+  }
+)
+
+key_tables.copy_mode_g = {
+  {
+    key = 'g',
+    mods = 'NONE',
+    action = action.CopyMode 'MoveToScrollbackTop'
+  },
+}
+
 -- Equivalent to POSIX basename(3)
 -- Given "/foo/bar" returns "bar"
 -- Given "c:\\foo\\bar" returns "bar"
@@ -227,7 +249,7 @@ wezterm.on(
     if tab.is_active then
       local process = basename(active_pane.foreground_process_name)
       if is_known_process(process) then
-        table.insert(rules, { Text = basename(active_pane.current_working_dir) })
+        table.insert(rules, { Text = basename(active_pane.current_working_dir.path) })
       else
         table.insert(rules, { Text = process })
       end
@@ -238,7 +260,7 @@ wezterm.on(
           break
         end
       end
-      table.insert(rules, { Text = basename(active_pane.current_working_dir) })
+      table.insert(rules, { Text = basename(active_pane.current_working_dir.path) })
     end
     return rules
   end
