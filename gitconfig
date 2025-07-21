@@ -25,9 +25,8 @@
     git stash -- $(git diff --staged --name-only); \
   }; f"
 	update = "!f() { \
-    branch=$(git remote show origin | grep 'HEAD branch' | sed 's/.*: //'); \
-    git fetch -n origin ${branch}:${branch}; \
-    git merge --no-ff origin/${branch}; \
+    git fetch -n origin $1:$1; \
+    git merge --no-ff origin/$1; \
   }; f"
 	review = "!f() { \
     git fetch -n origin $1:$1; \

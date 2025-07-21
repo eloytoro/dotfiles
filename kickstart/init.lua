@@ -12,6 +12,7 @@ require 'config.location_handler'
 
 vim.cmd.source('~/dotfiles/kickstart/vim/objects.vim')
 vim.cmd.source('~/dotfiles/kickstart/vim/git.vim')
+vim.cmd.source('~/dotfiles/kickstart/vim/shrug.vim')
 
 
 -- Install package manager
@@ -34,14 +35,22 @@ vim.opt.rtp:prepend(lazypath)
 require('lazy').setup({
   -- Core
   {
-    'phaazon/hop.nvim',
+    'ggandor/leap.nvim',
+    enabled = false,
     config = function()
-      local hop = require('hop')
-      hop.setup()
-      vim.keymap.set('n', 'gw', hop.hint_words)
-      vim.keymap.set('n', 'gs', hop.hint_char2)
-      vim.keymap.set('n', 'g<CR>', hop.hint_lines_skip_whitespace)
-      vim.keymap.set('n', 'g/', hop.hint_patterns)
+      vim.keymap.set({'n', 'x', 'o'}, 's',  '<Plug>(leap-forward)')
+      vim.keymap.set({'n', 'x', 'o'}, 'S',  '<Plug>(leap-backward)')
+      vim.keymap.set({'n', 'x', 'o'}, 'go', '<Plug>(leap)')
+      local leap = require('leap')
+      leap.opts.safe_labels = 'sfnutz/SFNLHMUGTZ?'
+      require('leap.user').set_repeat_keys(';', ',', {
+        -- False by default. If set to true, the keys will work like the
+        -- native semicolon/comma, i.e., forward/backward is understood in
+        -- relation to the last motion.
+        relative_directions = true,
+        -- By default, all modes are included.
+        modes = {'n', 'x', 'o'},
+      })
     end
   },
   {
@@ -85,28 +94,64 @@ require('lazy').setup({
   'tpope/vim-repeat',
   'folke/neoconf.nvim',
   'haya14busa/is.vim',
+  -- {
+  --   'voldikss/vim-floaterm',
+  --   config = function()
+  --     vim.keymap.set('n', '<leader>f', function()
+  --       local args = {'--wintype=split', '--opener=tabe', 'yazi'}
+  --       local current_file = vim.api.nvim_buf_get_name(0)
+  --       if (current_file ~= "") then
+  --         table.insert(args, current_file)
+  --       end
+  --       vim.api.nvim_cmd({
+  --         cmd = 'FloatermNew',
+  --         args = args
+  --       }, {})
+  --     end)
+  --     vim.keymap.set('n', '<leader>t', ':FloatermNew --wintype=split --opener=tabe yazi<CR>')
+  --     vim.keymap.set('n', '<leader>r', function()
+  --       local root = vim.fn.trim(vim.fn.system {
+  --         'git', '-C', vim.fn.getcwd(), 'rev-parse', '--show-toplevel'
+  --       })
+  --       vim.cmd(':FloatermNew --wintype=split --opener=tabe yazi '..root)
+  --     end)
+  --   end
+  -- },
   {
-    'voldikss/vim-floaterm',
-    config = function()
-      vim.keymap.set('n', '<leader>f', function()
-        local args = {'--wintype=split', '--opener=tabe', 'yazi'}
-        local current_file = vim.api.nvim_buf_get_name(0)
-        if (current_file ~= "") then
-          table.insert(args, current_file)
-        end
-        vim.api.nvim_cmd({
-          cmd = 'FloatermNew',
-          args = args
-        }, {})
-      end)
-      vim.keymap.set('n', '<leader>t', ':FloatermNew --wintype=split --opener=tabe yazi<CR>')
-      vim.keymap.set('n', '<leader>r', function()
-        local root = vim.fn.trim(vim.fn.system {
-          'git', '-C', vim.fn.getcwd(), 'rev-parse', '--show-toplevel'
-        })
-        vim.cmd(':FloatermNew --wintype=split --opener=tabe yazi '..root)
-      end)
-    end
+    "mikavilpas/yazi.nvim",
+    dependencies = {
+      { "nvim-lua/plenary.nvim", lazy = true },
+    },
+    event = "VeryLazy",
+    keys = {
+      -- 👇 in this section, choose your own keymappings!
+      {
+        "<leader>-",
+        "<cmd>Yazi<cr>",
+        desc = "Open yazi at the current file",
+      },
+      {
+        -- Open in the current working directory
+        "<leader>cw",
+        "<cmd>Yazi cwd<cr>",
+        desc = "Open the file manager in nvim's working directory" ,
+      },
+      {
+        -- NOTE: this requires a version of yazi that includes
+        -- https://github.com/sxyazi/yazi/pull/1305 from 2024-07-18
+        '<c-up>',
+        "<cmd>Yazi toggle<cr>",
+        desc = "Resume the last yazi session",
+      },
+    },
+    ---@type YaziConfig
+    opts = {
+      -- if you want to open yazi instead of netrw, see below for more info
+      open_for_directories = false,
+      keymaps = {
+        show_help = '<f1>',
+      },
+    },
   },
   {
     'nvim-treesitter/nvim-treesitter-textobjects',
@@ -192,24 +237,27 @@ require('lazy').setup({
   },
 
   -- Colorschemes
-  'navarasu/onedark.nvim',
-  'morhetz/gruvbox',
+  -- 'navarasu/onedark.nvim',
+  -- 'morhetz/gruvbox',
   {
     "folke/tokyonight.nvim",
-    opts = { style = "moon" },
     lazy = false, -- make sure we load this during startup if it is your main colorscheme
     priority = 1000, -- make sure to load this before all the other start plugins
     config = function()
+      require("tokyonight").setup({
+        style = "night"
+      })
       -- load the colorscheme here
       vim.cmd([[colorscheme tokyonight]])
+      vim.api.nvim_set_hl(0, 'FlashLabel', { bg = "#000000", bold = true, fg = "#ff007c" })
     end,
   },
-  'tyrannicaltoucan/vim-deep-space',
-  'AlessandroYorba/Despacio',
-  'w0ng/vim-hybrid',
-  'Nequo/vim-allomancer',
-  'arcticicestudio/nord-vim',
-  'mhartington/oceanic-next',
+  -- 'tyrannicaltoucan/vim-deep-space',
+  -- 'AlessandroYorba/Despacio',
+  -- 'w0ng/vim-hybrid',
+  -- 'Nequo/vim-allomancer',
+  -- 'arcticicestudio/nord-vim',
+  -- 'mhartington/oceanic-next',
   {
     -- Set lualine as statusline
     'nvim-lualine/lualine.nvim',
@@ -229,7 +277,7 @@ require('lazy').setup({
       require('lualine').setup{
         options = {
           -- icons_enabled = false,
-          -- theme = 'tokyonight',
+          theme = 'tokyonight',
           component_separators = '|',
           section_separators = '',
         },

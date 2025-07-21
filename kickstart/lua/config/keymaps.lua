@@ -100,3 +100,9 @@ vim.keymap.set('n', 'ycf', function()
   vim.fn.setreg('+', cwd)
   vim.cmd.echo('"Yanked '..cwd..'"')
 end, { silent = true })
+
+----------------------------------------------------------------------------
+-- Search stuff
+----------------------------------------------------------------------------
+-- vim.keymap.set('c', '<Tab>', '<C-g>')
+-- vim.keymap.set('c', '<S-Tab>', '<C-t>')

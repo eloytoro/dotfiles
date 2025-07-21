@@ -16,6 +16,24 @@ ddhead() {
   ddr release --env staging --release-from-head --skip-checks $1
 }
 
+function gotest() {
+    if [ -z "$1" ]; then
+        echo "Usage: gotest <directory>"
+        return 1
+    fi
+
+    local dir="$1"
+    local cmd="gofmt -w . && ddlint ./... && go vet ./... && gotestsum -- ./..."
+
+    (
+        cd "$dir" || return
+        eval "$cmd"
+    )
+    local exit_code=$?
+
+    return $exit_code
+}
+
 export DOCKER_API_VERSION=1.42
 
 alias ssh-gh="ssh-add --apple-use-keychain ~/.ssh/id_ed25519_github_auth"

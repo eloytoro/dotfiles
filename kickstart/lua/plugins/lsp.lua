@@ -1,4 +1,5 @@
 local helpers = require 'helpers'
+local util = require 'lspconfig.util'
 
 return {
   -- LSP Configuration & Plugins
@@ -93,8 +94,23 @@ return {
 
     local function inlay_hints (client, bufnr)
         if client.server_capabilities.inlayHintProvider then
-          vim.lsp.inlay_hint.enable(bufnr, true)
+            vim.lsp.inlay_hint.enable(true)
         end
+    end
+
+    local function code_lens(client, bufnr)
+      if vim.lsp.codelens then
+        if client.supports_method("textDocument/codeLens") then
+          vim.lsp.codelens.refresh()
+          --- autocmd BufEnter,CursorHold,InsertLeave <buffer> lua vim.lsp.codelens.refresh()
+          vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "InsertLeave" }, {
+            buffer = bufnr,
+            callback = vim.lsp.codelens.refresh,
+          })
+        end
+        local opts = { buffer = bufnr }
+        vim.keymap.set('n', '<leader>cl', vim.lsp.codelens.run, opts)
+      end
     end
 
     local function on_attach(client, bufnr)
@@ -120,9 +136,9 @@ return {
 
       -- keybindings
       vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
-      vim.keymap.set('n', '<leader>clr', function()
-        vim.lsp.stop_client(vim.lsp.get_active_clients())
-      end, opts)
+      -- vim.keymap.set('n', '<leader>clr', function()
+      --   vim.lsp.stop_client(vim.lsp.get_active_clients())
+      -- end, opts)
       vim.keymap.set('n', '<space>.', vim.lsp.buf.code_action, opts)
       vim.keymap.set('n', '<space><c-.>', vim.lsp.buf.code_action, opts)
       vim.keymap.set('n', 'gd', function()
@@ -160,12 +176,12 @@ return {
       on_attach,
     }
 
-    mason_lspconfig.setup_handlers {
-      function(server_name)
-        require('lspconfig')[server_name].setup(defaultOpts)
-      end,
-    }
-
+    -- mason_lspconfig.setup_handlers {
+    --   function(server_name)
+    --     require('lspconfig')[server_name].setup(defaultOpts)
+    --   end,
+    -- }
+    --
     -- nvim-cmp setup
     local cmp = require 'cmp'
     cmp.setup {
@@ -327,7 +343,32 @@ return {
     })
 
     lsp.astro.setup(defaultOpts)
-    lsp.tsserver.setup(defaultOpts)
+    lsp.ts_ls.setup({
+      root_dir = util.root_pattern('.git'),
+      on_attach = on_attach,
+      capabilities = capabilities,
+    })
+    local vue_language_server_path = '~/.volta/tools/image/packages/@vue/language-server/bin/vue-language-server'
+    local vue_plugin = {
+      name = '@vue/typescript-plugin',
+      location = vue_language_server_path,
+      languages = { 'vue' },
+      configNamespace = 'typescript',
+    }
+    vim.lsp.config('vtsls', {
+      settings = {
+        vtsls = {
+          tsserver = {
+            globalPlugins = {
+              vue_plugin,
+            },
+          },
+        },
+      },
+      filetypes = { 'vue' },
+    })
+    vim.lsp.enable('vtsls')
+    vim.lsp.enable('vue_ls')
     lsp.pylsp.setup(defaultOpts)
 
     lsp.eslint.setup {
@@ -357,6 +398,7 @@ return {
         format_on_save(client, bufnr)
         inlay_hints(client, bufnr)
         on_attach(client, bufnr)
+        code_lens(client, bufnr)
       end,
       settings = {
         gopls = {
@@ -383,6 +425,10 @@ return {
             functionTypeParameters = true,
             parameterNames = true,
             rangeVariableTypes = true,
+          },
+          ["ui.codelenses"] = {
+            test = true,
+            generate = true,
           },
         },
       }
