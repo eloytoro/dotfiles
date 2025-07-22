@@ -84,6 +84,6 @@ return {
     vim.keymap.set('n', '<leader>/', ':AgEx ')
     vim.g.fzf_buffers_jump = true
 
-    vim.cmd.source('~/dotfiles/nvim/vim/fzf.vim')
+    vim.cmd.source('~/dotfiles/kickstart/vim/fzf.vim')
   end
 }
