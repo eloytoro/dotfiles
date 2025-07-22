@@ -38,8 +38,9 @@ return {
               ['ia'] = '@parameter.inner',
               ['af'] = '@function.outer',
               ['if'] = '@function.inner',
-              ['ac'] = '@class.outer',
-              ['ic'] = '@class.inner',
+              ['as'] = '@local.scope',
+              ['ii'] = '@block.inner',
+              ['ai'] = '@block.outer',
             },
           },
           move = {

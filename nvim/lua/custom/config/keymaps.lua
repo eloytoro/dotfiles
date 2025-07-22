@@ -88,22 +88,22 @@ set('n', 'ygr', function()
     'git', '-C', vim.fn.getcwd(), 'rev-parse', '--show-toplevel'
   })
   vim.fn.setreg('+', root)
-  vim.cmd.echo('"Yanked '..root..'"')
+  vim.cmd.echo('"Yanked ' .. root .. '"')
 end, { silent = true })
 
 set('n', 'ycd', function()
   local cwd = vim.fn.expand("%:h")
   vim.fn.setreg('+', cwd)
-  vim.cmd.echo('"Yanked '..cwd..'"')
+  vim.cmd.echo('"Yanked ' .. cwd .. '"')
 end, { silent = true })
 
 set('n', 'ycf', function()
   local cwd = vim.fn.expand("%")
   vim.fn.setreg('+', cwd)
-  vim.cmd.echo('"Yanked '..cwd..'"')
+  vim.cmd.echo('"Yanked ' .. cwd .. '"')
 end, { silent = true })
 
-set('i', '<c-u>', function()
+set('i', '<c-/>', function()
   local hl = helpers.hl()
   if hl == "markdownCode" then
     return '¯\\\\\\_(ツ)\\_/¯'
