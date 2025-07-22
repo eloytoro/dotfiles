@@ -1,7 +1,6 @@
 local api = vim.api
 local util = vim.lsp.util
 local handlers = vim.lsp.handlers
-local log = vim.lsp.log
 
 ---https://github.com/neovim/neovim/blob/master/runtime/lua/vim/lsp/handlers.lua
 
@@ -13,10 +12,13 @@ local log = vim.lsp.log
 ---(`textDocument/definition` can return `Location` or `Location[]`
 local function location_handler(_, result, ctx, config)
   if result == nil or vim.tbl_isempty(result) then
-    local _ = log.info() and log.info(ctx.method, 'No location found')
+    vim.cmd.echo('No location found')
     return nil
   end
   local client = vim.lsp.get_client_by_id(ctx.client_id)
+  if client == nil then
+    return nil
+  end
 
   config = config or {}
 
@@ -39,7 +41,9 @@ local function location_handler(_, result, ctx, config)
       api.nvim_command('botright copen')
     end
   else
-    util.jump_to_location(result, client.offset_encoding, config.reuse_win)
+    vim.fn.setqflist({}, ' ', { title = 'Location', items = {result} })
+    api.nvim_command('botright copen')
+    -- util.jump_to_location(result, client.offset_encoding, config.reuse_win)
   end
 end
 
