@@ -1,7 +1,10 @@
 return {
   { -- blink completion source for lua require statements and module annotations
     "saghen/blink.cmp",
-    dependencies = { 'rafamadriz/friendly-snippets' },
+    dependencies = {
+      'rafamadriz/friendly-snippets',
+      'Kaiser-Yang/blink-cmp-avante'
+    },
 
     -- use a release tag to download pre-built binaries
     version = '1.*',
@@ -29,6 +32,7 @@ return {
         ['<C-space>'] = { function(cmp) cmp.show({ providers = { 'snippets' } }) end },
         ['<C-i>'] = { function(cmp) cmp.show({ providers = { 'path', 'buffer' } }) end },
 
+        ['<C-y>'] = { 'accept', 'fallback' },
         ['<CR>'] = { 'accept', 'fallback' },
         ['<C-l>'] = { 'show_documentation' },
         ['<C-h>'] = { 'hide_documentation' },
@@ -46,13 +50,20 @@ return {
       completion = { documentation = { auto_show = true } },
       sources = {
         -- add lazydev to your completion providers
-        default = { "lazydev", "lsp", },
+        default = { "lazydev", "lsp", "avante" },
         providers = {
           lazydev = {
             name = "LazyDev",
             module = "lazydev.integrations.blink",
             -- make lazydev completions top priority (see `:h blink.cmp`)
             score_offset = 100,
+          },
+          avante = {
+            module = 'blink-cmp-avante',
+            name = 'Avante',
+            opts = {
+              -- options for blink-cmp-avante
+            }
           },
         },
       },
