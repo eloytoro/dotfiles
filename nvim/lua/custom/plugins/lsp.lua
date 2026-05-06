@@ -9,9 +9,6 @@ return {
       'stevearc/conform.nvim',
     },
     config = function()
-      local lsp = require 'lspconfig'
-      local util = require 'lspconfig.util'
-
       require('custom.autoformat').setup()
 
       local capabilities = vim.lsp.protocol.make_client_capabilities()
@@ -62,7 +59,9 @@ return {
           vim.api.nvim_create_autocmd("CursorHold", {
             group = lsp_doc_highlight_group,
             callback = function()
-              vim.lsp.buf.document_highlight()
+              if client.server_capabilities.documentHighlightProvider then
+                vim.lsp.buf.document_highlight()
+              end
             end,
             buffer = bufnr,
           })
@@ -132,7 +131,7 @@ return {
         on_attach,
       }
 
-      lsp.rust_analyzer.setup({
+      vim.lsp.config('rust_analyzer', {
         -- works with rust nightly-2022-09-19
         cmd = { "rustup", "run", "nightly", "rust-analyzer" },
         capabilities = capabilities,
@@ -244,16 +243,34 @@ return {
           return on_attach(client, bufnr)
         end
       })
+      vim.lsp.enable('rust_analyzer')
 
-      lsp.astro.setup(defaultOpts)
+      vim.lsp.config('astro', defaultOpts)
       -- vim.lsp.config('ts_ls', {
       --   on_attach = on_attach,
       -- })
       -- vim.lsp.enable('ts_ls')
-      require("typescript-tools").setup {
-        on_attach = on_attach
-      }
 
+      -- require("typescript-tools").setup {
+      --   on_attach = on_attach
+      -- }
+
+      vim.lsp.config("tsgo", {
+        cmd = {
+          vim.loop.os_homedir() .. "/go/src/github.com/DataDog/web-ui/.yarn/sdks/typescript-go/lib/tsgo",
+          "--lsp",
+          "--stdio",
+        },
+        root_markers = { "tsconfig.json", "package.json", "jsconfig.json", ".git" },
+        filetypes = {
+          "typescript",
+          "typescriptreact",
+          "typescript.tsx",
+        },
+        on_attach = on_attach,
+        capabilities,
+      })
+      vim.lsp.enable("tsgo")
 
       local vue_language_server_path = '~/.volta/tools/image/packages/@vue/language-server/bin/vue-language-server'
       local vue_plugin = {
@@ -276,7 +293,7 @@ return {
       })
       vim.lsp.enable('vtsls')
       vim.lsp.enable('vue_ls')
-      lsp.pylsp.setup(defaultOpts)
+      vim.lsp.config('pylsp', defaultOpts)
 
       local base_on_attach = vim.lsp.config.eslint.on_attach
       vim.lsp.config("eslint", {
@@ -300,7 +317,7 @@ return {
       })
       vim.lsp.enable('eslint')
 
-      lsp.gopls.setup {
+      vim.lsp.config('gopls', {
         capabilities,
         on_attach = function(client, bufnr)
           inlay_hints(client, bufnr)
@@ -339,7 +356,8 @@ return {
             },
           },
         }
-      }
+      })
+      vim.lsp.enable('gopls')
 
       vim.lsp.config('lua_ls', {
         settings = {

@@ -42,5 +42,10 @@ require('lazy').setup({ import = 'custom.plugins' }, {
 
 vim.cmd([[colorscheme tokyonight]])
 
+vim.api.nvim_create_autocmd("FileType", {
+  callback = function(ev)
+    pcall(vim.treesitter.start, ev.buf)
+  end,
+})
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et

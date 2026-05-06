@@ -28,9 +28,6 @@ alias gitme='git log --author="$(git config user.name)"'
 alias opentorrent='peerflix --vlc -n -d --list '
 alias k="kubectl"
 alias groot="git rev-parse --show-toplevel"
-cdup() {
-  fdup --relative-to $(git rev-parse --show-toplevel)
-}
 alias ghmerge="gh pr comment -b \"/merge\""
 alias ghstaging="gh pr comment -b \"/to-staging\""
 alias ghcreate="gh pr create --web"

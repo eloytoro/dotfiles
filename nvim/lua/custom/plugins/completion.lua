@@ -24,12 +24,12 @@ return {
       -- See :h blink-cmp-config-keymap for defining your own keymap
       keymap = {
         preset = "none",
-        ['<Tab>'] = { 'select_next', 'fallback' },
-        ['<S-Tab>'] = { 'select_prev', 'fallback' },
-        ['<C-n>'] = { 'snippet_forward', 'fallback_to_mappings' },
-        ['<C-p>'] = { 'snippet_backward', 'fallback_to_mappings' },
+        ['<Tab>'] = { 'select_next', 'snippet_forward', 'fallback' },
+        ['<S-Tab>'] = { 'select_prev', 'snippet_backward', 'fallback' },
+        ['<C-n>'] = { 'select_next', 'fallback_to_mappings' },
+        ['<C-p>'] = { 'select_prev', 'fallback_to_mappings' },
         -- show with a list of providers
-        ['<C-space>'] = { function(cmp) cmp.show({ providers = { 'snippets' } }) end },
+        ['<C-space>'] = { function(cmp) cmp.show() end },
         ['<C-i>'] = { function(cmp) cmp.show({ providers = { 'path', 'buffer' } }) end },
 
         ['<C-y>'] = { 'accept', 'fallback' },

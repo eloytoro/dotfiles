@@ -12,6 +12,10 @@ source $HOME/dotfiles/p10k.zsh
 # setopt prompt_subst
 # zstyle ':vcs_info:git:*' formats ' %F{11}[⎇ %b]%f'
 
+# Set Ghostty tab title to current directory name
+function _set_tab_title() { printf '\e]0;%s\a' "${PWD##*/}" }
+precmd_functions+=(_set_tab_title)
+
 # Emacs style bindings
 bindkey -e
 
@@ -26,3 +30,4 @@ zstyle ':completion:*:*:docker-*:*' option-stacking yes
 # PS1='%F{15}%n%f@%F{9}%m%f:%~${vcs_info_msg_0_}'$'\n'"$ "
 
 # bindkey -v
+
