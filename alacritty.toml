@@ -1,0 +1,50 @@
+# Alacritty configuration translated from wezterm.lua.
+#
+# Note: Alacritty intentionally has no panes, splits, or tabs, so the
+# wezterm pane/tab keybinds (SplitVertical, ActivatePaneDirection,
+# AdjustPaneSize, RotatePanes, TogglePaneZoomState, SpawnTab, the
+# ALT+[ / ALT+] tab cycling, ALT+SHIFT+t move-to-new-tab, the launcher,
+# inactive_pane_hsb, and format-tab-title) cannot be reproduced here.
+# Use tmux for that — see tmux.conf in this repo.
+
+[general]
+live_config_reload = true
+
+[window]
+padding = { x = 0, y = 0 }
+dynamic_padding = false
+decorations = "buttonless"   # macOS: hide traffic-light buttons but keep frame
+option_as_alt = "Both"       # so ALT-based bindings work on macOS
+
+[font]
+size = 16.0
+normal = { family = "Monaspace Neon NF", style = "Medium" }
+bold   = { family = "Monaspace Neon NF", style = "Bold" }
+italic = { family = "Monaspace Neon NF", style = "Medium Italic" }
+bold_italic = { family = "Monaspace Neon NF", style = "Bold Italic" }
+
+[scrolling]
+history = 10000
+
+[mouse]
+hide_when_typing = true
+
+# Alacritty's vi mode is the equivalent of wezterm's copy mode.
+# `gg` (MoveToScrollbackTop) is the default vi-mode binding, so no
+# extra config is needed for the copy_mode_g table from wezterm.
+[keyboard]
+bindings = [
+  # Fullscreen — wezterm: ALT+Enter ToggleFullScreen
+  { key = "Return", mods = "Alt", action = "ToggleFullscreen" },
+
+  # Scroll — wezterm ALT+SHIFT bindings
+  { key = "B", mods = "Alt|Shift", action = "ScrollHalfPageUp" },
+  { key = "F", mods = "Alt|Shift", action = "ScrollHalfPageDown" },
+  { key = "K", mods = "Alt|Shift", action = "ScrollLineUp" },
+  { key = "J", mods = "Alt|Shift", action = "ScrollLineDown" },
+  { key = "G", mods = "Alt|Shift", action = "ScrollToBottom" },
+
+  # Enter vi mode (closest analogue to wezterm copy mode).
+  # Wezterm uses CTRL+SHIFT+Space by default; keep that here.
+  { key = "Space", mods = "Control|Shift", action = "ToggleViMode" },
+]

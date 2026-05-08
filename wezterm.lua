@@ -27,7 +27,7 @@ config.window_padding = {
 }
 
 config.font_size = 16
-config.font = wezterm.font('Monaspace Neon', { weight = 'Medium' })
+config.font = wezterm.font('Monaspace Neon NF', { weight = 'Medium' })
 
 local tmux_keys = {
   {
