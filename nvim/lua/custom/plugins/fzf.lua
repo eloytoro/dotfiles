@@ -18,7 +18,7 @@ return {
       local function find_files()
         local width = vim.fn.winwidth(0) - 1
         local fzf_options = {
-          '--no-sort', '--keep-right', '--no-hscroll', '--border=none',
+          '--scheme=path', '--tiebreak=begin,length', '--keep-right', '--no-hscroll', '--border=none',
           '--preview', 'bat --color=always --style="header,grid" --terminal-width=' .. width .. ' {} 2> /dev/null',
           '--preview-window', 'up,50%,border-bottom,~3,+3',
         }
