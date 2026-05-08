@@ -257,18 +257,35 @@ return {
 
       vim.lsp.config("tsgo", {
         cmd = {
-          vim.loop.os_homedir() .. "/go/src/github.com/DataDog/web-ui/.yarn/sdks/typescript-go/lib/tsgo",
+          "./.yarn/sdks/typescript-go/lib/tsgo",
           "--lsp",
           "--stdio",
         },
-        root_markers = { "tsconfig.json", "package.json", "jsconfig.json", ".git" },
-        filetypes = {
-          "typescript",
-          "typescriptreact",
-          "typescript.tsx",
+        root_markers = { "tsconfig.json", "jsconfig.json", "package.json", ".git" },
+        capabilities = (function()
+          local capabilities = vim.lsp.protocol.make_client_capabilities()
+          capabilities.workspace = vim.tbl_extend("force", capabilities.workspace or {}, {
+            didChangeWatchedFiles = { dynamicRegistration = false },
+          })
+          return capabilities
+        end)(),
+        settings = {
+          typescript = {
+            preferences = {
+              importModuleSpecifier = "non-relative",
+              autoImportSpecifierExcludeRegexes = { "packages/", "^packages" },
+            },
+            tsserver = {
+              useSyntaxServer = "auto",
+              maxTsServerMemory = 1024 * 24,
+              nodePath = "node",
+              watchOptions = {
+                excludeDirectories = { "**/node_modules", "**/.yarn", "**/.sarif" },
+                excludeFiles = { ".pnp.cjs" },
+              },
+            },
+          },
         },
-        on_attach = on_attach,
-        capabilities,
       })
       vim.lsp.enable("tsgo")
 
