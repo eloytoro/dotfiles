@@ -2,7 +2,29 @@ local set = vim.keymap.set
 
 return {
   {
+    "NeogitOrg/neogit",
+    enabled = false,
+    dependencies = {
+      "nvim-lua/plenary.nvim",         -- required
+      "sindrets/diffview.nvim",        -- optional - Diff integration
+
+      -- Only one of these is needed.
+      "nvim-telescope/telescope.nvim", -- optional
+    },
+    config = function()
+      require('neogit').setup {
+        mappings = {
+          status = {
+            ["-"] = "Toggle",
+          },
+        },
+      }
+      set('n', '<leader>gs', ':Neogit', { silent = true })
+    end,
+  },
+  {
     'tpope/vim-fugitive',
+    enabled = true,
     event = 'VeryLazy',
     config = function()
       set('n', '<leader>gp', ':Git pull<CR>', { silent = true })
