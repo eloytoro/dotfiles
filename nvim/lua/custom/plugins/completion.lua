@@ -50,8 +50,13 @@ return {
       completion = { documentation = { auto_show = true } },
       sources = {
         -- add lazydev to your completion providers
-        default = { "lazydev", "lsp", "avante" },
+        default = { "lazydev", "lsp", "avante", "bitacora" },
         providers = {
+          bitacora = {
+            name = "Bitacora",
+            module = "bitacora.blink",
+            score_offset = 100,
+          },
           lazydev = {
             name = "LazyDev",
             module = "lazydev.integrations.blink",

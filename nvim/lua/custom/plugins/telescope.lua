@@ -41,6 +41,9 @@ return {
       defaults = {
         borders = false,
         path_display = { "smart" },
+        preview = {
+          treesitter = false,
+        },
         cache_picker = {
           num_pickers = 5,
         },

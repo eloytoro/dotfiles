@@ -26,7 +26,7 @@ fn collect_dirs(target: &Path, origin: &Path) -> (Vec<PathBuf>, Option<PathBuf>)
     (dirs, git_root)
 }
 
-const SKIP_DIRS: &[&str] = &[".git", ".hg", ".svn", "node_modules", "target"];
+const SKIP_DIRS: &[&str] = &[".git", ".hg", ".svn", "node_modules", "target", ".yarn"];
 
 fn walk_files(
     start: &Path,
@@ -94,7 +94,7 @@ fn main() {
         Some(o) => match fs::canonicalize(o) {
             Ok(p) => p,
             Err(e) => {
-                eprintln!("pup: --origin {}: {}", o, e);
+                eprintln!("filefan: --origin {}: {}", o, e);
                 std::process::exit(1);
             }
         },
@@ -105,7 +105,7 @@ fn main() {
     let target = match fs::canonicalize(input) {
         Ok(p) => p,
         Err(e) => {
-            eprintln!("pup: {}: {}", input, e);
+            eprintln!("filefan: {}: {}", input, e);
             std::process::exit(1);
         }
     };
@@ -114,7 +114,7 @@ fn main() {
         let parent = match target.parent() {
             Some(p) => p.to_path_buf(),
             None => {
-                eprintln!("pup: {}: no parent directory", input);
+                eprintln!("filefan: {}: no parent directory", input);
                 std::process::exit(1);
             }
         };
@@ -122,7 +122,7 @@ fn main() {
     } else if target.is_dir() {
         (target, None)
     } else {
-        eprintln!("pup: {}: not a file or directory", input);
+        eprintln!("filefan: {}: not a file or directory", input);
         std::process::exit(1);
     };
 

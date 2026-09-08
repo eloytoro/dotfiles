@@ -1,4 +1,4 @@
-# pup
+# filefan
 
 Recursively list files up to the git root or working directory.
 
@@ -15,16 +15,16 @@ cargo install --path .
 Pass a directory to list its files, then walk up toward the git root:
 
 ```sh
-pup <directory>
+filefan <directory>
 ```
 
-`pup` collects all files under `<directory>` recursively, then climbs each parent in turn. It stops at whichever comes first: the current working directory or a directory containing `.git`. All paths are printed relative to the current working directory.
+`filefan` collects all files under `<directory>` recursively, then climbs each parent in turn. It stops at whichever comes first: the current working directory or a directory containing `.git`. All paths are printed relative to the current working directory.
 
 ### Example
 
 ```sh
 # from ~/projects/myapp
-pup src/controllers/users
+filefan src/controllers/users
 ```
 
 Output:

@@ -9,7 +9,7 @@ return {
       'stevearc/conform.nvim',
     },
     config = function()
-      require('custom.autoformat').setup()
+      -- require('custom.autoformat').setup()
 
       local capabilities = vim.lsp.protocol.make_client_capabilities()
       capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
@@ -269,6 +269,7 @@ return {
           })
           return capabilities
         end)(),
+        on_attach = on_attach,
         settings = {
           typescript = {
             preferences = {
@@ -312,7 +313,7 @@ return {
       vim.lsp.enable('vue_ls')
       vim.lsp.config('pylsp', defaultOpts)
 
-      local base_on_attach = vim.lsp.config.eslint.on_attach
+      local eslint_base_on_attach = vim.lsp.config.eslint.on_attach
       vim.lsp.config("eslint", {
         settings = {
           nodePath = ".yarn/sdks",
@@ -321,11 +322,21 @@ return {
             enable = true,
             mode = "all"
           },
+          rulesCustomizations = {
+            -- Suppress noise from autofixable rules
+            { rule = "prettier/prettier", severity = "off" },
+            { rule = "arca/import-ordering", severity = "off" },
+            { rule = "arca/newline-after-import-section", severity = "off" },
+            { rule = "@typescript-eslint/consistent-type-imports", severity = "off" },
+            { rule = "quotes", severity = "off" },
+            { rule = "import/no-duplicates", severity = "off" },
+            { rule = "unused-imports/no-unused-imports", severity = "off" },
+          },
         },
         on_attach = function(client, bufnr)
-          if not base_on_attach then return end
+          if not eslint_base_on_attach then return end
 
-          base_on_attach(client, bufnr)
+          eslint_base_on_attach(client, bufnr)
           vim.api.nvim_create_autocmd("BufWritePre", {
             buffer = bufnr,
             command = "LspEslintFixAll",
@@ -333,6 +344,25 @@ return {
         end
       })
       vim.lsp.enable('eslint')
+      -- local oxlint_base_on_attach = vim.lsp.config.oxlint.on_attach
+      -- vim.lsp.config('oxlint', {
+      --   on_attach = function(client, bufnr)
+      --     if not oxlint_base_on_attach then return end
+      --
+      --     oxlint_base_on_attach(client, bufnr)
+      --     vim.api.nvim_create_autocmd("BufWritePre", {
+      --       buffer = bufnr,
+      --       command = "LspOxlintFixAll",
+      --     })
+      --   end,
+      --   settings = {
+      --     cmd = function(dispatchers, config)
+      --       local local_cmd = vim.fs.joinpath(config.root_dir, ".yarn/sdks/oxlint/bin-oxlint.js")
+      --       return vim.lsp.rpc.start({ local_cmd }, dispatchers)
+      --     end
+      --   }
+      -- })
+      -- vim.lsp.enable('oxlint')
 
       vim.lsp.config('gopls', {
         capabilities,
